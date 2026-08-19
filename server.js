@@ -420,10 +420,20 @@ app.post('/profile/upload', verifyToken, upload.single('image'), async (req, res
         console.log(`📊 Tipo: ${req.file.mimetype}`);
 
         // 2. Verificar que el bucket existe
-            // 2. Verificar que el bucket existe (OMITIDO PARA QUE FUNCIONE)
-            // La clave anónima no tiene permisos para listar buckets,
-            // pero el bucket 'images' existe y el upload funcionará.
-            console.log('📂 Usando bucket: images (verificación omitida)');
+        try {
+            const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
+            console.log('📂 Buckets disponibles:', buckets?.map(b => b.name));
+            
+            const bucketExists = buckets?.some(b => b.name === 'images');
+            if (!bucketExists) {
+                console.error('❌ El bucket "images" no existe en Supabase');
+                return res.status(500).json({ 
+                    error: 'El bucket de almacenamiento no está configurado. Crea el bucket "images" en Supabase.' 
+                });
+            }
+        } catch (bucketError) {
+            console.error('❌ Error al verificar buckets:', bucketError);
+        }
 
         // 3. Subir el archivo a Supabase Storage
         console.log('📤 Subiendo archivo a Supabase Storage...');
