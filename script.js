@@ -1,0 +1,827 @@
+// ============================================================
+// URL BASE DEL BACKEND
+// ============================================================
+const API_URL = 'https://soul-backend-hbdp.onrender.com';
+
+// ============================================================
+// CONFIGURACIÓN DE REDES SOCIALES CON SVG
+// ============================================================
+const socialPlatforms = {
+    instagram: {
+        name: 'Instagram',
+        url: 'https://instagram.com/',
+        svg: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+        </svg>`
+    },
+    tiktok: {
+        name: 'TikTok',
+        url: 'https://tiktok.com/@',
+        svg: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/>
+        </svg>`
+    },
+    discord: {
+        name: 'Discord',
+        url: 'https://discord.com/users/',
+        svg: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M19.738 4.606a16.978 16.978 0 0 0-4.196-1.303.071.071 0 0 0-.068.033c-.18.322-.382.743-.522 1.073a16.446 16.446 0 0 0-4.712 0c-.14-.33-.342-.751-.522-1.073a.071.071 0 0 0-.068-.033 16.97 16.97 0 0 0-4.196 1.303.072.072 0 0 0-.027.024c-1.998 2.723-2.545 5.381-2.28 7.995a.071.071 0 0 0 .025.044c1.382 1.062 2.73 1.71 4.052 2.118.069.02.143-.01.172-.071.322-.52.608-1.071.831-1.636a.073.073 0 0 0-.037-.098 9.11 9.11 0 0 1-1.285-.615.073.073 0 0 1-.009-.109c.086-.063.173-.127.257-.192a.073.073 0 0 1 .068-.007c2.705 1.237 5.628 1.237 8.286 0a.073.073 0 0 1 .068.007c.084.065.17.129.257.192a.073.073 0 0 1-.009.109 9.11 9.11 0 0 1-1.285.615.073.073 0 0 0-.037.098c.224.565.509 1.115.831 1.636.028.06.103.09.172.071 1.322-.408 2.67-1.056 4.052-2.118a.071.071 0 0 0 .025-.044c.316-3.002-.736-5.643-2.642-8.043a.072.072 0 0 0-.027-.024zM8.049 11.594c-.846 0-1.535-.768-1.535-1.706 0-.938.689-1.706 1.535-1.706.846 0 1.535.768 1.535 1.706 0 .938-.689 1.706-1.535 1.706zm7.749 0c-.846 0-1.535-.768-1.535-1.706 0-.938.689-1.706 1.535-1.706.846 0 1.535.768 1.535 1.706 0 .938-.689 1.706-1.535 1.706z"/>
+        </svg>`
+    },
+    github: {
+        name: 'GitHub',
+        url: 'https://github.com/',
+        svg: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.15 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.62.24 2.85.12 3.15.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>`
+    },
+    telegram: {
+        name: 'Telegram',
+        url: 'https://t.me/',
+        svg: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M11.944 0A12 12 0 000 12a12 12 0 0012 12 12 12 0 0012-12A12 12 0 0012 0a12 12 0 00-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 01.171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+        </svg>`
+    },
+    facebook: {
+        name: 'Facebook',
+        url: 'https://facebook.com/',
+        svg: `<svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+            <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+        </svg>`
+    }
+};
+
+// ============================================================
+// AUTH: TOGGLE LOGIN / REGISTER
+// ============================================================
+document.addEventListener('DOMContentLoaded', () => {
+
+    // Mostrar register
+    document.getElementById('show-register')?.addEventListener('click', () => {
+        document.getElementById('login-box').classList.add('hidden');
+        document.getElementById('register-box').classList.remove('hidden');
+    });
+
+    // Mostrar login
+    document.getElementById('show-login')?.addEventListener('click', () => {
+        document.getElementById('register-box').classList.add('hidden');
+        document.getElementById('login-box').classList.remove('hidden');
+    });
+
+    // ===== LOGIN =====
+    document.getElementById('login-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const email = document.getElementById('login-email').value;
+        const password = document.getElementById('login-password').value;
+        const errorEl = document.getElementById('login-error');
+
+        try {
+            const response = await fetch(`${API_URL}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Error al iniciar sesión');
+            }
+
+            console.log('✅ Login exitoso');
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = 'profile.html';
+
+        } catch (error) {
+            errorEl.textContent = error.message;
+        }
+    });
+
+    // ===== REGISTER =====
+    document.getElementById('register-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const username = document.getElementById('register-username').value;
+        const email = document.getElementById('register-email').value;
+        const password = document.getElementById('register-password').value;
+        const errorEl = document.getElementById('register-error');
+
+        try {
+            const response = await fetch(`${API_URL}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, username })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || 'Error al registrarse');
+            }
+
+            localStorage.setItem('token', data.token);
+            localStorage.setItem('user', JSON.stringify(data.user));
+            window.location.href = 'profile.html';
+
+        } catch (error) {
+            errorEl.textContent = error.message;
+        }
+    });
+
+    // ============================================================
+    // SI ESTAMOS EN PROFILE.HTML
+    // ============================================================
+    if (window.location.pathname.includes('profile.html')) {
+        initProfile();
+        setupProfileEvents();
+    }
+
+});
+
+// ============================================================
+// INICIALIZAR PERFIL
+// ============================================================
+async function initProfile() {
+    const token = localStorage.getItem('token');
+    const userData = localStorage.getItem('user');
+
+    console.log('🔍 Token:', token ? '✅ Existe' : '❌ No existe');
+    console.log('🔍 UserData:', userData ? '✅ Existe' : '❌ No existe');
+
+    if (!token || !userData) {
+        console.log('❌ No hay sesión, redirigiendo...');
+        window.location.href = 'index.html';
+        return;
+    }
+
+    try {
+        console.log('📤 Obteniendo perfil del backend...');
+        const response = await fetch(`${API_URL}/auth/me`, {
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            }
+        });
+
+        if (response.ok) {
+            const user = await response.json();
+            console.log('✅ Perfil del backend:', user);
+            renderProfile(user);
+            localStorage.setItem('user', JSON.stringify(user));
+        } else {
+            console.warn('⚠️ Backend falló, usando localStorage');
+            const savedUser = JSON.parse(userData);
+            renderProfile(savedUser);
+        }
+    } catch (error) {
+        console.warn('⚠️ Error, usando localStorage:', error.message);
+        const savedUser = JSON.parse(userData);
+        renderProfile(savedUser);
+    }
+}
+
+// ============================================================
+// EVENTOS
+// ============================================================
+function setupProfileEvents() {
+
+    // 1. LOGOUT
+    document.getElementById('logout-btn')?.addEventListener('click', () => {
+        stopNowPlayingUpdates();
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        window.location.href = 'index.html';
+    });
+
+    // 2. EDITAR BIO
+    document.getElementById('edit-bio-btn')?.addEventListener('click', () => {
+        const bioDisplay = document.getElementById('bio-display');
+        const bioEditor = document.getElementById('bio-editor');
+        const bioTextarea = document.getElementById('bio-textarea');
+        const currentBio = document.getElementById('display-bio').textContent;
+        bioTextarea.value = currentBio === 'Edit your bio' ? '' : currentBio;
+        bioDisplay.classList.add('hidden');
+        bioEditor.classList.remove('hidden');
+    });
+
+    document.getElementById('bio-cancel')?.addEventListener('click', () => {
+        document.getElementById('bio-display').classList.remove('hidden');
+        document.getElementById('bio-editor').classList.add('hidden');
+    });
+
+    document.getElementById('bio-save')?.addEventListener('click', async () => {
+        const bio = document.getElementById('bio-textarea').value;
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`${API_URL}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ bio })
+            });
+            if (!response.ok) throw new Error('Error al guardar bio');
+            const data = await response.json();
+            renderBioWithHTML(data.bio);
+            document.getElementById('bio-display').classList.remove('hidden');
+            document.getElementById('bio-editor').classList.add('hidden');
+        } catch (error) {
+            alert('Error al guardar la bio: ' + error.message);
+        }
+    });
+
+    // 3. SOCIAL: AÑADIR
+    document.getElementById('add-social-btn')?.addEventListener('click', () => {
+        document.getElementById('social-card').classList.add('hidden');
+        document.getElementById('social-editor').classList.remove('hidden');
+    });
+
+    document.getElementById('social-cancel')?.addEventListener('click', () => {
+        document.getElementById('social-card').classList.remove('hidden');
+        document.getElementById('social-editor').classList.add('hidden');
+    });
+
+    document.getElementById('social-save')?.addEventListener('click', async () => {
+        const platformSelect = document.getElementById('social-platform');
+        const platform = platformSelect.value;
+        const username = document.getElementById('social-username').value.trim();
+        
+        if (!platform) {
+            alert('❌ Por favor selecciona una red social de la lista');
+            platformSelect.focus();
+            return;
+        }
+        
+        if (!username) {
+            alert('❌ Por favor ingresa tu usuario');
+            document.getElementById('social-username').focus();
+            return;
+        }
+        
+        const token = localStorage.getItem('token');
+        try {
+            const meResponse = await fetch(`${API_URL}/auth/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const user = await meResponse.json();
+            const socialLinks = user.social_links || {};
+            socialLinks[platform] = username;
+            const response = await fetch(`${API_URL}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ social_links: socialLinks })
+            });
+            if (!response.ok) throw new Error('Error al guardar red social');
+            const data = await response.json();
+            renderSocialLinks(data.social_links);
+            document.getElementById('social-card').classList.remove('hidden');
+            document.getElementById('social-editor').classList.add('hidden');
+            document.getElementById('social-platform').value = '';
+            document.getElementById('social-username').value = '';
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+
+    // 4. SOCIAL: ELIMINAR
+    document.getElementById('social-list')?.addEventListener('click', async (e) => {
+        const deleteBtn = e.target.closest('.social-delete');
+        if (!deleteBtn) return;
+        const platform = deleteBtn.dataset.platform;
+        const token = localStorage.getItem('token');
+        try {
+            const meResponse = await fetch(`${API_URL}/auth/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const user = await meResponse.json();
+            const socialLinks = user.social_links || {};
+            delete socialLinks[platform];
+            const response = await fetch(`${API_URL}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ social_links: socialLinks })
+            });
+            if (!response.ok) throw new Error('Error al eliminar red social');
+            const data = await response.json();
+            renderSocialLinks(data.social_links);
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+
+    // 5. SUBIR BANNER
+    document.getElementById('upload-banner-btn')?.addEventListener('click', () => {
+        document.getElementById('banner-input').click();
+    });
+
+    document.getElementById('banner-input')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('type', 'banner');
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`${API_URL}/profile/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            if (!response.ok) throw new Error('Error al subir banner');
+            const data = await response.json();
+            document.getElementById('banner-img').src = data.url;
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+        e.target.value = '';
+    });
+
+    // 6. SUBIR AVATAR
+    document.getElementById('upload-avatar-btn')?.addEventListener('click', () => {
+        document.getElementById('avatar-input').click();
+    });
+
+    document.getElementById('avatar-input')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('type', 'avatar');
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`${API_URL}/profile/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            if (!response.ok) throw new Error('Error al subir avatar');
+            const data = await response.json();
+            document.getElementById('avatar-img').src = data.url;
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+        e.target.value = '';
+    });
+
+    // 7. CONECTAR SPOTIFY
+    document.getElementById('music-card')?.addEventListener('click', async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const meResponse = await fetch(`${API_URL}/auth/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const user = await meResponse.json();
+            if (user.spotify_connected) {
+                const modal = document.getElementById('modal-music');
+                if (modal) {
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    loadModalData();
+                }
+                return;
+            }
+            const response = await fetch(`${API_URL}/spotify/connect`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (error) {
+            console.error('Error al conectar Spotify:', error);
+            alert('Error al conectar Spotify');
+        }
+    });
+
+    // 8. CERRAR MODAL
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const target = btn.dataset.close;
+            const modal = document.getElementById(target);
+            if (modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+                stopNowPlayingUpdates();
+            }
+        });
+    });
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                overlay.classList.remove('active');
+                document.body.style.overflow = '';
+                stopNowPlayingUpdates();
+            }
+        });
+    });
+
+    // 9. SHARE PROFILE
+    document.getElementById('share-profile-btn')?.addEventListener('click', async () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            showShareToast('❌ You must be logged in', 'error');
+            return;
+        }
+
+        try {
+            const userData = localStorage.getItem('user');
+            const user = userData ? JSON.parse(userData) : null;
+            const username = user?.username || 'user';
+            const baseUrl = window.location.origin;
+            const profileUrl = `${baseUrl}/profile.html?user=${encodeURIComponent(username)}`;
+            
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                await navigator.clipboard.writeText(profileUrl);
+                showShareToast('✅ Profile link copied!', 'success');
+            } else {
+                const textArea = document.createElement('textarea');
+                textArea.value = profileUrl;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                showShareToast('✅ Profile link copied!', 'success');
+            }
+        } catch (error) {
+            console.error('Error al compartir perfil:', error);
+            showShareToast('❌ Error copying link', 'error');
+        }
+    });
+
+    // 10. SPOTIFY CONNECTION CHECK
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('spotify') === 'connected') {
+        window.location.href = 'profile.html';
+    }
+}
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+function renderProfile(user) {
+    console.log('🎨 Renderizando perfil con:', user);
+
+    const username = user.username || user.email || 'soul_user';
+    document.getElementById('display-username').textContent = `@${username}`;
+    renderBioWithHTML(user.bio);
+    document.getElementById('profile-username').textContent = `@${username}`;
+
+    if (user.banner_url) {
+        document.getElementById('banner-img').src = user.banner_url;
+    }
+
+    if (user.avatar_url) {
+        document.getElementById('avatar-img').src = user.avatar_url;
+    }
+
+    renderSocialLinks(user.social_links || {});
+
+    const spotifyStatus = document.getElementById('spotify-status');
+    const spotifyBadge = document.getElementById('spotify-badge');
+
+    if (user.spotify_connected) {
+        spotifyStatus.textContent = 'Connected';
+        spotifyBadge.textContent = '● Live';
+        spotifyBadge.style.background = 'var(--accent)';
+        spotifyBadge.style.color = 'var(--bg)';
+        document.getElementById('music-card').classList.remove('disabled-card');
+    } else {
+        spotifyStatus.textContent = 'Not connected';
+        spotifyBadge.textContent = 'Connect';
+        spotifyBadge.style.background = 'var(--surface-2)';
+        spotifyBadge.style.color = 'var(--text-muted)';
+        document.getElementById('music-card').classList.add('disabled-card');
+    }
+}
+
+function renderSocialLinks(socialLinks) {
+    const container = document.getElementById('social-list');
+    container.innerHTML = '';
+
+    if (!socialLinks || Object.keys(socialLinks).length === 0) {
+        container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;">No social links yet</p>';
+        return;
+    }
+
+    Object.entries(socialLinks).forEach(([platform, username]) => {
+        const platformLower = platform.toLowerCase();
+        const platformInfo = socialPlatforms[platformLower];
+        if (!platformInfo) return;
+
+        const div = document.createElement('div');
+        div.className = 'social-item';
+        
+        const link = document.createElement('a');
+        link.href = platformInfo.url + username;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.innerHTML = `
+            <span class="social-icon">${platformInfo.svg}</span>
+            <span class="social-platform">${platformInfo.name}</span>
+            <span class="social-username">${username}</span>
+        `;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.className = 'social-delete';
+        deleteBtn.dataset.platform = platform;
+        deleteBtn.textContent = '✕';
+
+        div.appendChild(link);
+        div.appendChild(deleteBtn);
+        container.appendChild(div);
+    });
+}
+
+// ============================================================
+// FUNCIONES DE SPOTIFY
+// ============================================================
+async function fetchSpotify(endpoint) {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        console.error('❌ No hay token de autenticación');
+        return null;
+    }
+
+    try {
+        console.log(`📤 Fetching: ${endpoint}`);
+        const response = await fetch(`${API_URL}/${endpoint}`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        console.log(`📊 Response status: ${response.status} for ${endpoint}`);
+
+        if (!response.ok) {
+            console.error(`❌ Error ${response.status} en ${endpoint}: ${response.statusText}`);
+            if (response.status === 401) {
+                console.warn('⚠️ Token de Spotify expirado. Reconecta tu cuenta.');
+                const spotifyStatus = document.getElementById('spotify-status');
+                const spotifyBadge = document.getElementById('spotify-badge');
+                if (spotifyStatus) spotifyStatus.textContent = 'Session expired';
+                if (spotifyBadge) {
+                    spotifyBadge.textContent = 'Reconnect';
+                    spotifyBadge.style.background = '#ff6b6b';
+                    spotifyBadge.style.color = '#fff';
+                }
+                return null;
+            }
+            return null;
+        }
+
+        const data = await response.json();
+        console.log(`✅ Datos recibidos de ${endpoint}:`, data);
+        return data;
+    } catch (error) {
+        console.error(`❌ Error en fetchSpotify (${endpoint}):`, error);
+        return null;
+    }
+}
+
+async function loadModalData() {
+    console.log('📥 Cargando datos del modal...');
+
+    startNowPlayingUpdates();
+
+    // ===== RECENT LIKES =====
+    console.log('📤 Cargando recent-tracks...');
+    const likes = await fetchSpotify('recent-tracks');
+    if (likes && likes.items) {
+        const items = document.querySelectorAll('#modal-likes-grid .like-item');
+        likes.items.slice(0, 6).forEach((track, i) => {
+            if (items[i]) {
+                const img = items[i].querySelector('img');
+                const span = items[i].querySelector('span');
+                if (img) {
+                    img.src = track.track?.album?.images?.[0]?.url || 'https://picsum.photos/50/50?random=' + i;
+                }
+                if (span) {
+                    span.textContent = track.track?.name || 'Unknown';
+                }
+                const item = items[i];
+                item.style.cursor = 'pointer';
+                item.addEventListener('click', () => {
+                    if (track.track?.external_urls?.spotify) {
+                        window.open(track.track.external_urls.spotify, '_blank');
+                    }
+                });
+            }
+        });
+    } else {
+        const grid = document.getElementById('modal-likes-grid');
+        if (grid) {
+            grid.innerHTML = '<div class="like-item" style="grid-column: 1/-1; color: var(--text-muted);">No se pudieron cargar las canciones recientes</div>';
+        }
+    }
+
+    // ===== TOP ARTISTS =====
+    console.log('📤 Cargando top-artists...');
+    const artists = await fetchSpotify('top-artists');
+    const artistContainer = document.getElementById('modal-artist-list');
+    if (artists && artists.items && artistContainer) {
+        artistContainer.innerHTML = '';
+        artists.items.slice(0, 5).forEach((artist, i) => {
+            const div = document.createElement('div');
+            div.className = 'artist-item';
+            div.innerHTML = `
+                <span class="rank">${i + 1}</span>
+                <img src="${artist.images?.[0]?.url || 'https://picsum.photos/30/30?random=' + i}" class="artist-avatar" />
+                <span>${artist.name || 'Unknown'}</span>
+            `;
+            div.style.cursor = 'pointer';
+            div.addEventListener('click', () => {
+                if (artist.external_urls?.spotify) {
+                    window.open(artist.external_urls.spotify, '_blank');
+                }
+            });
+            artistContainer.appendChild(div);
+        });
+    } else if (artistContainer) {
+        artistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar los artistas</div>';
+    }
+
+    // ===== TOP TRACKS =====
+    console.log('📤 Cargando top-tracks...');
+    const tracks = await fetchSpotify('top-tracks');
+    const trackContainer = document.getElementById('modal-tracks-list');
+    if (tracks && tracks.items && trackContainer) {
+        trackContainer.innerHTML = '';
+        tracks.items.slice(0, 5).forEach((track, i) => {
+            const div = document.createElement('div');
+            div.className = 'track-item';
+            div.innerHTML = `
+                <span class="rank">${i + 1}</span>
+                <img src="${track.album?.images?.[0]?.url || 'https://picsum.photos/30/30?random=' + i}" class="track-avatar" />
+                <span>${track.name || 'Unknown'}</span>
+                <span class="track-artist-name">${track.artists?.[0]?.name || 'Unknown'}</span>
+            `;
+            div.style.cursor = 'pointer';
+            div.addEventListener('click', () => {
+                if (track.external_urls?.spotify) {
+                    window.open(track.external_urls.spotify, '_blank');
+                }
+            });
+            trackContainer.appendChild(div);
+        });
+    } else if (trackContainer) {
+        trackContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar los tracks</div>';
+    }
+
+    // ===== PLAYLISTS =====
+    console.log('📤 Cargando playlists...');
+    const playlists = await fetchSpotify('playlists');
+    const playlistContainer = document.getElementById('modal-playlists-list');
+    if (playlists && playlists.items && playlistContainer) {
+        playlistContainer.innerHTML = '';
+        if (playlists.items.length === 0) {
+            playlistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">No tienes playlists creadas</div>';
+        } else {
+            playlists.items.slice(0, 10).forEach((playlist, i) => {
+                const div = document.createElement('div');
+                div.className = 'playlist-item';
+                div.innerHTML = `
+                    <img src="${playlist.images?.[0]?.url || 'https://picsum.photos/40/40?random=' + i}" class="playlist-cover" />
+                    <span>${playlist.name || 'Untitled'}</span>
+                `;
+                div.style.cursor = 'pointer';
+                div.addEventListener('click', () => {
+                    if (playlist.external_urls?.spotify) {
+                        window.open(playlist.external_urls.spotify, '_blank');
+                    }
+                });
+                playlistContainer.appendChild(div);
+            });
+        }
+    } else if (playlistContainer) {
+        playlistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar las playlists</div>';
+    }
+
+    console.log('✅ Modal cargado');
+}
+
+// ============================================================
+// NOW PLAYING - ACTUALIZACIÓN CADA 2 SEGUNDOS
+// ============================================================
+let nowPlayingInterval = null;
+
+function startNowPlayingUpdates() {
+    if (nowPlayingInterval) {
+        clearInterval(nowPlayingInterval);
+        nowPlayingInterval = null;
+    }
+    console.log('▶️ Iniciando actualización de "Now Playing" cada 2 segundos');
+    updateNowPlayingOnly();
+    nowPlayingInterval = setInterval(updateNowPlayingOnly, 2000);
+}
+
+function stopNowPlayingUpdates() {
+    if (nowPlayingInterval) {
+        console.log('⏹️ Deteniendo actualización de "Now Playing"');
+        clearInterval(nowPlayingInterval);
+        nowPlayingInterval = null;
+    }
+}
+
+async function updateNowPlayingOnly() {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    try {
+        const response = await fetch(`${API_URL}/currently-playing`, {
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!response.ok) {
+            if (response.status === 401) updateNowPlayingUI(null);
+            return;
+        }
+
+        const data = await response.json();
+        updateNowPlayingUI(data);
+    } catch (error) {
+        // Silenciar errores
+    }
+}
+
+function updateNowPlayingUI(spotifyData) {
+    const modalTrack = document.getElementById('modal-track-name');
+    const modalArtist = document.getElementById('modal-track-artist');
+    const modalCover = document.getElementById('modal-cover');
+    const modalNow = document.getElementById('modal-now-playing');
+    const pulseBars = document.getElementById('modal-pulse-bars');
+
+    if (!modalNow || !modalTrack) return;
+
+    if (!spotifyData || !spotifyData.item || !spotifyData.is_playing) {
+        modalNow.style.display = 'none';
+        return;
+    }
+
+    const track = spotifyData.item;
+    modalTrack.textContent = track.name || 'Unknown';
+    modalArtist.textContent = track.artists?.[0]?.name || 'Unknown';
+    modalCover.src = track.album?.images?.[0]?.url || 'https://picsum.photos/60/60?random=3';
+    modalNow.style.display = 'flex';
+    if (pulseBars) pulseBars.style.opacity = '1';
+    
+    // Hacer clickeable
+    modalNow.style.cursor = 'pointer';
+    modalNow.onclick = () => {
+        if (track.external_urls?.spotify) {
+            window.open(track.external_urls.spotify, '_blank');
+        }
+    };
+}
+
+// ============================================================
+// BIO CON HTML
+// ============================================================
+function renderBioWithHTML(bio) {
+    const displayBio = document.getElementById('display-bio');
+    if (!displayBio) return;
+
+    if (!bio || bio.trim() === '') {
+        displayBio.innerHTML = '<em style="color: var(--text-muted);">Edit your bio</em>';
+        return;
+    }
+
+    const cleanBio = DOMPurify.sanitize(bio, {
+        ALLOWED_TAGS: [
+            'b', 'strong', 'i', 'em', 'u', 's', 'strike',
+            'a', 'br', 'p', 'span', 'div',
+            'img', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+            'blockquote', 'code', 'pre', 'hr'
+        ],
+        ALLOWED_ATTR: ['href', 'target', 'rel', 'style', 'class', 'id', 'src', 'alt', 'width', 'height']
+    });
+
+    displayBio.innerHTML = cleanBio;
+}
+
+// ============================================================
+// SHARE TOAST
+// ============================================================
+function showShareToast(message, type = 'success') {
+    let toast = document.querySelector('.share-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.className = 'share-toast';
+        document.body.appendChild(toast);
+    }
+    
+    toast.textContent = message;
+    toast.className = `share-toast ${type}`;
+    void toast.offsetWidth;
+    toast.classList.add('show');
+    
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 3000);
+}

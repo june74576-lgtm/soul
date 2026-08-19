@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SOUL · Profile</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Flex:opsz,wght@8..144,100..1000&display=swap" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js"></script>
+</head>
+<body>
+    <div class="container">
+
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <span class="brand">SOUL</span>
+            </div>
+            <div class="topbar-right">
+                <span id="profile-username">@user</span>
+                <button id="logout-btn" class="btn-logout">Logout</button>
+            </div>
+        </div>
+
+        <div class="two-columns">
+
+            <!-- ===== COLUMN LEFT ===== -->
+            <div class="col-left">
+
+                <!-- DESCRIPTION (EDITABLE) -->
+                <div class="block-description" id="bio-card">
+                    <div class="block-content" id="bio-display">
+                        <h2 id="display-username">@soul_user</h2>
+                        <p id="display-bio">Edit your bio</p>
+                    </div>
+                    <button class="bio-edit-btn" id="edit-bio-btn">✎ Edit bio</button>
+                </div>
+
+                <!-- BIO EDITOR (oculto) -->
+                <div class="block-description hidden" id="bio-editor">
+                    <textarea id="bio-textarea" placeholder="Write your bio..."></textarea>
+                    <div class="bio-actions">
+                        <button class="btn-secondary" id="bio-cancel">Cancel</button>
+                        <button class="btn-primary" id="bio-save">Save</button>
+                    </div>
+                </div>
+
+                <!-- SOCIAL -->
+                <div class="block-social" id="social-card">
+                    <div class="block-content">
+                        <h3>Social</h3>
+                        <div class="social-list" id="social-list">
+                            <!-- Se llena con JS -->
+                        </div>
+                        <button class="social-add-btn" id="add-social-btn">+ Add social</button>
+                    </div>
+                </div>
+
+                <!-- SOCIAL EDITOR (oculto) -->
+                <div class="block-social hidden" id="social-editor">
+                    <div class="block-content">
+                        <h3>Add Social</h3>
+                        <div class="form-group">
+                            <label>Platform</label>
+                            <select id="social-platform" class="social-select">
+                                <option value="">Select a platform...</option>
+                                <option value="instagram">📸 Instagram</option>
+                                <option value="tiktok">🎵 TikTok</option>
+                                <option value="discord">💬 Discord</option>
+                                <option value="github">🐙 GitHub</option>
+                                <option value="telegram">✈️ Telegram</option>
+                                <option value="facebook">👍 Facebook</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Username</label>
+                            <input type="text" id="social-username" placeholder="username or ID" />
+                        </div>
+                        <div class="bio-actions">
+                            <button class="btn-secondary" id="social-cancel">Cancel</button>
+                            <button class="btn-primary" id="social-save">Add</button>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- ===== COLUMN RIGHT ===== -->
+            <div class="col-right">
+
+                <!-- BANNER -->
+                <div class="banner" id="banner-container">
+                    <img src="https://picsum.photos/800/300?random=1" alt="Banner" id="banner-img" />
+                    
+                    <!-- 🔥 BOTÓN SHARE PROFILE -->
+                    <button class="share-profile-btn" id="share-profile-btn">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+                            <polyline points="16 6 12 2 8 6"/>
+                            <line x1="12" y1="2" x2="12" y2="15"/>
+                        </svg>
+                        Share Profile
+                    </button>
+                    
+                    <button class="upload-btn" id="upload-banner-btn">Change Banner</button>
+                    <input type="file" id="banner-input" accept="image/*" hidden />
+                </div>
+
+                <!-- AVATAR -->
+                <div class="avatar-wrapper">
+                    <div class="avatar-circle" id="avatar-container">
+                        <img src="https://picsum.photos/200/200?random=2" alt="Avatar" id="avatar-img" />
+                        <button class="upload-avatar-btn" id="upload-avatar-btn">Change</button>
+                        <input type="file" id="avatar-input" accept="image/*" hidden />
+                    </div>
+                </div>
+
+                <!-- CARDS LABEL -->
+                <div class="cards-label">Services</div>
+
+                <!-- CARDS STACK -->
+                <div class="cards-stack">
+
+                    <!-- CARD: Music (deshabilitada hasta conectar Spotify) -->
+                    <div class="card-row disabled-card" id="music-card">
+                        <div class="card-thumbnail">
+                            <svg class="card-icon-small" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.641 1.26.42.18.479.659.3 1.08zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.781.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.18-1.2-.18-1.38-.72-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.541.3.721.9.42 1.441-.3.481-.9.681-1.381.42z"/>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <h3>Spotify</h3>
+                            <p class="card-sub" id="spotify-status">Not connected</p>
+                        </div>
+                        <div class="card-badge" id="spotify-badge">Connect</div>
+                    </div>
+
+                    <!-- CARD: Anime (deshabilitada) -->
+                    <div class="card-row disabled-card">
+                        <div class="card-thumbnail">
+                            <svg class="card-icon-small" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <h3>AniList</h3>
+                            <p class="card-sub">Coming soon</p>
+                        </div>
+                        <div class="card-badge disabled-badge">Soon</div>
+                    </div>
+
+                    <!-- CARD: Books (deshabilitada) -->
+                    <div class="card-row disabled-card">
+                        <div class="card-thumbnail">
+                            <svg class="card-icon-small" viewBox="0 0 24 24" fill="currentColor">
+                                <path d="M4 6h16v2H4V6zm0 5h16v2H4v-2zm0 5h10v2H4v-2z"/>
+                            </svg>
+                        </div>
+                        <div class="card-content">
+                            <h3>Goodreads</h3>
+                            <p class="card-sub">Coming soon</p>
+                        </div>
+                        <div class="card-badge disabled-badge">Soon</div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===== MODAL: MUSIC (se abre al hacer clic en la tarjeta de música) ===== -->
+    <div class="modal-overlay" id="modal-music">
+        <div class="modal-card modal-large">
+            <button class="modal-close" data-close="modal-music">✕</button>
+            <h2 class="modal-title">Music</h2>
+            <div class="modal-body">
+
+                <!-- 1. NOW PLAYING -->
+                <div class="now-playing" id="modal-now-playing">
+                    <img src="https://picsum.photos/60/60?random=3" alt="Cover" class="cover-art" id="modal-cover" />
+                    <div class="track-info">
+                        <p class="track-name" id="modal-track-name">Not playing</p>
+                        <p class="track-artist" id="modal-track-artist">—</p>
+                    </div>
+                    <div class="pulse-bars" id="modal-pulse-bars">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                </div>
+
+                <!-- 2. RECENT LIKES -->
+                <div class="section">
+                    <h3>Recent Likes</h3>
+                    <div class="likes-grid" id="modal-likes-grid">
+                        <div class="like-item"><img src="https://picsum.photos/50/50?random=4" /><span>Loading...</span></div>
+                        <div class="like-item"><img src="https://picsum.photos/50/50?random=5" /><span>Loading...</span></div>
+                        <div class="like-item"><img src="https://picsum.photos/50/50?random=6" /><span>Loading...</span></div>
+                        <div class="like-item"><img src="https://picsum.photos/50/50?random=7" /><span>Loading...</span></div>
+                        <div class="like-item"><img src="https://picsum.photos/50/50?random=8" /><span>Loading...</span></div>
+                        <div class="like-item"><img src="https://picsum.photos/50/50?random=28" /><span>Loading...</span></div>
+                    </div>
+                </div>
+
+                <!-- 3. TOP ARTISTS -->
+                <div class="section">
+                    <h3>Top Artists · This Week</h3>
+                    <div class="artist-list" id="modal-artist-list"></div>
+                </div>
+
+                <!-- 4. TOP TRACKS -->
+                <div class="section">
+                    <h3>Top Tracks · This Week</h3>
+                    <div class="tracks-list" id="modal-tracks-list"></div>
+                </div>
+
+                <!-- 5. PLAYLISTS -->
+                <div class="section">
+                    <h3>Playlists</h3>
+                    <div class="playlists-list" id="modal-playlists-list"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

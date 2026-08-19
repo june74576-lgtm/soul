@@ -61,7 +61,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // Spotify
 const spotifyClientId = 'fed9178fa0784af6a1c611ac82c91f60';
 const spotifyClientSecret = '289897deab3b4d5e8957c61de046f8a8';
-const spotifyRedirectUri = 'http://127.0.0.1:8888/callback';
+const spotifyRedirectUri = 'https://soul-backend-hbdp.onrender.com/callback';  // ← CAMBIADO
 
 // ============================================================
 // 4. RUTA DE PRUEBA
@@ -705,7 +705,8 @@ app.get('/callback', async (req, res) => {
         if (updateError) throw updateError;
 
         // Redirigir al frontend
-        res.redirect('http://127.0.0.1:3000?spotify=connected');
+                // Redirigir al frontend
+        res.redirect('https://courageous-biscochitos-8c3cca.netlify.app?spotify=connected');  // ← CAMBIADO
 
     } catch (error) {
         console.error('❌ Error en callback Spotify:', error);
@@ -1062,9 +1063,8 @@ app.get('/spotify/status', verifyToken, async (req, res) => {
 // ============================================================
 // 16. INICIAR SERVIDOR
 // ============================================================
-const PORT = 8888;
-app.listen(PORT, () => {
-    console.log(`🚀 Servidor SOUL corriendo en http://127.0.0.1:${PORT}`);
-    console.log(`📌 http://127.0.0.1:${PORT}/test para verificar estado`);
-    console.log(`📌 Frontend debe estar en http://127.0.0.1:3000`);
+const PORT = process.env.PORT || 8888;  // ← CAMBIADO
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Servidor SOUL corriendo en puerto ${PORT}`);
+    console.log(`📌 URL del servidor: https://soul-backend-hbdp.onrender.com`);
 });
