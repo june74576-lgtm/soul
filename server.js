@@ -44,6 +44,8 @@ app.use((req, res, next) => {
     }
     next();
 });
+app.use(express.json());  // ← Necesario para leer req.body
+app.use(cors());          // ← Respaldo para CORS
 
 // ============================================================
 // 3. CONFIGURACIÓN DE ENTORNO
