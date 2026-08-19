@@ -13,11 +13,27 @@ require('dotenv').config();
 const app = express();
 
 // ============================================================
-// 2. CONFIGURACIÓN DE CORS (CORREGIDO)
+// CONFIGURACIÓN DE CORS (CORREGIDO PARA RENDER)
 // ============================================================
+// 🔥 CONFIGURACIÓN MANUAL - MÁS CONFIABLE
 app.use((req, res, next) => {
-    // 🔥 PERMITIR TODOS LOS ORÍGENES (para pruebas)
-    res.header('Access-Control-Allow-Origin', '*');
+    // Permite explícitamente tu dominio de Netlify
+    const allowedOrigins = [
+        'https://courageous-biscochitos-8c3cca.netlify.app',
+        'https://*.netlify.app',
+        'http://127.0.0.1:3000',
+        'http://localhost:3000'
+    ];
+    
+    const origin = req.headers.origin;
+    // Si el origen está en la lista o es de netlify.app, permítelo
+    if (origin && (allowedOrigins.includes(origin) || origin.includes('netlify.app'))) {
+        res.header('Access-Control-Allow-Origin', origin);
+    } else {
+        // Para pruebas, permite todo (en producción, especifica los dominios)
+        res.header('Access-Control-Allow-Origin', '*');
+    }
+    
     res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
     res.header('Access-Control-Allow-Credentials', 'true');
@@ -28,10 +44,6 @@ app.use((req, res, next) => {
     }
     next();
 });
-
-// También puedes mantener CORS como respaldo
-const cors = require('cors');
-app.use(cors());
 
 // ============================================================
 // 3. CONFIGURACIÓN DE ENTORNO
