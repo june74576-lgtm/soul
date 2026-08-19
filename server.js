@@ -15,14 +15,23 @@ const app = express();
 // ============================================================
 // 2. CONFIGURACIÓN DE CORS (CORREGIDO)
 // ============================================================
-app.use(cors({
-    origin: ['http://127.0.0.1:3000', 'http://localhost:3000'],
-    credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
+app.use((req, res, next) => {
+    // 🔥 PERMITIR TODOS LOS ORÍGENES (para pruebas)
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+    res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+    res.header('Access-Control-Allow-Credentials', 'true');
+    
+    // Responder a las solicitudes OPTIONS (preflight)
+    if (req.method === 'OPTIONS') {
+        return res.status(200).json({});
+    }
+    next();
+});
 
-app.use(express.json());
+// También puedes mantener CORS como respaldo
+const cors = require('cors');
+app.use(cors());
 
 // ============================================================
 // 3. CONFIGURACIÓN DE ENTORNO
@@ -45,13 +54,34 @@ const spotifyRedirectUri = 'http://127.0.0.1:8888/callback';
 // ============================================================
 // 4. RUTA DE PRUEBA
 // ============================================================
-app.get('/test', (req, res) => {
+// ============================================================
+// RUTA RAÍZ (PARA RENDER)
+// ============================================================
+app.get('/', (req, res) => {
     res.json({
-        message: '✅ El servidor está funcionando correctamente',
-        timestamp: new Date().toISOString(),
-        jwt_secret_loaded: !!process.env.JWT_SECRET,
-        spotify_client_id_loaded: !!spotifyClientId,
-        supabase_loaded: !!SUPABASE_URL
+        message: '🚀 SOUL API está funcionando',
+        version: '1.0.0',
+        endpoints: {
+            test: '/test',
+            ping: '/ping',
+            auth: {
+                login: '/auth/login [POST]',
+                register: '/auth/register [POST]',
+                me: '/auth/me [GET]'
+            },
+            profile: '/profile [PUT]',
+            spotify: {
+                connect: '/spotify/connect [GET]',
+                status: '/spotify/status [GET]',
+                currently_playing: '/currently-playing [GET]',
+                recent_tracks: '/recent-tracks [GET]',
+                top_artists: '/top-artists [GET]',
+                top_tracks: '/top-tracks [GET]',
+                playlists: '/playlists [GET]'
+            }
+        },
+        status: 'online',
+        timestamp: new Date().toISOString()
     });
 });
 
