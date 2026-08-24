@@ -178,8 +178,8 @@ async function initProfile() {
 // ============================================================
 function setupProfileEvents() {
     // 🔥 INMEDIATO: Si es vista pública, bloquea todo
+    // 🔥 Si es vista pública, bloquear botones
     if (isPublicView()) {
-        // Ocultar visualmente
         document.getElementById('edit-bio-btn').classList.add('hidden');
         document.getElementById('add-social-btn').classList.add('hidden');
         document.getElementById('upload-banner-btn').classList.add('hidden');
@@ -187,16 +187,20 @@ function setupProfileEvents() {
         document.getElementById('logout-btn').classList.add('hidden');
         document.getElementById('disconnect-spotify-btn').classList.add('hidden');
         
-        // Bloquear la funcionalidad (asignar función vacía)
         document.getElementById('edit-bio-btn').onclick = () => {};
         document.getElementById('add-social-btn').onclick = () => {};
         document.getElementById('upload-banner-btn').onclick = () => {};
         document.getElementById('upload-avatar-btn').onclick = () => {};
         document.getElementById('logout-btn').onclick = () => {};
         document.getElementById('disconnect-spotify-btn').onclick = () => {};
-        
-        // Bloquear el clic en la tarjeta de música (solo visualización)
-        document.getElementById('music-card').onclick = () => {};
+    } else {
+        // 🔥 Si NO es pública, NO bloquear los botones de edición
+        document.getElementById('edit-bio-btn').onclick = null;
+        document.getElementById('add-social-btn').onclick = null;
+        document.getElementById('upload-banner-btn').onclick = null;
+        document.getElementById('upload-avatar-btn').onclick = null;
+        document.getElementById('logout-btn').onclick = null;
+        document.getElementById('disconnect-spotify-btn').onclick = null;
     }
 
     // 1. LOGOUT (solo si NO es pública)
