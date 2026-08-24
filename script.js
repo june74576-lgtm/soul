@@ -378,7 +378,7 @@ function setupProfileEvents() {
             const data = await response.json();
             console.log('✅ Spotify desconectado');
             
-            // Actualizar el estado en localStorage y renderizar
+            // Actualizar el estado en localStorage
             const userData = localStorage.getItem('user');
             if (userData) {
                 const user = JSON.parse(userData);

@@ -1489,3 +1489,28 @@ body {
 :root {
     --track-accent-rgb: 198, 184, 255; /* Necesario para la sombra */
 }
+/* ============================================================
+   BOTÓN DESCONECTAR SPOTIFY
+   ============================================================ */
+.btn-disconnect-spotify {
+    background: transparent;
+    border: 1px solid rgba(255, 107, 107, 0.4);
+    color: #ff6b6b;
+    padding: 6px 12px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+
+.btn-disconnect-spotify:hover {
+    background: rgba(255, 107, 107, 0.1);
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+.btn-disconnect-spotify.hidden {
+    display: none;
+}
