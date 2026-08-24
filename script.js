@@ -547,6 +547,43 @@ function setupProfileEvents() {
     if (urlParams.get('spotify') === 'connected') {
         window.location.href = 'profile.html';
     }
+    // 11. CAMBIAR FONDO GENERAL
+    document.getElementById('upload-bg-btn')?.addEventListener('click', () => {
+        document.getElementById('bg-input').click();
+    });
+
+    document.getElementById('bg-input')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const token = localStorage.getItem('token');
+        
+        // Crear FormData
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('type', 'background');
+        
+        try {
+            const response = await fetch(`${API_URL}/profile/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            if (!response.ok) throw new Error('Error al subir fondo');
+            
+            const data = await response.json();
+            
+            // Aplicar el fondo en la página
+            document.documentElement.style.setProperty('--custom-bg-url', `url(${data.url})`);
+            document.documentElement.style.setProperty('--custom-bg-blur', '15px');
+            
+            // Guardar en localStorage para que persista
+            localStorage.setItem('customBg', data.url);
+            
+        } catch (error) {
+            alert('Error al subir el fondo: ' + error.message);
+        }
+        e.target.value = '';
+    });
 }
 
 // ============================================================
