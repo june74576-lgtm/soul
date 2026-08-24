@@ -366,9 +366,26 @@ function setupProfileEvents() {
         e.target.value = '';
     });
 
-    // 7. CONECTAR SPOTIFY
+    // 7. CONECTAR SPOTIFY (O VER MODAL EN MODO PÚBLICO)
     document.getElementById('music-card')?.addEventListener('click', async () => {
         const token = localStorage.getItem('token');
+        
+        // 🔥 Si es vista pública, el modal se abre igual, solo para visualizar
+        if (isPublicView()) {
+            const modal = document.getElementById('modal-music');
+            if (modal) {
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                // En modo público NO llamamos a startNowPlayingUpdates (no hay token)
+                // Solo cargamos los datos básicos si el usuario compartió su música
+                // (En este caso, no mostramos Now Playing porque no hay token)
+                // Simplemente abrimos el modal en modo lectura.
+                loadModalDataPublic();
+            }
+            return;
+        }
+
+        // 🔥 Si NO es vista pública, usar el flujo normal
         try {
             const meResponse = await fetch(`${API_URL}/auth/me`, {
                 headers: { 'Authorization': `Bearer ${token}` }
@@ -395,7 +412,6 @@ function setupProfileEvents() {
             alert('Error al conectar Spotify');
         }
     });
-
     // 7.5. DESCONECTAR SPOTIFY (NUEVO)
     document.getElementById('disconnect-spotify-btn')?.addEventListener('click', async (e) => {
         e.stopPropagation(); // Evitar que se abra el modal
@@ -528,57 +544,54 @@ function renderProfile(user, options = {}) {
 
     renderSocialLinks(user.social_links || {});
 
-    // 🔥 OCULTAR BOTONES DE EDICIÓN SI ES PÚBLICO
+    // 🔥 BLOQUE PARA OCULTAR/MOSTRAR BOTONES DE EDICIÓN
+    const editBioBtn = document.getElementById('edit-bio-btn');
+    const addSocialBtn = document.getElementById('add-social-btn');
+    const uploadBannerBtn = document.getElementById('upload-banner-btn');
+    const uploadAvatarBtn = document.getElementById('upload-avatar-btn');
+    const logoutBtn = document.getElementById('logout-btn');
+
     if (isPublic) {
-        // Ocultar botones de edición
-        document.getElementById('edit-bio-btn').classList.add('hidden');
-        document.getElementById('add-social-btn').classList.add('hidden');
-        document.getElementById('upload-banner-btn').classList.add('hidden');
-        document.getElementById('upload-avatar-btn').classList.add('hidden');
-        document.getElementById('logout-btn').classList.add('hidden'); // Ocultar logout
+        // Ocultar botones de edición y logout
+        if (editBioBtn) editBioBtn.classList.add('hidden');
+        if (addSocialBtn) addSocialBtn.classList.add('hidden');
+        if (uploadBannerBtn) uploadBannerBtn.classList.add('hidden');
+        if (uploadAvatarBtn) uploadAvatarBtn.classList.add('hidden');
+        if (logoutBtn) logoutBtn.classList.add('hidden');
+    } else {
+        // Mostrar todos los botones de edición y logout
+        if (editBioBtn) editBioBtn.classList.remove('hidden');
+        if (addSocialBtn) addSocialBtn.classList.remove('hidden');
+        if (uploadBannerBtn) uploadBannerBtn.classList.remove('hidden');
+        if (uploadAvatarBtn) uploadAvatarBtn.classList.remove('hidden');
+        if (logoutBtn) logoutBtn.classList.remove('hidden');
+    }
+
+    // 🔥 Spotify: SIEMPRE debe estar activo (aunque sea público)
+    const spotifyStatus = document.getElementById('spotify-status');
+    const spotifyBadge = document.getElementById('spotify-badge');
+    const disconnectBtn = document.getElementById('disconnect-spotify-btn');
+
+    if (user.spotify_connected) {
+        spotifyStatus.textContent = 'Connected';
+        spotifyBadge.textContent = '● Live';
+        spotifyBadge.style.background = 'var(--accent)';
+        spotifyBadge.style.color = 'var(--bg)';
+        document.getElementById('music-card').classList.remove('disabled-card');
         
-        // La tarjeta de Spotify se pone en modo solo lectura (no conectada)
-        const spotifyStatus = document.getElementById('spotify-status');
-        const spotifyBadge = document.getElementById('spotify-badge');
-        const disconnectBtn = document.getElementById('disconnect-spotify-btn');
-        
-        spotifyStatus.textContent = 'Preview only';
-        spotifyBadge.textContent = 'View';
+        // En modo público NO se muestra el botón de desconexión
+        if (isPublic) {
+            if (disconnectBtn) disconnectBtn.classList.add('hidden');
+        } else {
+            if (disconnectBtn) disconnectBtn.classList.remove('hidden');
+        }
+    } else {
+        spotifyStatus.textContent = 'Not connected';
+        spotifyBadge.textContent = 'Connect';
         spotifyBadge.style.background = 'var(--surface-2)';
         spotifyBadge.style.color = 'var(--text-muted)';
         document.getElementById('music-card').classList.add('disabled-card');
         if (disconnectBtn) disconnectBtn.classList.add('hidden');
-        
-        // No hacer clickeable la tarjeta de música
-        document.getElementById('music-card').onclick = () => {};
-    } else {
-        // Si NO es público, restablecer botones
-        document.getElementById('edit-bio-btn').classList.remove('hidden');
-        document.getElementById('add-social-btn').classList.remove('hidden');
-        document.getElementById('upload-banner-btn').classList.remove('hidden');
-        document.getElementById('upload-avatar-btn').classList.remove('hidden');
-        document.getElementById('logout-btn').classList.remove('hidden');
-        
-        // (El resto de la lógica de Spotify normal)
-        const spotifyStatus = document.getElementById('spotify-status');
-        const spotifyBadge = document.getElementById('spotify-badge');
-        const disconnectBtn = document.getElementById('disconnect-spotify-btn');
-
-        if (user.spotify_connected) {
-            spotifyStatus.textContent = 'Connected';
-            spotifyBadge.textContent = '● Live';
-            spotifyBadge.style.background = 'var(--accent)';
-            spotifyBadge.style.color = 'var(--bg)';
-            document.getElementById('music-card').classList.remove('disabled-card');
-            if (disconnectBtn) disconnectBtn.classList.remove('hidden');
-        } else {
-            spotifyStatus.textContent = 'Not connected';
-            spotifyBadge.textContent = 'Connect';
-            spotifyBadge.style.background = 'var(--surface-2)';
-            spotifyBadge.style.color = 'var(--text-muted)';
-            document.getElementById('music-card').classList.add('disabled-card');
-            if (disconnectBtn) disconnectBtn.classList.add('hidden');
-        }
     }
 }
 
@@ -662,6 +675,16 @@ async function fetchSpotify(endpoint) {
         console.error(`❌ Error en fetchSpotify (${endpoint}):`, error);
         return null;
     }
+}
+
+// Cargar datos en modo público (solo estructura visual)
+async function loadModalDataPublic() {
+    console.log('📥 Cargando modal en modo público (solo visualización)');
+    
+    // Inicializar carruseles (aunque estén vacíos)
+    setupCarousel('following');
+    setupCarousel('albums');
+    setupCarousel('playlists');
 }
 
 async function loadModalData() {
