@@ -621,7 +621,7 @@ function renderSocialLinks(socialLinks) {
         `;
 
         const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'social-delete';
+        deleteBtn.className = 'social-delete public-hide'; // 🔥 AQUÍ AGREGAMOS public-hide
         deleteBtn.dataset.platform = platform;
         deleteBtn.textContent = '✕';
 
