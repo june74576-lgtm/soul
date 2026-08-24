@@ -675,6 +675,39 @@ async function fetchSpotify(endpoint) {
     }
 }
 
+// Función para actualizar el Now Playing en modo público (cada 2 segundos)
+async function updatePublicNowPlaying(username) {
+    try {
+        const response = await fetch(`${API_URL}/public-spotify/${username}`);
+        if (!response.ok) return;
+        const data = await response.json();
+        
+        if (data.connected && data.currently_playing?.item) {
+            const track = data.currently_playing.item;
+            const modalTrack = document.getElementById('modal-track-name');
+            const modalArtist = document.getElementById('modal-track-artist');
+            const modalCover = document.getElementById('modal-cover');
+            const modalNow = document.getElementById('modal-now-playing');
+            
+            modalTrack.textContent = track.name || 'Unknown';
+            modalArtist.textContent = track.artists?.[0]?.name || 'Unknown';
+            modalCover.src = track.album?.images?.[0]?.url || 'https://picsum.photos/60/60?random=3';
+            modalNow.style.display = 'flex';
+            
+            // Hacer clickeable
+            modalNow.style.cursor = 'pointer';
+            modalNow.onclick = () => {
+                if (track.external_urls?.spotify) window.open(track.external_urls.spotify, '_blank');
+            };
+        } else {
+            // Si no hay canción sonando, ocultar el Now Playing
+            document.getElementById('modal-now-playing').style.display = 'none';
+        }
+    } catch (error) {
+        // Silenciar errores
+    }
+}
+
 // Cargar datos de Spotify en modo público (sin login)
 async function loadModalDataPublic() {
     console.log('📥 Cargando modal en modo público (solo visualización)');
@@ -682,6 +715,10 @@ async function loadModalDataPublic() {
     // Obtener el username de la URL
     const urlParams = new URLSearchParams(window.location.search);
     const username = urlParams.get('user');
+
+    // 🔥 INICIAR ACTUALIZACIÓN DEL NOW PLAYING CADA 2 SEGUNDOS
+    updatePublicNowPlaying(username);
+    setInterval(() => updatePublicNowPlaying(username), 2000);
 
     try {
         const response = await fetch(`${API_URL}/public-spotify/${username}`);
