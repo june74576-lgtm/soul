@@ -605,7 +605,7 @@ function setupProfileEvents() {
             }
             
             // Mostrar mensaje de éxito
-            showShareToast('¡Fondo actualizado!', 'success');
+            showShareToast('Background updated!', 'success');
             
         } catch (error) {
             console.error('❌ Error al subir fondo:', error);
