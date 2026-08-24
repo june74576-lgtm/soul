@@ -203,6 +203,35 @@ function setupProfileEvents() {
         document.getElementById('upload-avatar-btn').onclick = null;
         document.getElementById('logout-btn').onclick = null;
         document.getElementById('disconnect-spotify-btn').onclick = null;
+        
+        // 🔥 RE-ASIGNAR EL BOTÓN DE GUARDAR BIO (SIEMPRE QUE NO SEA PÚBLICO)
+        document.getElementById('bio-save').onclick = async () => {
+            const bio = document.getElementById('bio-textarea').value;
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${API_URL}/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ bio })
+                });
+                if (!response.ok) throw new Error('Error al guardar bio');
+                const data = await response.json();
+                renderBioWithHTML(data.bio);
+                document.getElementById('bio-display').classList.remove('hidden');
+                document.getElementById('bio-editor').classList.add('hidden');
+            } catch (error) {
+                alert('Error al guardar la bio: ' + error.message);
+            }
+        };
+        
+        // 🔥 RE-ASIGNAR EL BOTÓN DE CANCELAR BIO
+        document.getElementById('bio-cancel').onclick = () => {
+            document.getElementById('bio-display').classList.remove('hidden');
+            document.getElementById('bio-editor').classList.add('hidden');
+        };
     }
 
     // 1. LOGOUT (solo si NO es pública)
