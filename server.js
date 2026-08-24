@@ -972,7 +972,45 @@
             });
         }
     });
+    // ============================================================
+    // SPOTIFY: FOLLOWING (Artistas que sigue)
+    // ============================================================
+    app.get('/following', verifyToken, async (req, res) => {
+        try {
+            // limit=20 para mostrar bastantes en el carrusel
+            const data = await spotifyRequest(req.user.id, '/me/following', { 
+                type: 'artist', 
+                limit: 20 
+            });
+            res.json(data);
+        } catch (error) {
+            const status = error.status || error.response?.status || 500;
+            console.error(`❌ Error en /following (${status}):`, error.message);
+            if (status === 401) {
+                return res.status(401).json({ error: 'Spotify no conectado o sesión expirada.', needs_reconnect: true });
+            }
+            res.status(status).json({ error: error.message || 'Error al obtener artistas seguidos' });
+        }
+    });
 
+    // ============================================================
+    // SPOTIFY: SAVED ALBUMS (Álbumes guardados)
+    // ============================================================
+    app.get('/saved-albums', verifyToken, async (req, res) => {
+        try {
+            const data = await spotifyRequest(req.user.id, '/me/albums', { 
+                limit: 20 
+            });
+            res.json(data);
+        } catch (error) {
+            const status = error.status || error.response?.status || 500;
+            console.error(`❌ Error en /saved-albums (${status}):`, error.message);
+            if (status === 401) {
+                return res.status(401).json({ error: 'Spotify no conectado o sesión expirada.', needs_reconnect: true });
+            }
+            res.status(status).json({ error: error.message || 'Error al obtener álbumes guardados' });
+        }
+    });
     // --- PLAYLISTS (SOLO DEL USUARIO) ---
     app.get('/playlists', verifyToken, async (req, res) => {
         try {

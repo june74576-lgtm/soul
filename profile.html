@@ -178,7 +178,7 @@
             <h2 class="modal-title">Music</h2>
             <div class="modal-body">
 
-                <!-- 1. NOW PLAYING -->
+                <!-- 1. NOW PLAYING (Borde cambiará de color dinámicamente) -->
                 <div class="now-playing" id="modal-now-playing">
                     <img src="https://picsum.photos/60/60?random=3" alt="Cover" class="cover-art" id="modal-cover" />
                     <div class="track-info">
@@ -190,35 +190,54 @@
                     </div>
                 </div>
 
-                <!-- 2. RECENT LIKES -->
+                <!-- 2. TOP ARTISTS (ESTE MES) -->
                 <div class="section">
-                    <h3>Recent Likes</h3>
-                    <div class="likes-grid" id="modal-likes-grid">
-                        <div class="like-item"><img src="https://picsum.photos/50/50?random=4" /><span>Loading...</span></div>
-                        <div class="like-item"><img src="https://picsum.photos/50/50?random=5" /><span>Loading...</span></div>
-                        <div class="like-item"><img src="https://picsum.photos/50/50?random=6" /><span>Loading...</span></div>
-                        <div class="like-item"><img src="https://picsum.photos/50/50?random=7" /><span>Loading...</span></div>
-                        <div class="like-item"><img src="https://picsum.photos/50/50?random=8" /><span>Loading...</span></div>
-                        <div class="like-item"><img src="https://picsum.photos/50/50?random=28" /><span>Loading...</span></div>
-                    </div>
-                </div>
-
-                <!-- 3. TOP ARTISTS -->
-                <div class="section">
-                    <h3>Top Artists · This Week</h3>
+                    <h3>Top Artists · This Month</h3>
                     <div class="artist-list" id="modal-artist-list"></div>
                 </div>
 
-                <!-- 4. TOP TRACKS -->
+                <!-- 3. TOP TRACKS (ESTE MES) -->
                 <div class="section">
-                    <h3>Top Tracks · This Week</h3>
+                    <h3>Top Tracks · This Month</h3>
                     <div class="tracks-list" id="modal-tracks-list"></div>
                 </div>
 
-                <!-- 5. PLAYLISTS -->
+                <!-- 4. USER: RECENT LIKES -->
+                <div class="section">
+                    <h3>Recent Likes</h3>
+                    <div class="likes-grid" id="modal-likes-grid">
+                        <!-- Se llena con JS -->
+                    </div>
+                </div>
+
+                <!-- 5. USER: FOLLOWING (Carrusel) -->
+                <div class="section">
+                    <h3>Following</h3>
+                    <div class="carousel-container">
+                        <button class="carousel-btn prev" id="following-prev">‹</button>
+                        <div class="carousel-track" id="modal-following-list"></div>
+                        <button class="carousel-btn next" id="following-next">›</button>
+                    </div>
+                </div>
+
+                <!-- 6. USER: SAVED ALBUMS (Carrusel) -->
+                <div class="section">
+                    <h3>Saved Albums</h3>
+                    <div class="carousel-container">
+                        <button class="carousel-btn prev" id="albums-prev">‹</button>
+                        <div class="carousel-track" id="modal-albums-list"></div>
+                        <button class="carousel-btn next" id="albums-next">›</button>
+                    </div>
+                </div>
+
+                <!-- 7. USER: PLAYLISTS (Carrusel) -->
                 <div class="section">
                     <h3>Playlists</h3>
-                    <div class="playlists-list" id="modal-playlists-list"></div>
+                    <div class="carousel-container">
+                        <button class="carousel-btn prev" id="playlists-prev">‹</button>
+                        <div class="carousel-track" id="modal-playlists-list"></div>
+                        <button class="carousel-btn next" id="playlists-next">›</button>
+                    </div>
                 </div>
 
             </div>

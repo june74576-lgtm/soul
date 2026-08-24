@@ -589,40 +589,9 @@ async function loadModalData() {
 
     startNowPlayingUpdates();
 
-    // ===== RECENT LIKES =====
-    console.log('📤 Cargando recent-tracks...');
-    const likes = await fetchSpotify('recent-tracks');
-    if (likes && likes.items) {
-        const items = document.querySelectorAll('#modal-likes-grid .like-item');
-        likes.items.slice(0, 6).forEach((track, i) => {
-            if (items[i]) {
-                const img = items[i].querySelector('img');
-                const span = items[i].querySelector('span');
-                if (img) {
-                    img.src = track.track?.album?.images?.[0]?.url || 'https://picsum.photos/50/50?random=' + i;
-                }
-                if (span) {
-                    span.textContent = track.track?.name || 'Unknown';
-                }
-                const item = items[i];
-                item.style.cursor = 'pointer';
-                item.addEventListener('click', () => {
-                    if (track.track?.external_urls?.spotify) {
-                        window.open(track.track.external_urls.spotify, '_blank');
-                    }
-                });
-            }
-        });
-    } else {
-        const grid = document.getElementById('modal-likes-grid');
-        if (grid) {
-            grid.innerHTML = '<div class="like-item" style="grid-column: 1/-1; color: var(--text-muted);">No se pudieron cargar las canciones recientes</div>';
-        }
-    }
-
-    // ===== TOP ARTISTS =====
+    // ===== TOP ARTISTS (ESTE MES) =====
     console.log('📤 Cargando top-artists...');
-    const artists = await fetchSpotify('top-artists');
+    const artists = await fetchSpotify('top-artists'); // Usa 'short_term' por defecto
     const artistContainer = document.getElementById('modal-artist-list');
     if (artists && artists.items && artistContainer) {
         artistContainer.innerHTML = '';
@@ -642,11 +611,9 @@ async function loadModalData() {
             });
             artistContainer.appendChild(div);
         });
-    } else if (artistContainer) {
-        artistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar los artistas</div>';
     }
 
-    // ===== TOP TRACKS =====
+    // ===== TOP TRACKS (ESTE MES) =====
     console.log('📤 Cargando top-tracks...');
     const tracks = await fetchSpotify('top-tracks');
     const trackContainer = document.getElementById('modal-tracks-list');
@@ -669,41 +636,116 @@ async function loadModalData() {
             });
             trackContainer.appendChild(div);
         });
-    } else if (trackContainer) {
-        trackContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar los tracks</div>';
+    }
+
+    // ===== RECENT LIKES =====
+    console.log('📤 Cargando recent-tracks...');
+    const likes = await fetchSpotify('recent-tracks');
+    if (likes && likes.items) {
+        const items = document.querySelectorAll('#modal-likes-grid .like-item');
+        likes.items.slice(0, 6).forEach((track, i) => {
+            if (items[i]) {
+                const img = items[i].querySelector('img');
+                const span = items[i].querySelector('span');
+                if (img) img.src = track.track?.album?.images?.[0]?.url || 'https://picsum.photos/50/50?random=' + i;
+                if (span) span.textContent = track.track?.name || 'Unknown';
+                const item = items[i];
+                item.style.cursor = 'pointer';
+                item.addEventListener('click', () => {
+                    if (track.track?.external_urls?.spotify) window.open(track.track.external_urls.spotify, '_blank');
+                });
+            }
+        });
+    }
+
+    // ===== FOLLOWING (Artistas seguidos) =====
+    console.log('📤 Cargando following...');
+    const following = await fetchSpotify('following');
+    const followingList = document.getElementById('modal-following-list');
+    if (following && following.artists && following.artists.items && followingList) {
+        followingList.innerHTML = '';
+        following.artists.items.slice(0, 20).forEach((artist) => {
+            const div = document.createElement('div');
+            div.className = 'carousel-item';
+            div.innerHTML = `
+                <img src="${artist.images?.[0]?.url || 'https://picsum.photos/80/80?random=' + Math.random()}" class="item-image" />
+                <p class="item-name">${artist.name || 'Unknown'}</p>
+            `;
+            div.addEventListener('click', () => {
+                if (artist.external_urls?.spotify) window.open(artist.external_urls.spotify, '_blank');
+            });
+            followingList.appendChild(div);
+        });
+    }
+
+    // ===== SAVED ALBUMS =====
+    console.log('📤 Cargando saved-albums...');
+    const albums = await fetchSpotify('saved-albums');
+    const albumsList = document.getElementById('modal-albums-list');
+    if (albums && albums.items && albumsList) {
+        albumsList.innerHTML = '';
+        albums.items.slice(0, 20).forEach((item) => {
+            const album = item.album;
+            const div = document.createElement('div');
+            div.className = 'carousel-item square';
+            div.innerHTML = `
+                <img src="${album.images?.[0]?.url || 'https://picsum.photos/80/80?random=' + Math.random()}" class="item-image" />
+                <p class="item-name">${album.name || 'Unknown'}</p>
+                <p class="item-subtitle">${album.artists?.[0]?.name || 'Unknown'}</p>
+            `;
+            div.addEventListener('click', () => {
+                if (album.external_urls?.spotify) window.open(album.external_urls.spotify, '_blank');
+            });
+            albumsList.appendChild(div);
+        });
     }
 
     // ===== PLAYLISTS =====
     console.log('📤 Cargando playlists...');
     const playlists = await fetchSpotify('playlists');
-    const playlistContainer = document.getElementById('modal-playlists-list');
-    if (playlists && playlists.items && playlistContainer) {
-        playlistContainer.innerHTML = '';
-        if (playlists.items.length === 0) {
-            playlistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">No tienes playlists creadas</div>';
-        } else {
-            playlists.items.slice(0, 10).forEach((playlist, i) => {
-                const div = document.createElement('div');
-                div.className = 'playlist-item';
-                div.innerHTML = `
-                    <img src="${playlist.images?.[0]?.url || 'https://picsum.photos/40/40?random=' + i}" class="playlist-cover" />
-                    <span>${playlist.name || 'Untitled'}</span>
-                `;
-                div.style.cursor = 'pointer';
-                div.addEventListener('click', () => {
-                    if (playlist.external_urls?.spotify) {
-                        window.open(playlist.external_urls.spotify, '_blank');
-                    }
-                });
-                playlistContainer.appendChild(div);
+    const playlistsList = document.getElementById('modal-playlists-list');
+    if (playlists && playlists.items && playlistsList) {
+        playlistsList.innerHTML = '';
+        playlists.items.slice(0, 20).forEach((playlist) => {
+            const div = document.createElement('div');
+            div.className = 'carousel-item square';
+            div.innerHTML = `
+                <img src="${playlist.images?.[0]?.url || 'https://picsum.photos/80/80?random=' + Math.random()}" class="item-image" />
+                <p class="item-name">${playlist.name || 'Untitled'}</p>
+            `;
+            div.addEventListener('click', () => {
+                if (playlist.external_urls?.spotify) window.open(playlist.external_urls.spotify, '_blank');
             });
-        }
-    } else if (playlistContainer) {
-        playlistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar las playlists</div>';
+            playlistsList.appendChild(div);
+        });
     }
 
     console.log('✅ Modal cargado');
+
+    // Inicializar navegación de carruseles
+    setupCarousel('following');
+    setupCarousel('albums');
+    setupCarousel('playlists');
 }
+
+// Función para manejar los botones de los carruseles
+function setupCarousel(type) {
+    const prevBtn = document.getElementById(`${type}-prev`);
+    const nextBtn = document.getElementById(`${type}-next`);
+    const track = document.getElementById(`modal-${type}-list`);
+
+    if (!prevBtn || !nextBtn || !track) return;
+
+    const scrollAmount = 100; // Cuánto se desplaza por clic
+
+    prevBtn.addEventListener('click', () => {
+        track.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+    });
+
+    nextBtn.addEventListener('click', () => {
+        track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+    });
+}   
 
 // ============================================================
 // NOW PLAYING - ACTUALIZACIÓN CADA 2 SEGUNDOS

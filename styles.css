@@ -1338,3 +1338,122 @@ body {
 .modal-card, .pulse-bars span {
     transition: border-color 0.6s ease, background-color 0.6s ease, box-shadow 0.6s ease;
 }
+/* ============================================================
+   NUEVAS SECCIONES Y CARRUSELES
+   ============================================================ */
+
+/* Borde dinámico SOLO para el Now Playing */
+.now-playing {
+    border: 2px solid var(--track-accent);
+    box-shadow: 0 0 20px rgba(var(--track-accent-rgb), 0.2);
+    background: var(--surface-2);
+    transition: border-color 0.6s ease, box-shadow 0.6s ease;
+}
+
+/* El modal mantiene el borde original */
+.modal-card {
+    border: 1px solid var(--outline);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+}
+
+/* ===== CARRUSELES ===== */
+.carousel-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 0;
+}
+
+.carousel-track {
+    display: flex;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    gap: 12px;
+    flex: 1;
+    padding: 4px;
+}
+
+.carousel-track::-webkit-scrollbar {
+    display: none; /* Chrome, Safari */
+}
+
+.carousel-btn {
+    background: var(--surface-2);
+    border: 1px solid var(--outline);
+    color: var(--text-primary);
+    font-size: 18px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.carousel-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+.carousel-btn.prev {
+    margin-right: 2px;
+}
+
+.carousel-btn.next {
+    margin-left: 2px;
+}
+
+/* ===== ITEMS DEL CARRUSEL ===== */
+.carousel-item {
+    flex-shrink: 0;
+    width: 90px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.carousel-item:hover {
+    transform: scale(1.05);
+}
+
+.carousel-item .item-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    margin-bottom: 8px;
+    border-radius: 50%; /* Redondo para Following */
+    background: var(--surface-2);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* Para Albums y Playlists (cuadrados redondeados) */
+.carousel-item.square .item-image {
+    border-radius: var(--radius-md);
+    width: 80px;
+    height: 80px;
+}
+
+.carousel-item .item-name {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.carousel-item .item-subtitle {
+    font-size: 10px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-top: 2px;
+}
