@@ -173,8 +173,15 @@ async function initProfile() {
 // EVENTOS
 // ============================================================
 function setupProfileEvents() {
-    // 🔥 INMEDIATO: Ocultar botones si es público
-    setupPublicView();
+    // 🔥 INMEDIATO: Ocultar botones si es público (se ejecuta inmediatamente)
+    if (isPublicView()) {
+        document.getElementById('edit-bio-btn').classList.add('hidden');
+        document.getElementById('add-social-btn').classList.add('hidden');
+        document.getElementById('upload-banner-btn').classList.add('hidden');
+        document.getElementById('upload-avatar-btn').classList.add('hidden');
+        document.getElementById('logout-btn').classList.add('hidden');
+        document.getElementById('disconnect-spotify-btn').classList.add('hidden');
+    }
 
     // Si es vista pública, no permitir click en logout
     if (isPublicView()) {
@@ -183,7 +190,8 @@ function setupProfileEvents() {
             alert('You are viewing a public profile. You need to log in to access your own profile.');
         });
     }
-    // 1. LOGOUT
+    
+    // 1. LOGOUT (solo para vista privada)
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         stopNowPlayingUpdates();
         localStorage.removeItem('token');
@@ -639,23 +647,6 @@ function renderSocialLinks(socialLinks) {
         div.appendChild(deleteBtn);
         container.appendChild(div);
     });
-}
-
-// ============================================================
-// OCULTAR BOTONES EN MODO PÚBLICO (INMEDIATO)
-// ============================================================
-function setupPublicView() {
-    if (isPublicView()) {
-        // Ocultar todos los botones de edición
-        document.getElementById('edit-bio-btn').classList.add('hidden');
-        document.getElementById('add-social-btn').classList.add('hidden');
-        document.getElementById('upload-banner-btn').classList.add('hidden');
-        document.getElementById('upload-avatar-btn').classList.add('hidden');
-        document.getElementById('logout-btn').classList.add('hidden');
-        
-        // Ocultar el botón de desconexión de Spotify (si existe)
-        document.getElementById('disconnect-spotify-btn').classList.add('hidden');
-    }
 }
 
 // ============================================================
