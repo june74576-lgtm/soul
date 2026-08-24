@@ -20,7 +20,7 @@ const socialPlatforms = {
 // ============================================================
 function isPublicView() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('user') !== null;
+    return urlParams.has('user'); // Usa .has() en lugar de !== null (más seguro)
 }
 
 // ============================================================
@@ -173,8 +173,10 @@ async function initProfile() {
 // EVENTOS
 // ============================================================
 function setupProfileEvents() {
+    // 🔥 INMEDIATO: Ocultar botones si es público
+    setupPublicView();
 
-        // Si es vista pública, no permitir click en logout
+    // Si es vista pública, no permitir click en logout
     if (isPublicView()) {
         document.getElementById('logout-btn')?.addEventListener('click', (e) => {
             e.preventDefault();
@@ -544,7 +546,7 @@ function renderProfile(user, options = {}) {
 
     renderSocialLinks(user.social_links || {});
 
-    // 🔥 Ocultar todo lo que puede editarse (Bio, Social, Banner, Avatar, Logout)
+    // 🔥 HACER SÍ O SÍ: Oculta los botones de edición
     const editBioBtn = document.getElementById('edit-bio-btn');
     const addSocialBtn = document.getElementById('add-social-btn');
     const uploadBannerBtn = document.getElementById('upload-banner-btn');
@@ -565,12 +567,11 @@ function renderProfile(user, options = {}) {
         if (logoutBtn) logoutBtn.classList.remove('hidden');
     }
 
-    // 🔥 Spotify: SIEMPRE debe estar activo (aunque sea público)
+    // 🔥 Spotify: SIEMPRE debe estar activo
     const spotifyStatus = document.getElementById('spotify-status');
     const spotifyBadge = document.getElementById('spotify-badge');
     const disconnectBtn = document.getElementById('disconnect-spotify-btn');
 
-    // Si el perfil público tiene su Spotify conectado, mostrar como "Connected"
     if (user.spotify_connected) {
         spotifyStatus.textContent = 'Connected';
         spotifyBadge.textContent = '● Live';
@@ -579,9 +580,9 @@ function renderProfile(user, options = {}) {
         document.getElementById('music-card').classList.remove('disabled-card');
         
         if (isPublic) {
-            if (disconnectBtn) disconnectBtn.classList.add('hidden'); // Ocultar desconexión
+            if (disconnectBtn) disconnectBtn.classList.add('hidden');
         } else {
-            if (disconnectBtn) disconnectBtn.classList.remove('hidden'); // Mostrar desconexión
+            if (disconnectBtn) disconnectBtn.classList.remove('hidden');
         }
     } else {
         spotifyStatus.textContent = 'Not connected';
@@ -590,6 +591,15 @@ function renderProfile(user, options = {}) {
         spotifyBadge.style.color = 'var(--text-muted)';
         document.getElementById('music-card').classList.add('disabled-card');
         if (disconnectBtn) disconnectBtn.classList.add('hidden');
+    }
+    
+    // 🔥 SIEMPRE ocultar los botones de edición si es público (sin depender de eventos)
+    if (isPublicView()) {
+        document.getElementById('edit-bio-btn').classList.add('hidden');
+        document.getElementById('add-social-btn').classList.add('hidden');
+        document.getElementById('upload-banner-btn').classList.add('hidden');
+        document.getElementById('upload-avatar-btn').classList.add('hidden');
+        document.getElementById('logout-btn').classList.add('hidden');
     }
 }
 
@@ -629,6 +639,23 @@ function renderSocialLinks(socialLinks) {
         div.appendChild(deleteBtn);
         container.appendChild(div);
     });
+}
+
+// ============================================================
+// OCULTAR BOTONES EN MODO PÚBLICO (INMEDIATO)
+// ============================================================
+function setupPublicView() {
+    if (isPublicView()) {
+        // Ocultar todos los botones de edición
+        document.getElementById('edit-bio-btn').classList.add('hidden');
+        document.getElementById('add-social-btn').classList.add('hidden');
+        document.getElementById('upload-banner-btn').classList.add('hidden');
+        document.getElementById('upload-avatar-btn').classList.add('hidden');
+        document.getElementById('logout-btn').classList.add('hidden');
+        
+        // Ocultar el botón de desconexión de Spotify (si existe)
+        document.getElementById('disconnect-spotify-btn').classList.add('hidden');
+    }
 }
 
 // ============================================================
