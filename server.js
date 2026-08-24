@@ -1,4 +1,4 @@
-    // ============================================================
+// ============================================================
     // 1. IMPORTAR LIBRERÍAS
     // ============================================================
     const express = require('express');
@@ -9,17 +9,13 @@
     const { createClient } = require('@supabase/supabase-js');
     const jwt = require('jsonwebtoken');
     require('dotenv').config();
-    const ColorThief = require('colorthief');
 
     const app = express();
-
 
     // ============================================================
     // CONFIGURACIÓN DE CORS (CORREGIDO PARA RENDER)
     // ============================================================
-    // 🔥 CONFIGURACIÓN MANUAL - MÁS CONFIABLE
     app.use((req, res, next) => {
-        // Permite explícitamente tu dominio de Netlify
         const allowedOrigins = [
             'https://courageous-biscochitos-8c3cca.netlify.app',
             'https://*.netlify.app',
@@ -28,11 +24,9 @@
         ];
         
         const origin = req.headers.origin;
-        // Si el origen está en la lista o es de netlify.app, permítelo
         if (origin && (allowedOrigins.includes(origin) || origin.includes('netlify.app'))) {
             res.header('Access-Control-Allow-Origin', origin);
         } else {
-            // Para pruebas, permite todo (en producción, especifica los dominios)
             res.header('Access-Control-Allow-Origin', '*');
         }
         
@@ -40,14 +34,13 @@
         res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
         res.header('Access-Control-Allow-Credentials', 'true');
         
-        // Responder a las solicitudes OPTIONS (preflight)
         if (req.method === 'OPTIONS') {
             return res.status(200).json({});
         }
         next();
     });
-    app.use(express.json());  // ← Necesario para leer req.body
-    app.use(cors());          // ← Respaldo para CORS
+    app.use(express.json());
+    app.use(cors());
 
     // ============================================================
     // 3. CONFIGURACIÓN DE ENTORNO
@@ -65,13 +58,10 @@
     // Spotify
     const spotifyClientId = 'fed9178fa0784af6a1c611ac82c91f60';
     const spotifyClientSecret = '289897deab3b4d5e8957c61de046f8a8';
-    const spotifyRedirectUri = 'https://soul-backend-hbdp.onrender.com/callback';  // ← CAMBIADO
+    const spotifyRedirectUri = 'https://soul-backend-hbdp.onrender.com/callback';
 
     // ============================================================
     // 4. RUTA DE PRUEBA
-    // ============================================================
-    // ============================================================
-    // RUTA RAÍZ (PARA RENDER)
     // ============================================================
     app.get('/', (req, res) => {
         res.json({
@@ -370,13 +360,13 @@
     });
 
         // ============================================================
-    // 11. PERFIL: SUBIR IMAGEN (CORREGIDO PARA BUCKET 'images')
+    // 11. PERFIL: SUBIR IMAGEN
     // ============================================================
     const storage = multer.memoryStorage();
     const upload = multer({
         storage,
         limits: { 
-            fileSize: 5 * 1024 * 1024, // 5MB
+            fileSize: 5 * 1024 * 1024,
             files: 1
         },
         fileFilter: (req, file, cb) => {
@@ -394,14 +384,12 @@
         console.log('📦 Body:', req.body);
         console.log('📦 File:', req.file ? '✅ Recibido' : '❌ No recibido');
 
-        // Verificar que se recibió el archivo
         if (!req.file) {
             return res.status(400).json({ 
                 error: 'No se subió ninguna imagen. Asegúrate de seleccionar un archivo.' 
             });
         }
 
-        // Verificar el tipo de imagen
         const type = req.body.type;
         if (!type || (type !== 'banner' && type !== 'avatar')) {
             return res.status(400).json({ 
@@ -410,7 +398,6 @@
         }
 
         try {
-            // 1. Preparar el archivo (SIN CARPETAS ANIDADAS, solo nombre único)
             const fileExt = req.file.originalname.split('.').pop();
             const fileName = `${req.user.id}_${Date.now()}.${fileExt}`;
             
@@ -418,14 +405,12 @@
             console.log(`📊 Tamaño: ${(req.file.size / 1024).toFixed(2)} KB`);
             console.log(`📊 Tipo: ${req.file.mimetype}`);
 
-            // 2. Subir el archivo directamente a la raíz del bucket 'images'
-            console.log('📤 Subiendo archivo a Supabase Storage...');
             const { error: uploadError } = await supabase.storage
-                .from('images') // 👈 AQUÍ USAMOS TU BUCKET 'images'
+                .from('images')
                 .upload(fileName, req.file.buffer, {
                     contentType: req.file.mimetype,
                     cacheControl: '3600',
-                    upsert: true // Sobrescribir si existe
+                    upsert: true
                 });
 
             if (uploadError) {
@@ -435,7 +420,6 @@
 
             console.log('✅ Archivo subido exitosamente a Storage');
 
-            // 3. Obtener la URL pública
             const { data: urlData } = supabase.storage
                 .from('images')
                 .getPublicUrl(fileName);
@@ -447,7 +431,6 @@
             const imageUrl = urlData.publicUrl;
             console.log('🔗 URL pública:', imageUrl);
 
-            // 4. Actualizar el perfil en la base de datos
             const updateField = type === 'banner' ? 'banner_url' : 'avatar_url';
             console.log(`📝 Actualizando campo: ${updateField}`);
 
@@ -463,7 +446,6 @@
 
             if (updateError) {
                 console.error('❌ Error al actualizar perfil:', updateError);
-                // Intentar eliminar la imagen subida si falla la actualización
                 try {
                     await supabase.storage.from('images').remove([fileName]);
                     console.log('🗑️ Imagen eliminada por fallo en actualización');
@@ -476,7 +458,6 @@
             console.log('✅ Perfil actualizado exitosamente');
             console.log('✅ Imagen subida y perfil actualizado');
 
-            // 5. Respuesta exitosa
             res.json({ 
                 success: true,
                 url: imageUrl, 
@@ -487,7 +468,6 @@
         } catch (error) {
             console.error('❌ Error en /profile/upload:', error);
             
-            // Determinar el código de estado apropiado
             let statusCode = 500;
             let errorMessage = error.message || 'Error al subir la imagen';
             
@@ -507,127 +487,9 @@
             });
         }
     });
-    // ============================================================
-    // SPOTIFY: OBTENER PERFIL DEL USUARIO (para obtener su ID)
-    // ============================================================
-    app.get('/spotify/profile', verifyToken, async (req, res) => {
-        try {
-            const data = await spotifyRequest(req.user.id, '/me');
-            res.json(data);
-        } catch (error) {
-            const status = error.status || error.response?.status || 500;
-            console.error(`❌ Error en /spotify/profile (${status}):`, error.message);
-            res.status(status).json({ 
-                error: error.message || 'Error al obtener perfil de Spotify'
-            });
-        }
-    });
-    // ============================================================
-    // RUTA DE DIAGNÓSTICO PARA SPOTIFY
-    // ============================================================
-    app.get('/spotify/status', verifyToken, async (req, res) => {
-        try {
-            const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('spotify_connected, spotify_token, spotify_refresh_token')
-                .eq('user_id', req.user.id)
-                .single();
-
-            if (error) {
-                return res.status(500).json({ error: 'Error al obtener perfil', details: error.message });
-            }
-
-            res.json({
-                spotify_connected: profile?.spotify_connected || false,
-                has_token: !!profile?.spotify_token,
-                has_refresh_token: !!profile?.spotify_refresh_token,
-                token_preview: profile?.spotify_token ? profile.spotify_token.substring(0, 20) + '...' : null,
-                user_id: req.user.id
-            });
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    });
-    // ============================================================
-    // RUTA DE DIAGNÓSTICO PARA STORAGE
-    // ============================================================
-    app.get('/storage/status', verifyToken, async (req, res) => {
-        try {
-            // 1. Verificar buckets
-            const { data: buckets, error: bucketsError } = await supabase.storage.listBuckets();
-            
-            if (bucketsError) {
-                return res.status(500).json({ 
-                    error: 'Error al listar buckets',
-                    details: bucketsError.message
-                });
-            }
-
-            const imagesBucket = buckets?.find(b => b.name === 'images');
-
-            // 2. Verificar políticas del bucket
-            let policies = null;
-            if (imagesBucket) {
-                try {
-                    // Intentar subir un archivo de prueba para verificar permisos
-                    const testFile = Buffer.from('test');
-                    const { error: testError } = await supabase.storage
-                        .from('images')
-                        .upload(`test_${Date.now()}.txt`, testFile, {
-                            contentType: 'text/plain'
-                        });
-                    
-                    if (testError) {
-                        policies = {
-                            can_upload: false,
-                            error: testError.message
-                        };
-                    } else {
-                        policies = {
-                            can_upload: true
-                        };
-                    }
-                } catch (policyError) {
-                    policies = {
-                        can_upload: false,
-                        error: policyError.message
-                    };
-                }
-            }
-
-            // 3. Verificar perfil del usuario
-            const { data: profile, error: profileError } = await supabase
-                .from('profiles')
-                .select('user_id, username, avatar_url, banner_url')
-                .eq('user_id', req.user.id)
-                .single();
-
-            res.json({
-                storage: {
-                    buckets_available: buckets?.map(b => b.name) || [],
-                    images_bucket_exists: !!imagesBucket,
-                    images_bucket_public: imagesBucket?.public || false,
-                    policies: policies
-                },
-                user: {
-                    id: req.user.id,
-                    has_profile: !!profile,
-                    current_avatar: profile?.avatar_url || null,
-                    current_banner: profile?.banner_url || null
-                }
-            });
-
-        } catch (error) {
-            console.error('❌ Error en /storage/status:', error);
-            res.status(500).json({ 
-                error: 'Error al verificar estado del almacenamiento',
-                details: error.message
-            });
-        }
-    });
 
     // ============================================================
-    // 12. SPOTIFY: CONECTAR
+    // SPOTIFY: CONECTAR
     // ============================================================
     app.get('/spotify/connect', verifyToken, (req, res) => {
         const state = req.user.id;
@@ -646,7 +508,32 @@
     });
 
     // ============================================================
-    // 13. SPOTIFY: CALLBACK
+    // SPOTIFY: DESCONECTAR (NUEVO)
+    // ============================================================
+    app.post('/spotify/disconnect', verifyToken, async (req, res) => {
+        try {
+            const { error } = await supabase
+                .from('profiles')
+                .update({
+                    spotify_token: null,
+                    spotify_refresh_token: null,
+                    spotify_connected: false,
+                    updated_at: new Date()
+                })
+                .eq('user_id', req.user.id);
+
+            if (error) throw error;
+
+            console.log('✅ Spotify desconectado para:', req.user.id);
+            res.json({ success: true, message: 'Spotify desconectado' });
+        } catch (error) {
+            console.error('❌ Error al desconectar Spotify:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
+
+    // ============================================================
+    // SPOTIFY: CALLBACK
     // ============================================================
     app.get('/callback', async (req, res) => {
         const code = req.query.code;
@@ -689,9 +576,7 @@
 
             if (updateError) throw updateError;
 
-            // Redirigir al frontend
-                    // Redirigir al frontend
-            res.redirect('https://courageous-biscochitos-8c3cca.netlify.app?spotify=connected');  // ← CAMBIADO
+            res.redirect('https://courageous-biscochitos-8c3cca.netlify.app?spotify=connected');
 
         } catch (error) {
             console.error('❌ Error en callback Spotify:', error);
@@ -700,7 +585,7 @@
     });
 
     // ============================================================
-    // 14. FUNCIÓN PARA REFRESCAR TOKEN DE SPOTIFY (NUEVO)
+    // FUNCIÓN PARA REFRESCAR TOKEN DE SPOTIFY
     // ============================================================
     const refreshSpotifyToken = async (userId) => {
         try {
@@ -783,7 +668,6 @@
             }
 
             if (!profile.spotify_token) {
-                // Intentar refrescar si hay refresh token
                 if (profile.spotify_refresh_token) {
                     console.log('🔄 Token ausente, intentando refrescar...');
                     const newToken = await refreshSpotifyToken(userId);
@@ -799,9 +683,8 @@
         }
     };
 
-    // Helper para hacer requests a Spotify con manejo de errores
     // ============================================================
-    // SPOTIFY REQUEST CON MANEJO DE ERRORES MEJORADO
+    // SPOTIFY REQUEST CON MANEJO DE ERRORES
     // ============================================================
     const spotifyRequest = async (userId, endpoint, params = {}) => {
         try {
@@ -812,7 +695,6 @@
                 token = await getSpotifyToken(userId);
             } catch (error) {
                 console.error('❌ Error al obtener token:', error.message);
-                // Devolver error 401 para que el frontend sepa que debe reconectar
                 const err = new Error(error.message);
                 err.status = 401;
                 throw err;
@@ -825,7 +707,7 @@
                         'Content-Type': 'application/json'
                     },
                     params: params,
-                    timeout: 10000 // 10 segundos timeout
+                    timeout: 10000
                 });
                 return response.data;
             } catch (error) {
@@ -835,7 +717,6 @@
                     message: error.message
                 });
 
-                // Si el token expiró (401), intentamos refrescar
                 if (error.response?.status === 401) {
                     console.log('🔄 Token expirado, refrescando...');
                     try {
@@ -855,7 +736,6 @@
                     }
                 }
 
-                // Si es 204 No Content, devolver vacío
                 if (error.response?.status === 204) {
                     return { is_playing: false };
                 }
@@ -868,7 +748,6 @@
                 status: error.status || error.response?.status
             });
             
-            // Propagar el error con el código de estado apropiado
             const err = new Error(error.message);
             err.status = error.status || error.response?.status || 500;
             throw err;
@@ -972,20 +851,17 @@
             });
         }
     });
+
     // ============================================================
-    // SPOTIFY: FOLLOWING (Artistas que sigue) - ESTRUCTURA CORREGIDA
+    // SPOTIFY: FOLLOWING
     // ============================================================
     app.get('/following', verifyToken, async (req, res) => {
         try {
-            // El parámetro 'type' es OBLIGATORIO para este endpoint
             const data = await spotifyRequest(req.user.id, '/me/following', { 
                 type: 'artist', 
                 limit: 20 
             });
-            
-            // ✅ La API devuelve { artists: { items: [...] } }, así que se lo pasamos tal cual al frontend
-            // El frontend debería acceder a data.artists.items
-            res.json(data); 
+            res.json(data);
         } catch (error) {
             const status = error.status || error.response?.status || 500;
             console.error(`❌ Error en /following (${status}):`, error.message);
@@ -997,14 +873,14 @@
     });
 
     // ============================================================
-    // SPOTIFY: SAVED ALBUMS (Álbumes guardados) - ESTRUCTURA CORREGIDA
+    // SPOTIFY: SAVED ALBUMS
     // ============================================================
     app.get('/saved-albums', verifyToken, async (req, res) => {
         try {
             const data = await spotifyRequest(req.user.id, '/me/albums', { 
                 limit: 20 
             });
-            res.json(data); // Al frontend le llegará { items: [...] }
+            res.json(data);
         } catch (error) {
             const status = error.status || error.response?.status || 500;
             console.error(`❌ Error en /saved-albums (${status}):`, error.message);
@@ -1014,22 +890,20 @@
             res.status(status).json({ error: error.message || 'Error al obtener álbumes guardados' });
         }
     });
+
     // --- PLAYLISTS (SOLO DEL USUARIO) ---
     app.get('/playlists', verifyToken, async (req, res) => {
         try {
             console.log('📤 Obteniendo playlists del usuario...');
             
-            // 1. Obtener el perfil del usuario para conocer su ID de Spotify
             const userProfile = await spotifyRequest(req.user.id, '/me');
             const spotifyUserId = userProfile.id;
             console.log(`🔍 Usuario Spotify ID: ${spotifyUserId}`);
             console.log(`🔍 Nombre de usuario: ${userProfile.display_name}`);
             
-            // 2. Obtener todas las playlists (incluye las guardadas)
             const data = await spotifyRequest(req.user.id, '/me/playlists', { limit: 50 });
             console.log(`📊 Total de playlists obtenidas: ${data.items.length}`);
             
-            // 3. Filtrar SOLO las playlists donde el owner es el usuario
             const userPlaylists = data.items.filter(playlist => {
                 const isOwner = playlist.owner?.id === spotifyUserId;
                 console.log(`  📌 "${playlist.name}" - Owner: ${playlist.owner?.display_name || playlist.owner?.id} - Es dueño: ${isOwner}`);
@@ -1038,7 +912,6 @@
             
             console.log(`✅ ${userPlaylists.length} playlists del usuario (de ${data.items.length} totales)`);
             
-            // 4. Devolver solo las playlists del usuario
             res.json({ items: userPlaylists });
             
         } catch (error) {
@@ -1059,35 +932,9 @@
     });
 
     // ============================================================
-    // RUTA DE DIAGNÓSTICO PARA SPOTIFY
-    // ============================================================
-    app.get('/spotify/status', verifyToken, async (req, res) => {
-        try {
-            const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('spotify_connected, spotify_token, spotify_refresh_token')
-                .eq('user_id', req.user.id)
-                .single();
-
-            if (error) {
-                return res.status(500).json({ error: 'Error al obtener perfil', details: error.message });
-            }
-
-            res.json({
-                spotify_connected: profile?.spotify_connected || false,
-                has_token: !!profile?.spotify_token,
-                has_refresh_token: !!profile?.spotify_refresh_token,
-                token_preview: profile?.spotify_token ? profile.spotify_token.substring(0, 20) + '...' : null,
-                user_id: req.user.id
-            });
-        } catch (error) {
-            res.status(500).json({ error: error.message });
-        }
-    });
-    // ============================================================
     // 16. INICIAR SERVIDOR
     // ============================================================
-    const PORT = process.env.PORT || 8888;  // ← CAMBIADO
+    const PORT = process.env.PORT || 8888;
     app.listen(PORT, '0.0.0.0', () => {
         console.log(`🚀 Servidor SOUL corriendo en puerto ${PORT}`);
         console.log(`📌 URL del servidor: https://soul-backend-hbdp.onrender.com`);
