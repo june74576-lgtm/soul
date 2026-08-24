@@ -166,10 +166,23 @@ async function initProfile() {
             const savedUser = JSON.parse(userData);
             renderProfile(savedUser, { isPublic: false });
         }
-    } catch (error) {
+            if (user.background_url) {
+                localStorage.setItem('customBg', user.background_url);
+                document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
+                document.documentElement.style.setProperty('--custom-bg-blur', '15px');
+            }
+    
+        }
+    catch (error) {
         console.warn('⚠️ Error, usando localStorage:', error.message);
         const savedUser = JSON.parse(userData);
         renderProfile(savedUser, { isPublic: false });
+    }
+    // Al final de initProfile(), después de renderProfile()
+    const savedBg = localStorage.getItem('customBg');
+    if (savedBg) {
+        document.documentElement.style.setProperty('--custom-bg-url', `url(${savedBg})`);
+        document.documentElement.style.setProperty('--custom-bg-blur', '15px');
     }
 }
 
@@ -552,15 +565,15 @@ function setupProfileEvents() {
         document.getElementById('bg-input').click();
     });
 
+    // En setupProfileEvents(), líneas ~566-590
     document.getElementById('bg-input')?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if (!file) return;
         const token = localStorage.getItem('token');
         
-        // Crear FormData
         const formData = new FormData();
         formData.append('image', file);
-        formData.append('type', 'background');
+        formData.append('type', 'background'); // ✅ Ahora es válido
         
         try {
             const response = await fetch(`${API_URL}/profile/upload`, {
@@ -568,7 +581,11 @@ function setupProfileEvents() {
                 headers: { 'Authorization': `Bearer ${token}` },
                 body: formData
             });
-            if (!response.ok) throw new Error('Error al subir fondo');
+            
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || 'Error al subir fondo');
+            }
             
             const data = await response.json();
             
@@ -576,10 +593,22 @@ function setupProfileEvents() {
             document.documentElement.style.setProperty('--custom-bg-url', `url(${data.url})`);
             document.documentElement.style.setProperty('--custom-bg-blur', '15px');
             
-            // Guardar en localStorage para que persista
+            // ✅ Actualizar localStorage para acceso rápido (cache)
             localStorage.setItem('customBg', data.url);
             
+            // ✅ También actualizar el perfil en localStorage
+            const userData = localStorage.getItem('user');
+            if (userData) {
+                const user = JSON.parse(userData);
+                user.background_url = data.url;
+                localStorage.setItem('user', JSON.stringify(user));
+            }
+            
+            // Mostrar mensaje de éxito
+            showShareToast('¡Fondo actualizado!', 'success');
+            
         } catch (error) {
+            console.error('❌ Error al subir fondo:', error);
             alert('Error al subir el fondo: ' + error.message);
         }
         e.target.value = '';
@@ -601,7 +630,10 @@ function renderProfile(user, options = {}) {
     if (user.banner_url) {
         document.getElementById('banner-img').src = user.banner_url;
     }
-
+    if (user.background_url) {
+        document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
+        document.documentElement.style.setProperty('--custom-bg-blur', '15px');
+    }
     if (user.avatar_url) {
         document.getElementById('avatar-img').src = user.avatar_url;
     }
