@@ -18,7 +18,7 @@
             </div>
             <div class="topbar-right">
                 <span id="profile-username">@user</span>
-                <button id="logout-btn" class="btn-logout">Logout</button>
+                <button id="logout-btn" class="btn-logout public-hide">Logout</button>
             </div>
         </div>
 
@@ -33,7 +33,7 @@
                         <h2 id="display-username">@soul_user</h2>
                         <p id="display-bio">Edit your bio</p>
                     </div>
-                    <button class="bio-edit-btn" id="edit-bio-btn">✎ Edit bio</button>
+                    <button class="bio-edit-btn public-hide" id="edit-bio-btn">✎ Edit bio</button>
                 </div>
 
                 <!-- BIO EDITOR (oculto) -->
@@ -52,7 +52,7 @@
                         <div class="social-list" id="social-list">
                             <!-- Se llena con JS -->
                         </div>
-                        <button class="social-add-btn" id="add-social-btn">+ Add social</button>
+                        <button class="social-add-btn public-hide" id="add-social-btn">+ Add social</button>
                     </div>
                 </div>
 
@@ -102,7 +102,7 @@
                         Share Profile
                     </button>
                     
-                    <button class="upload-btn" id="upload-banner-btn">Change Banner</button>
+                    <button class="upload-btn public-hide" id="upload-banner-btn">Change Banner</button>
                     <input type="file" id="banner-input" accept="image/*" hidden />
                 </div>
 
@@ -110,7 +110,7 @@
                 <div class="avatar-wrapper">
                     <div class="avatar-circle" id="avatar-container">
                         <img src="https://picsum.photos/200/200?random=2" alt="Avatar" id="avatar-img" />
-                        <button class="upload-avatar-btn" id="upload-avatar-btn">Change</button>
+                        <button class="upload-avatar-btn public-hide" id="upload-avatar-btn">Change</button>
                         <input type="file" id="avatar-input" accept="image/*" hidden />
                     </div>
                 </div>
@@ -134,7 +134,7 @@
                         </div>
                         <div class="card-badge" id="spotify-badge">Connect</div>
                         <!-- 🔥 NUEVO BOTÓN DE DESCONEXIÓN -->
-                        <button class="btn-disconnect-spotify hidden" id="disconnect-spotify-btn">Disconnect</button>
+                        <button class="btn-disconnect-spotify public-hide" id="disconnect-spotify-btn">Disconnect</button>
                     </div>
 
                     <!-- CARD: Anime (deshabilitada) -->

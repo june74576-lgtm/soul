@@ -1514,3 +1514,9 @@ body {
 .btn-disconnect-spotify.hidden {
     display: none;
 }
+/* ============================================================
+   OCULTAR BOTONES EN MODO PÚBLICO (CSS PURO)
+   ============================================================ */
+body[data-public="true"] .public-hide {
+    display: none !important;
+}

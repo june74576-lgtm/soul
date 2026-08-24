@@ -113,6 +113,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // INICIALIZAR PERFIL
 // ============================================================
 async function initProfile() {
+    // 🔥 MARCADOR DE VISTA PÚBLICA EN EL BODY
+    if (isPublicView()) {
+        document.body.setAttribute('data-public', 'true');
+    }
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
