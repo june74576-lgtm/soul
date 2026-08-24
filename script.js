@@ -659,19 +659,22 @@ async function loadModalData() {
     const likes = await fetchSpotify('recent-tracks');
     
     if (likes && likes.items && likes.items.length > 0) {
-        const items = document.querySelectorAll('#modal-likes-grid .like-item');
-        likes.items.slice(0, 6).forEach((track, i) => {
-            if (items[i]) {
-                const img = items[i].querySelector('img');
-                const span = items[i].querySelector('span');
-                if (img) img.src = track.track?.album?.images?.[0]?.url || 'https://picsum.photos/50/50?random=' + i;
-                if (span) span.textContent = track.track?.name || 'Unknown';
-                const item = items[i];
-                item.style.cursor = 'pointer';
-                item.addEventListener('click', () => {
-                    if (track.track?.external_urls?.spotify) window.open(track.track.external_urls.spotify, '_blank');
-                });
-            }
+        // Limpiar el grid por si hay datos antiguos
+        document.getElementById('modal-likes-grid').innerHTML = '';
+        
+        likes.items.slice(0, 6).forEach((item, i) => {
+            const track = item.track; 
+            const div = document.createElement('div');
+            div.className = 'like-item';
+            div.innerHTML = `
+                <img src="${track.album?.images?.[0]?.url || 'https://picsum.photos/50/50?random=' + i}" />
+                <span>${track.name || 'Unknown'}</span>
+            `;
+            div.style.cursor = 'pointer';
+            div.addEventListener('click', () => {
+                if (track.external_urls?.spotify) window.open(track.external_urls.spotify, '_blank');
+            });
+            document.getElementById('modal-likes-grid').appendChild(div);
         });
     } else {
         document.getElementById('modal-likes-grid').innerHTML = '<div style="grid-column: 1/-1; color: var(--text-muted);">No se pudieron cargar las canciones</div>';
