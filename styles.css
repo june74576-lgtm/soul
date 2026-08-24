@@ -1361,3 +1361,30 @@ body {
 .share-toast.error {
     border-color: #ff6b6b;
 }
+/* ============================================================
+   COLOR DINÁMICO DE SPOTIFY (Efecto "Gamma")
+   ============================================================ */
+:root {
+    --track-accent: #C6B8FF; /* Color por defecto (tu acento actual) */
+}
+
+/* Aplicar al borde del modal de música */
+.modal-card {
+    border: 1px solid var(--track-accent);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(var(--track-accent-rgb), 0.1);
+}
+
+/* Aplicar a las ondas de música */
+.pulse-bars span {
+    background: var(--track-accent);
+}
+
+/* Transición suave para el cambio de color */
+.modal-card, .pulse-bars span {
+    transition: border-color 0.6s ease, background-color 0.6s ease, box-shadow 0.6s ease;
+}
+
+/* Si quieres que el texto de "Now Playing" también cambie sutilmente */
+.track-name {
+    color: var(--track-accent);
+}

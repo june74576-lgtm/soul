@@ -9,9 +9,70 @@
     const { createClient } = require('@supabase/supabase-js');
     const jwt = require('jsonwebtoken');
     require('dotenv').config();
+    const ColorThief = require('colorthief');
 
     const app = express();
 
+    // Función para extraer color dominante y aplicar "gamma" de seguridad
+async function getTrackColor(imageUrl) {
+    try {
+        if (!imageUrl) return null;
+        
+        // 1. Extraer color dominante
+        const rgb = await ColorThief.getColor(imageUrl);
+        
+        // 2. Aplicar "gamma" de Spotify (filtro de luminosidad y saturación)
+        // Convertir RGB a HSL para modificar el color fácilmente
+        let r = rgb[0] / 255;
+        let g = rgb[1] / 255;
+        let b = rgb[2] / 255;
+        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, l = (max + min) / 2;
+
+        if (max === min) {
+            h = s = 0; // Achromatic
+        } else {
+            let d = max - min;
+            s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+            switch (max) {
+                case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+                case g: h = (b - r) / d + 2; break;
+                case b: h = (r - g) / d + 4; break;
+            }
+            h /= 6;
+        }
+
+        // 3. Filtro de seguridad:
+        // Si el color es demasiado oscuro (l < 0.2) o demasiado brillante (l > 0.9), lo ajustamos.
+        // Si la saturación es muy baja (gris), la subimos un poco.
+        if (l < 0.25) l = 0.25;  // Evitar que el cover negro haga todo negro (forzamos gris oscuro)
+        if (l > 0.85) l = 0.85;  // Evitar blancos cegadores
+        if (s < 0.3) s = 0.3;    // Evitar que se vea gris apagado si hay color
+
+        // Convertir HSL ajustado de vuelta a RGB
+        const hue2rgb = (p, q, t) => {
+            if (t < 0) t += 1;
+            if (t > 1) t -= 1;
+            if (t < 1/6) return p + (q - p) * 6 * t;
+            if (t < 1/2) return q;
+            if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+            return p;
+        };
+
+        let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+        let p = 2 * l - q;
+        let newR = Math.round(hue2rgb(p, q, h + 1/3) * 255);
+        let newG = Math.round(hue2rgb(p, q, h) * 255);
+        let newB = Math.round(hue2rgb(p, q, h - 1/3) * 255);
+
+        // Devolver en formato HEX o RGB
+        return `rgb(${newR}, ${newG}, ${newB})`;
+        
+    } catch (error) {
+        console.error('❌ Error extrayendo color:', error);
+        return null;
+    }
+}
     // ============================================================
     // CONFIGURACIÓN DE CORS (CORREGIDO PARA RENDER)
     // ============================================================
@@ -874,16 +935,24 @@
     };
 
     // --- NOW PLAYING ---
-    // --- NOW PLAYING ---
     app.get('/currently-playing', verifyToken, async (req, res) => {
         try {
             const data = await spotifyRequest(req.user.id, '/me/player/currently-playing');
-            res.json(data);
+            
+            // Si hay música sonando, extraer color del cover
+            if (data && data.item && data.item.album && data.item.album.images) {
+                const coverUrl = data.item.album.images[0]?.url;
+                const trackColor = await getTrackColor(coverUrl);
+                
+                // Agregar el color extraído a la respuesta
+                res.json({ ...data, track_color: trackColor });
+            } else {
+                res.json(data);
+            }
         } catch (error) {
             const status = error.status || error.response?.status || 500;
             console.error(`❌ Error en /currently-playing (${status}):`, error.message);
             
-            // Si es 401, devolver un error claro
             if (status === 401) {
                 return res.status(401).json({ 
                     error: 'Spotify no conectado o sesión expirada. Reconecta tu cuenta.',

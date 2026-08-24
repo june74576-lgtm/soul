@@ -770,6 +770,18 @@ function updateNowPlayingUI(spotifyData) {
     modalNow.style.display = 'flex';
     if (pulseBars) pulseBars.style.opacity = '1';
     
+    // 🔥 NUEVO: Actualizar el color dinámico
+    if (spotifyData.track_color) {
+        document.documentElement.style.setProperty('--track-accent', spotifyData.track_color);
+        
+        // Para la sombra necesitamos extraer los valores RGB (opcional)
+        // Si el color viene como "rgb(255, 100, 50)", hacemos split para crear la sombra
+        const rgbValues = spotifyData.track_color.match(/\d+/g);
+        if (rgbValues && rgbValues.length === 3) {
+            document.documentElement.style.setProperty('--track-accent-rgb', rgbValues.join(','));
+        }
+    }
+    
     // Hacer clickeable
     modalNow.style.cursor = 'pointer';
     modalNow.onclick = () => {
