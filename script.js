@@ -874,16 +874,19 @@ async function loadModalDataPublic() {
 }
 // Cargar datos de Spotify con sesión activa (usuario logueado)
 async function loadModalData() {
-    console.log('📥 Cargando datos del modal...');
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_URL}/all-spotify-data`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+    
+    const data = await response.json();
+    console.log('✅ Todos los datos recibidos:', data);
 
-    startNowPlayingUpdates();
-
-    // ===== TOP ARTISTS =====
-    const artists = await fetchSpotify('top-artists');
+    // Renderizar Top Artists
     const artistContainer = document.getElementById('modal-artist-list');
-    if (artists && artists.items && artistContainer) {
+    if (data.top_artists?.items) {
         artistContainer.innerHTML = '';
-        artists.items.slice(0, 5).forEach((artist, i) => {
+        data.top_artists.items.slice(0, 5).forEach((artist, i) => {
             const div = document.createElement('div');
             div.className = 'artist-item';
             div.innerHTML = `
@@ -899,15 +902,11 @@ async function loadModalData() {
         });
     }
 
-    // Esperar un poco antes de la siguiente petición
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // ===== TOP TRACKS =====
-    const tracks = await fetchSpotify('top-tracks');
+    // Renderizar Top Tracks
     const trackContainer = document.getElementById('modal-tracks-list');
-    if (tracks && tracks.items && trackContainer) {
+    if (data.top_tracks?.items) {
         trackContainer.innerHTML = '';
-        tracks.items.slice(0, 5).forEach((track, i) => {
+        data.top_tracks.items.slice(0, 5).forEach((track, i) => {
             const div = document.createElement('div');
             div.className = 'track-item';
             div.innerHTML = `
@@ -924,14 +923,11 @@ async function loadModalData() {
         });
     }
 
-    // Esperar un poco antes de la siguiente petición
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // ===== RECENT LIKES =====
-    const likes = await fetchSpotify('recent-tracks');
-    if (likes && likes.items && likes.items.length > 0) {
-        document.getElementById('modal-likes-grid').innerHTML = '';
-        likes.items.slice(0, 6).forEach((item, i) => {
+    // Renderizar Recent Likes
+    const likesGrid = document.getElementById('modal-likes-grid');
+    if (data.saved_tracks?.items) {
+        likesGrid.innerHTML = '';
+        data.saved_tracks.items.slice(0, 6).forEach((item, i) => {
             const track = item.track;
             const div = document.createElement('div');
             div.className = 'like-item';
@@ -943,21 +939,15 @@ async function loadModalData() {
             div.addEventListener('click', () => {
                 if (track.external_urls?.spotify) window.open(track.external_urls.spotify, '_blank');
             });
-            document.getElementById('modal-likes-grid').appendChild(div);
+            likesGrid.appendChild(div);
         });
-    } else {
-        document.getElementById('modal-likes-grid').innerHTML = '<div style="grid-column: 1/-1; color: var(--text-muted);">No se pudieron cargar las canciones</div>';
     }
 
-    // Esperar un poco antes de la siguiente petición
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // ===== FOLLOWING =====
-    const following = await fetchSpotify('following');
+    // Renderizar Following
     const followingList = document.getElementById('modal-following-list');
-    if (following && following.artists && following.artists.items && followingList) {
+    if (data.following?.artists?.items) {
         followingList.innerHTML = '';
-        following.artists.items.slice(0, 20).forEach((artist) => {
+        data.following.artists.items.slice(0, 20).forEach((artist) => {
             const div = document.createElement('div');
             div.className = 'carousel-item';
             div.innerHTML = `
@@ -971,15 +961,11 @@ async function loadModalData() {
         });
     }
 
-    // Esperar un poco antes de la siguiente petición
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // ===== SAVED ALBUMS =====
-    const albums = await fetchSpotify('saved-albums');
+    // Renderizar Saved Albums
     const albumsList = document.getElementById('modal-albums-list');
-    if (albums && albums.items && albumsList) {
+    if (data.saved_albums?.items) {
         albumsList.innerHTML = '';
-        albums.items.slice(0, 20).forEach((item) => {
+        data.saved_albums.items.slice(0, 20).forEach((item) => {
             const album = item.album;
             const div = document.createElement('div');
             div.className = 'carousel-item square';
@@ -995,15 +981,11 @@ async function loadModalData() {
         });
     }
 
-    // Esperar un poco antes de la siguiente petición
-    await new Promise(resolve => setTimeout(resolve, 500));
-
-    // ===== PLAYLISTS =====
-    const playlists = await fetchSpotify('playlists');
+    // Renderizar Playlists
     const playlistsList = document.getElementById('modal-playlists-list');
-    if (playlists && playlists.items && playlistsList) {
+    if (data.playlists?.items) {
         playlistsList.innerHTML = '';
-        playlists.items.slice(0, 10).forEach((playlist) => {
+        data.playlists.items.slice(0, 10).forEach((playlist) => {
             const div = document.createElement('div');
             div.className = 'carousel-item square';
             div.innerHTML = `
@@ -1017,12 +999,13 @@ async function loadModalData() {
         });
     }
 
-    console.log('✅ Modal cargado');
-
-    // Inicializar carruseles
+    // Inicializar carruseles (aunque estén vacíos)
     setupCarousel('following');
     setupCarousel('albums');
     setupCarousel('playlists');
+
+    // Iniciar Now Playing en tiempo real
+    startNowPlayingUpdates();
 }
 // Función para manejar los botones de los carruseles
 function setupCarousel(type) {
