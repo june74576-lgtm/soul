@@ -169,7 +169,7 @@ async function initProfile() {
             if (user.background_url) {
                 localStorage.setItem('customBg', user.background_url);
                 document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
-                document.documentElement.style.setProperty('--custom-bg-blur', '15px');
+                document.documentElement.style.setProperty('--custom-bg-blur', '0px');
             }
     
         }
@@ -182,7 +182,7 @@ async function initProfile() {
     const savedBg = localStorage.getItem('customBg');
     if (savedBg) {
         document.documentElement.style.setProperty('--custom-bg-url', `url(${savedBg})`);
-        document.documentElement.style.setProperty('--custom-bg-blur', '15px');
+        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
     }
 }
 
@@ -591,7 +591,7 @@ function setupProfileEvents() {
             
             // Aplicar el fondo en la página
             document.documentElement.style.setProperty('--custom-bg-url', `url(${data.url})`);
-            document.documentElement.style.setProperty('--custom-bg-blur', '15px');
+            document.documentElement.style.setProperty('--custom-bg-blur', '0px');
             
             // ✅ Actualizar localStorage para acceso rápido (cache)
             localStorage.setItem('customBg', data.url);
@@ -632,7 +632,7 @@ function renderProfile(user, options = {}) {
     }
     if (user.background_url) {
         document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
-        document.documentElement.style.setProperty('--custom-bg-blur', '15px');
+        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
     }
     if (user.avatar_url) {
         document.getElementById('avatar-img').src = user.avatar_url;
