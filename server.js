@@ -631,7 +631,7 @@
     // ============================================================
     app.get('/spotify/connect', verifyToken, (req, res) => {
         const state = req.user.id;
-        const scope = 'user-read-currently-playing user-top-read user-read-private user-library-read user-library-modify playlist-read-private playlist-read-collaborative';
+        const scope = 'user-read-currently-playing user-top-read user-read-private user-library-read user-library-modify playlist-read-private playlist-read-collaborative user-read-recently-played user-follow-read';
 
         const redirectUrl = 'https://accounts.spotify.com/authorize?' +
             querystring.stringify({
@@ -973,16 +973,19 @@
         }
     });
     // ============================================================
-    // SPOTIFY: FOLLOWING (Artistas que sigue)
+    // SPOTIFY: FOLLOWING (Artistas que sigue) - ESTRUCTURA CORREGIDA
     // ============================================================
     app.get('/following', verifyToken, async (req, res) => {
         try {
-            // limit=20 para mostrar bastantes en el carrusel
+            // El parámetro 'type' es OBLIGATORIO para este endpoint
             const data = await spotifyRequest(req.user.id, '/me/following', { 
                 type: 'artist', 
                 limit: 20 
             });
-            res.json(data);
+            
+            // ✅ La API devuelve { artists: { items: [...] } }, así que se lo pasamos tal cual al frontend
+            // El frontend debería acceder a data.artists.items
+            res.json(data); 
         } catch (error) {
             const status = error.status || error.response?.status || 500;
             console.error(`❌ Error en /following (${status}):`, error.message);
@@ -994,14 +997,14 @@
     });
 
     // ============================================================
-    // SPOTIFY: SAVED ALBUMS (Álbumes guardados)
+    // SPOTIFY: SAVED ALBUMS (Álbumes guardados) - ESTRUCTURA CORREGIDA
     // ============================================================
     app.get('/saved-albums', verifyToken, async (req, res) => {
         try {
             const data = await spotifyRequest(req.user.id, '/me/albums', { 
                 limit: 20 
             });
-            res.json(data);
+            res.json(data); // Al frontend le llegará { items: [...] }
         } catch (error) {
             const status = error.status || error.response?.status || 500;
             console.error(`❌ Error en /saved-albums (${status}):`, error.message);

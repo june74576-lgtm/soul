@@ -641,7 +641,10 @@ async function loadModalData() {
     // ===== RECENT LIKES =====
     console.log('📤 Cargando recent-tracks...');
     const likes = await fetchSpotify('recent-tracks');
-    if (likes && likes.items) {
+    
+    // ✅ CORRECCIÓN: La API devuelve { items: [...] }, no un array directo.
+    // En el código anterior probablemente tenías `likes.items`, pero si `likes` era un array vacío o tenía otra estructura, no funcionaba.
+    if (likes && likes.items && likes.items.length > 0) {
         const items = document.querySelectorAll('#modal-likes-grid .like-item');
         likes.items.slice(0, 6).forEach((track, i) => {
             if (items[i]) {
@@ -656,12 +659,16 @@ async function loadModalData() {
                 });
             }
         });
+    } else {
+        document.getElementById('modal-likes-grid').innerHTML = '<div style="grid-column: 1/-1; color: var(--text-muted);">No se pudieron cargar las canciones</div>';
     }
 
     // ===== FOLLOWING (Artistas seguidos) =====
     console.log('📤 Cargando following...');
     const following = await fetchSpotify('following');
     const followingList = document.getElementById('modal-following-list');
+    
+    // ✅ CORRECCIÓN: La API devuelve { artists: { items: [...] } }
     if (following && following.artists && following.artists.items && followingList) {
         followingList.innerHTML = '';
         following.artists.items.slice(0, 20).forEach((artist) => {
@@ -682,6 +689,8 @@ async function loadModalData() {
     console.log('📤 Cargando saved-albums...');
     const albums = await fetchSpotify('saved-albums');
     const albumsList = document.getElementById('modal-albums-list');
+    
+    // ✅ CORRECCIÓN: Devuelve { items: [...] } donde cada item es { album: {...} }
     if (albums && albums.items && albumsList) {
         albumsList.innerHTML = '';
         albums.items.slice(0, 20).forEach((item) => {
