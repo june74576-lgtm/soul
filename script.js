@@ -177,8 +177,7 @@ async function initProfile() {
 // EVENTOS
 // ============================================================
 function setupProfileEvents() {
-    // 🔥 INMEDIATO: Si es vista pública, bloquea todo
-    // 🔥 Si es vista pública, bloquear botones
+    // 🔥 SI ES VISTA PÚBLICA: Bloquear botones
     if (isPublicView()) {
         document.getElementById('edit-bio-btn').classList.add('hidden');
         document.getElementById('add-social-btn').classList.add('hidden');
@@ -193,8 +192,11 @@ function setupProfileEvents() {
         document.getElementById('upload-avatar-btn').onclick = () => {};
         document.getElementById('logout-btn').onclick = () => {};
         document.getElementById('disconnect-spotify-btn').onclick = () => {};
-    } else {
-        // 🔥 Si NO es pública, NO bloquear los botones de edición
+    }
+
+    // 🔥 SI NO ES VISTA PÚBLICA: NO bloquear nada (todo funciona)
+    else {
+        // Quitar la función vacía de los botones
         document.getElementById('edit-bio-btn').onclick = null;
         document.getElementById('add-social-btn').onclick = null;
         document.getElementById('upload-banner-btn').onclick = null;
