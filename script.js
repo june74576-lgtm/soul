@@ -526,7 +526,7 @@ function setupProfileEvents() {
         try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(profileUrl);
-                showShareToast('✅ Profile link copied!', 'success');
+                showShareToast('Profile link copied!', 'success');
             } else {
                 const textArea = document.createElement('textarea');
                 textArea.value = profileUrl;
@@ -534,11 +534,11 @@ function setupProfileEvents() {
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                showShareToast('✅ Profile link copied!', 'success');
+                showShareToast('Profile link copied!', 'success');
             }
         } catch (error) {
             console.error('Error al compartir perfil:', error);
-            showShareToast('❌ Error copying link', 'error');
+            showShareToast('Error copying link', 'error');
         }
     });
 
@@ -1218,6 +1218,38 @@ function updateNowPlayingUI(spotifyData) {
         }
     };
 }
+
+// ============================================================
+// LIGHTBOX (Ver imágenes en grande)
+// ============================================================
+function openLightbox(src) {
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImg = document.getElementById('lightbox-img');
+    lightboxImg.src = src;
+    lightbox.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    const lightbox = document.getElementById('lightbox');
+    lightbox.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+// Agregar evento de click a todas las imágenes (bio, banner, avatar)
+document.addEventListener('click', (e) => {
+    if (e.target.tagName === 'IMG' && !e.target.closest('.modal')) {
+        e.stopPropagation();
+        openLightbox(e.target.src);
+    }
+});
+
+// Cerrar lightbox al hacer click fuera
+document.getElementById('lightbox')?.addEventListener('click', (e) => {
+    if (e.target.id === 'lightbox') {
+        closeLightbox();
+    }
+});
 
 // ============================================================
 // BIO CON HTML

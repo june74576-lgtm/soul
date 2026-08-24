@@ -64,12 +64,12 @@
                             <label>Platform</label>
                             <select id="social-platform" class="social-select">
                                 <option value="">Select a platform...</option>
-                                <option value="instagram">📸 Instagram</option>
-                                <option value="tiktok">🎵 TikTok</option>
-                                <option value="discord">💬 Discord</option>
-                                <option value="github">🐙 GitHub</option>
-                                <option value="telegram">✈️ Telegram</option>
-                                <option value="facebook">👍 Facebook</option>
+                                <option value="instagram">Instagram</option>
+                                <option value="tiktok">TikTok</option>
+                                <option value="discord">Discord</option>
+                                <option value="github">GitHub</option>
+                                <option value="telegram">Telegram</option>
+                                <option value="facebook">Facebook</option>
                             </select>
                         </div>
                         <div class="form-group">
@@ -245,7 +245,12 @@
             </div>
         </div>
     </div>
-
+    <!-- Lightbox para ver imágenes en grande -->
+    <div class="lightbox" id="lightbox">
+        <span class="lightbox-close" onclick="closeLightbox()">&times;</span>
+        <img class="lightbox-content" id="lightbox-img" />
+        <div id="lightbox-caption"></div>
+    </div>
     <script src="script.js"></script>
 </body>
 </html>
