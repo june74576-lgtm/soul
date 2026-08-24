@@ -16,6 +16,14 @@ const socialPlatforms = {
 };
 
 // ============================================================
+// DETECTAR VISTA PÚBLICA (PERFIL COMPARTIDO)
+// ============================================================
+function isPublicView() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('user') !== null;
+}
+
+// ============================================================
 // AUTH: TOGGLE LOGIN / REGISTER
 // ============================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -101,13 +109,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 });
-
-// Detectar si estamos en modo visualización (perfil compartido)
-function isPublicView() {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get('user') !== null;
-}
-
 // ============================================================
 // INICIALIZAR PERFIL
 // ============================================================
