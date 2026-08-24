@@ -694,6 +694,19 @@ async function updatePublicNowPlaying(username) {
             modalCover.src = track.album?.images?.[0]?.url || 'https://picsum.photos/60/60?random=3';
             modalNow.style.display = 'flex';
             
+            // 🔥 NUEVO: Extraer color del cover y actualizar la variable CSS
+            if (modalCover.src) {
+                extractAccentColorFromImage(modalCover.src).then(color => {
+                    if (color) {
+                        document.documentElement.style.setProperty('--track-accent', color);
+                        const rgbValues = color.match(/\d+/g);
+                        if (rgbValues && rgbValues.length === 3) {
+                            document.documentElement.style.setProperty('--track-accent-rgb', rgbValues.join(','));
+                        }
+                    }
+                });
+            }
+            
             // Hacer clickeable
             modalNow.style.cursor = 'pointer';
             modalNow.onclick = () => {
