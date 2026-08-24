@@ -749,6 +749,77 @@ async function updateNowPlayingOnly() {
     }
 }
 
+// Extraer color del cover en el navegador (sin backend)
+async function extractAccentColorFromImage(imageUrl) {
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.src = imageUrl;
+        
+        img.onload = () => {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 1;
+                canvas.height = 1;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, 1, 1);
+                const pixel = ctx.getImageData(0, 0, 1, 1).data;
+                
+                let r = pixel[0];
+                let g = pixel[1];
+                let b = pixel[2];
+
+                // Aplicar gamma (convertir a HSL y ajustar)
+                let rN = r / 255;
+                let gN = g / 255;
+                let bN = b / 255;
+                let max = Math.max(rN, gN, bN), min = Math.min(rN, gN, bN);
+                let h, s, l = (max + min) / 2;
+
+                if (max === min) {
+                    h = s = 0; 
+                } else {
+                    let d = max - min;
+                    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+                    switch (max) {
+                        case rN: h = (gN - bN) / d + (gN < bN ? 6 : 0); break;
+                        case gN: h = (bN - rN) / d + 2; break;
+                        case bN: h = (rN - gN) / d + 4; break;
+                    }
+                    h /= 6;
+                }
+
+                // Filtro de seguridad (gamma de Spotify)
+                if (l < 0.25) l = 0.25;
+                if (l > 0.85) l = 0.85;
+                if (s < 0.3) s = 0.3;
+
+                // Convertir HSL de vuelta a RGB
+                const hue2rgb = (p, q, t) => {
+                    if (t < 0) t += 1;
+                    if (t > 1) t -= 1;
+                    if (t < 1/6) return p + (q - p) * 6 * t;
+                    if (t < 1/2) return q;
+                    if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+                    return p;
+                };
+
+                let q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+                let p = 2 * l - q;
+                let newR = Math.round(hue2rgb(p, q, h + 1/3) * 255);
+                let newG = Math.round(hue2rgb(p, q, h) * 255);
+                let newB = Math.round(hue2rgb(p, q, h - 1/3) * 255);
+
+                resolve(`rgb(${newR}, ${newG}, ${newB})`);
+            } catch (e) {
+                resolve(null);
+            }
+        };
+        
+        img.onerror = () => resolve(null);
+    });
+}
+
 function updateNowPlayingUI(spotifyData) {
     const modalTrack = document.getElementById('modal-track-name');
     const modalArtist = document.getElementById('modal-track-artist');
@@ -770,16 +841,18 @@ function updateNowPlayingUI(spotifyData) {
     modalNow.style.display = 'flex';
     if (pulseBars) pulseBars.style.opacity = '1';
     
-    // 🔥 NUEVO: Actualizar el color dinámico
-    if (spotifyData.track_color) {
-        document.documentElement.style.setProperty('--track-accent', spotifyData.track_color);
-        
-        // Para la sombra necesitamos extraer los valores RGB (opcional)
-        // Si el color viene como "rgb(255, 100, 50)", hacemos split para crear la sombra
-        const rgbValues = spotifyData.track_color.match(/\d+/g);
-        if (rgbValues && rgbValues.length === 3) {
-            document.documentElement.style.setProperty('--track-accent-rgb', rgbValues.join(','));
-        }
+    // 🔥 NUEVO: Extraer color del cover y actualizar la variable CSS
+    if (modalCover.src) {
+        extractAccentColorFromImage(modalCover.src).then(color => {
+            if (color) {
+                document.documentElement.style.setProperty('--track-accent', color);
+                // Extraer valores RGB para la sombra
+                const rgbValues = color.match(/\d+/g);
+                if (rgbValues && rgbValues.length === 3) {
+                    document.documentElement.style.setProperty('--track-accent-rgb', rgbValues.join(','));
+                }
+            }
+        });
     }
     
     // Hacer clickeable

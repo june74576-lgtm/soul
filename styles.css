@@ -20,6 +20,10 @@
     --radius-md: 16px;
     --radius-sm: 12px;
     --radius-full: 999px;
+
+    /* 🔥 NUEVAS VARIABLES PARA COLOR DINÁMICO (Definidas aquí, en :root) */
+    --track-accent: #C6B8FF;
+    --track-accent-rgb: 198, 184, 255;
 }
 
 * {
@@ -257,13 +261,13 @@ body {
     transition: border-color 0.3s;
     overflow-y: auto;
     overflow-x: hidden;
-    scrollbar-width: none;  /* ← OCULTA SCROLL EN FIREFOX */
-    -ms-overflow-style: none;  /* ← OCULTA SCROLL EN IE/EDGE */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
 /* OCULTA SCROLL EN CHROME, SAFARI, OPERA */
 .block-description::-webkit-scrollbar {
-    display: none;  /* ← OCULTA COMPLETAMENTE */
+    display: none;
 }
 
 /* Personalizar scroll */
@@ -349,6 +353,7 @@ body {
     border-color: var(--accent);
     color: var(--accent);
 }
+
 /* ===== SOCIAL ===== */
 .block-social {
     background: var(--surface-1);
@@ -356,16 +361,14 @@ body {
     padding: 18px 24px;
     border: 1px solid var(--outline);
     transition: border-color 0.3s;
-    /* 🔥 NUEVO: TAMAÑO FIJO CON SCROLL */
     min-height: 100px;
     max-height: 180px;
     overflow-y: auto;
     overflow-x: hidden;
-    scrollbar-width: none;  /* Firefox */
-    -ms-overflow-style: none;  /* IE/Edge */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
 }
 
-/* Ocultar scroll en Chrome/Safari/Opera */
 .block-social::-webkit-scrollbar {
     display: none;
 }
@@ -483,7 +486,7 @@ body {
 .upload-btn {
     position: absolute;
     bottom: 12px;
-    left: 12px;  /* ← A LA IZQUIERDA */
+    left: 12px;
     background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(8px);
     border: 1px solid var(--outline);
@@ -500,22 +503,23 @@ body {
 .upload-btn:hover {
     background: rgba(255, 255, 255, 0.1);
 }
+
 /* ============================================================
-   AVATAR - CENTRADO RESPECTO AL BANNER
+   AVATAR
    ============================================================ */
 .avatar-wrapper {
     position: relative;
     height: 0;
     z-index: 2;
     display: flex;
-    justify-content: center;  /* ← CENTRADO HORIZONTAL */
+    justify-content: center;
 }
 
 .avatar-circle {
     position: absolute;
     top: -70px;
-    left: 50%;  /* ← CENTRADO CON TRANSFORM */
-    transform: translateX(-50%);  /* ← CENTRADO CON TRANSFORM */
+    left: 50%;
+    transform: translateX(-50%);
     width: 140px;
     height: 140px;
     border-radius: 50%;
@@ -779,7 +783,7 @@ body {
 .track-name {
     font-weight: 600;
     font-size: 16px;
-    color: var(--text-primary);
+    color: var(--track-accent); /* 🔥 AHORA USA LA VARIABLE DINÁMICA */
 }
 
 .track-artist {
@@ -797,7 +801,7 @@ body {
 .pulse-bars span {
     display: block;
     width: 4px;
-    background: var(--accent);
+    background: var(--track-accent); /* 🔥 AHORA USA LA VARIABLE DINÁMICA */
     border-radius: 4px;
     animation: pulse-bar 1.4s ease-in-out infinite;
     transition: background 0.4s ease;
@@ -962,7 +966,6 @@ body {
     object-fit: cover;
     flex-shrink: 0;
 }
-
 
 /* ============================================================
    RESPONSIVE
@@ -1132,7 +1135,8 @@ body {
     font-size: 12px;
     margin: 2px 4px;
 }
-/* ===== SOCIAL ===== */
+
+/* ===== SOCIAL (Detalles extra) ===== */
 .social-list {
     display: flex;
     flex-direction: column;
@@ -1198,6 +1202,7 @@ body {
     color: #ff6b6b;
     background: rgba(255, 107, 107, 0.1);
 }
+
 /* ===== SOCIAL SELECT ===== */
 .social-select {
     width: 100%;
@@ -1223,35 +1228,8 @@ body {
     color: var(--text-primary);
     padding: 8px;
 }
-/* ===== SOCIAL ===== */
-.social-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 10px;
-    border-radius: var(--radius-sm);
-    transition: background 0.2s;
-}
 
-.social-item:hover {
-    background: var(--accent-dim);
-}
-
-.social-item a {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: var(--text-secondary);
-    text-decoration: none;
-    transition: color 0.2s;
-    flex: 1;
-    padding: 2px 0;
-}
-
-.social-item a:hover {
-    color: var(--accent);
-}
-
+/* ===== SOCIAL (iconos SVG) ===== */
 .social-item .social-icon {
     display: flex;
     align-items: center;
@@ -1272,26 +1250,6 @@ body {
     min-width: 70px;
 }
 
-.social-item .social-username {
-    color: var(--text-muted);
-    font-size: 13px;
-}
-
-.social-delete {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 14px;
-    padding: 4px 10px;
-    border-radius: var(--radius-full);
-    transition: all 0.2s;
-}
-
-.social-delete:hover {
-    color: #ff6b6b;
-    background: rgba(255, 107, 107, 0.1);
-}
 /* ============================================================
    SHARE PROFILE BUTTON
    ============================================================ */
@@ -1361,17 +1319,14 @@ body {
 .share-toast.error {
     border-color: #ff6b6b;
 }
-/* ============================================================
-   COLOR DINÁMICO DE SPOTIFY (Efecto "Gamma")
-   ============================================================ */
-:root {
-    --track-accent: #C6B8FF; /* Color por defecto (tu acento actual) */
-}
 
+/* ============================================================
+   🎨 COLOR DINÁMICO DE SPOTIFY (Efecto "Gamma")
+   ============================================================ */
 /* Aplicar al borde del modal de música */
 .modal-card {
     border: 1px solid var(--track-accent);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(var(--track-accent-rgb), 0.1);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7), 0 0 30px rgba(var(--track-accent-rgb), 0.15);
 }
 
 /* Aplicar a las ondas de música */
@@ -1382,9 +1337,4 @@ body {
 /* Transición suave para el cambio de color */
 .modal-card, .pulse-bars span {
     transition: border-color 0.6s ease, background-color 0.6s ease, box-shadow 0.6s ease;
-}
-
-/* Si quieres que el texto de "Now Playing" también cambie sutilmente */
-.track-name {
-    color: var(--track-accent);
 }
