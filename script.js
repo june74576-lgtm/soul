@@ -899,6 +899,9 @@ async function loadModalData() {
         });
     }
 
+    // Esperar un poco antes de la siguiente petición
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     // ===== TOP TRACKS =====
     const tracks = await fetchSpotify('top-tracks');
     const trackContainer = document.getElementById('modal-tracks-list');
@@ -920,6 +923,9 @@ async function loadModalData() {
             trackContainer.appendChild(div);
         });
     }
+
+    // Esperar un poco antes de la siguiente petición
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // ===== RECENT LIKES =====
     const likes = await fetchSpotify('recent-tracks');
@@ -943,6 +949,9 @@ async function loadModalData() {
         document.getElementById('modal-likes-grid').innerHTML = '<div style="grid-column: 1/-1; color: var(--text-muted);">No se pudieron cargar las canciones</div>';
     }
 
+    // Esperar un poco antes de la siguiente petición
+    await new Promise(resolve => setTimeout(resolve, 500));
+
     // ===== FOLLOWING =====
     const following = await fetchSpotify('following');
     const followingList = document.getElementById('modal-following-list');
@@ -961,6 +970,9 @@ async function loadModalData() {
             followingList.appendChild(div);
         });
     }
+
+    // Esperar un poco antes de la siguiente petición
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // ===== SAVED ALBUMS =====
     const albums = await fetchSpotify('saved-albums');
@@ -982,6 +994,9 @@ async function loadModalData() {
             albumsList.appendChild(div);
         });
     }
+
+    // Esperar un poco antes de la siguiente petición
+    await new Promise(resolve => setTimeout(resolve, 500));
 
     // ===== PLAYLISTS =====
     const playlists = await fetchSpotify('playlists');
