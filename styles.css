@@ -2,11 +2,8 @@
    SOUL · ESTILOS UNIFICADOS (Login + Perfil)
    ============================================================ */
 
-/* Variables para fondo personalizado */
 :root {
-    --custom-bg-url: none;
-    --custom-bg-blur: 0px; /* ✅ Sin blur en el fondo */
-    
+    /* Variables de color */
     --bg: #0A0A0E;
     --surface: #12121A;
     --surface-1: #1A1A24;
@@ -25,7 +22,11 @@
     --radius-sm: 12px;
     --radius-full: 999px;
 
-    /* 🔥 COLOR DINÁMICO PARA SPOTIFY */
+    /* Fondo personalizado */
+    --custom-bg-url: none;
+    --custom-bg-blur: 0px;
+
+    /* Color dinámico Spotify */
     --track-accent: #C6B8FF;
     --track-accent-rgb: 198, 184, 255;
 }
@@ -55,7 +56,7 @@ body {
 }
 
 /* ============================================================
-   FONDO PERSONALIZADO (Nítido, sin blur en el fondo)
+   FONDO - Capa oscura (sin blur)
    ============================================================ */
 body::before {
     content: '';
@@ -70,16 +71,15 @@ body::before {
 }
 
 /* ============================================================
-   TARJETAS CON EFECTO GLASSMORPHISM (Blur en las tarjetas)
+   GLASSMORPHISM - Todas las tarjetas
    ============================================================ */
-
-/* Todas las tarjetas tendrán el mismo efecto glass */
 .block-description,
 .block-social,
 .card-row,
 .modal-card,
 .auth-box,
-.auth-container {
+.auth-container,
+.topbar {
     backdrop-filter: blur(20px) saturate(1.4);
     -webkit-backdrop-filter: blur(20px) saturate(1.4);
     background: rgba(26, 26, 36, 0.65);
@@ -88,34 +88,62 @@ body::before {
     transition: all 0.3s ease;
 }
 
-/* Hover de tarjetas con glassmorphism */
 .block-description:hover,
-.block-social:hover,
-.card-row:hover {
+.block-social:hover {
     background: rgba(26, 26, 36, 0.75);
     border-color: rgba(198, 184, 255, 0.3);
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(198, 184, 255, 0.05);
 }
 
-/* Modal con glassmorphism más intenso */
+/* Modal más intenso */
 .modal-card {
     background: rgba(18, 18, 26, 0.85);
     backdrop-filter: blur(30px) saturate(1.6);
     -webkit-backdrop-filter: blur(30px) saturate(1.6);
-    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-/* Topbar con glassmorphism */
+/* ============================================================
+   TOPBAR - Redondeada y elegante
+   ============================================================ */
 .topbar {
     backdrop-filter: blur(16px) saturate(1.2);
     -webkit-backdrop-filter: blur(16px) saturate(1.2);
     background: rgba(10, 10, 14, 0.5);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    padding: 16px 0 24px 0;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-xl);
+    padding: 14px 24px;
     margin-bottom: 32px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.3s ease;
 }
 
-/* AUTH */
+.topbar:hover {
+    border-color: rgba(198, 184, 255, 0.2);
+}
+
+.brand {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 3px;
+}
+
+.topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+#profile-username {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+/* ============================================================
+   AUTH (Login / Register)
+   ============================================================ */
 .auth-container {
     max-width: 420px;
     width: 100%;
@@ -149,40 +177,68 @@ body::before {
 }
 
 /* ============================================================
-   TOOLBAR
+   FORMULARIOS
    ============================================================ */
-.topbar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 0 24px 0;
-    border-bottom: 1px solid var(--outline);
-    margin-bottom: 32px;
+.form-group {
+    margin-bottom: 16px;
 }
 
-.brand {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--accent);
-    letter-spacing: 2px;
-}
-
-.topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-}
-
-#profile-username {
-    font-size: 14px;
+.form-group label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
     color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
 }
 
-.btn-logout {
+.form-group input,
+.form-group select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-md);
+    padding: 12px 14px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* ============================================================
+   BOTONES UNIFICADOS
+   ============================================================ */
+.btn-primary {
+    width: 100%;
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    border-radius: var(--radius-full);
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: inherit;
+}
+
+.btn-primary:hover {
+    opacity: 0.85;
+    transform: scale(0.99);
+}
+
+.btn-secondary {
     background: transparent;
     border: 1px solid var(--outline);
     color: var(--text-secondary);
-    padding: 6px 16px;
+    padding: 8px 16px;
     border-radius: var(--radius-full);
     font-size: 12px;
     cursor: pointer;
@@ -190,9 +246,67 @@ body::before {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+.btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Botones de acción (Change Banner, Change Avatar, etc) */
+.upload-btn,
+.upload-avatar-btn,
+.upload-bg-btn,
+.share-profile-btn,
+.bio-edit-btn,
+.social-add-btn,
+.btn-logout,
+.btn-disconnect-spotify {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.upload-btn:hover,
+.upload-avatar-btn:hover,
+.upload-bg-btn:hover,
+.share-profile-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent);
+    transform: scale(1.05) translateY(-2px);
+    box-shadow: 0 4px 20px rgba(198, 184, 255, 0.2);
+}
+
 .btn-logout:hover {
     border-color: #ff6b6b;
     color: #ff6b6b;
+}
+
+.btn-disconnect-spotify:hover {
+    background: rgba(255, 107, 107, 0.1);
+    border-color: #ff6b6b;
+    color: #ff6b6b;
+}
+
+.auth-switch {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 16px;
+}
+
+.auth-switch span {
+    color: var(--accent);
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.auth-switch span:hover {
+    text-decoration: underline;
+}
+
+.auth-error {
+    color: #ff6b6b;
+    font-size: 13px;
+    text-align: center;
+    margin-top: 12px;
+    min-height: 20px;
 }
 
 /* ============================================================
@@ -240,10 +354,6 @@ body::before {
 
 .block-description::-webkit-scrollbar {
     display: none;
-}
-
-.block-description:hover {
-    border-color: rgba(198, 184, 255, 0.3);
 }
 
 .block-description .block-content h2 {
@@ -304,7 +414,6 @@ body::before {
     font-size: 12px;
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     width: fit-content;
 }
 
@@ -331,10 +440,6 @@ body::before {
     display: none;
 }
 
-.block-social:hover {
-    border-color: rgba(198, 184, 255, 0.3);
-}
-
 .block-social.hidden {
     display: none;
 }
@@ -348,7 +453,6 @@ body::before {
     margin-bottom: 10px;
     position: sticky;
     top: 0;
-    background: inherit;
     padding-bottom: 6px;
     z-index: 1;
 }
@@ -366,62 +470,30 @@ body::before {
     color: var(--text-secondary);
     text-decoration: none;
     font-size: 13px;
-    padding: 4px 0;
-    transition: color 0.2s;
+    padding: 4px 8px;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s;
 }
 
 .social-item:hover {
+    background: var(--accent-dim);
     color: var(--text-primary);
 }
 
-.social-item .social-delete {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 14px;
-    transition: color 0.2s;
-}
-
-.social-item .social-delete:hover {
-    color: #ff6b6b;
-}
-
-.social-icon {
-    width: 16px;
-    height: 16px;
-    flex-shrink: 0;
-    opacity: 0.5;
-    transition: opacity 0.2s;
-}
-
-.social-item:hover .social-icon {
-    opacity: 1;
-}
-
-.social-add-btn {
-    margin-top: 8px;
-    background: transparent;
-    border: 1px dashed var(--outline);
+.social-item a {
+    display: flex;
+    align-items: center;
+    gap: 10px;
     color: var(--text-secondary);
-    padding: 4px 16px;
-    border-radius: var(--radius-full);
-    font-size: 11px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    position: sticky;
-    bottom: 0;
-    padding-top: 8px;
-    margin-bottom: -4px;
+    text-decoration: none;
+    transition: color 0.2s;
+    flex: 1;
 }
 
-.social-add-btn:hover {
-    border-color: var(--accent);
+.social-item a:hover {
     color: var(--accent);
 }
 
-/* ===== SOCIAL (iconos SVG) ===== */
 .social-item .social-icon {
     display: flex;
     align-items: center;
@@ -442,29 +514,46 @@ body::before {
     min-width: 70px;
 }
 
-.social-select {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--outline);
-    border-radius: var(--radius-md);
-    padding: 12px 14px;
-    color: var(--text-primary);
-    font-family: inherit;
-    font-size: 14px;
-    transition: border-color 0.2s;
-    appearance: none;
+.social-item .social-username {
+    color: var(--text-muted);
+    font-size: 12px;
+}
+
+.social-delete {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
     cursor: pointer;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: var(--radius-full);
+    transition: all 0.2s;
 }
 
-.social-select:focus {
-    outline: none;
+.social-delete:hover {
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+}
+
+.social-add-btn {
+    margin-top: 8px;
+    background: transparent;
+    border: 1px dashed var(--outline);
+    color: var(--text-secondary);
+    padding: 4px 16px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    position: sticky;
+    bottom: 0;
+    padding-top: 8px;
+    margin-bottom: -4px;
+}
+
+.social-add-btn:hover {
     border-color: var(--accent);
-}
-
-.social-select option {
-    background: var(--surface-1);
-    color: var(--text-primary);
-    padding: 8px;
+    color: var(--accent);
 }
 
 /* ============================================================
@@ -499,14 +588,7 @@ body::before {
     font-size: 11px;
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
-}
-
-.upload-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: var(--accent);
-    transform: scale(1.05);
 }
 
 /* ============================================================
@@ -558,18 +640,61 @@ body::before {
     font-size: 10px;
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     white-space: nowrap;
 }
 
-.upload-avatar-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: var(--accent);
-    transform: scale(1.05);
+/* ============================================================
+   SHARE PROFILE BUTTON
+   ============================================================ */
+.share-profile-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    padding: 8px 16px;
+    border-radius: var(--radius-full);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    z-index: 10;
+}
+
+.share-profile-btn:active {
+    transform: scale(0.95);
+}
+
+.share-profile-btn svg {
+    flex-shrink: 0;
 }
 
 /* ============================================================
-   CARDS
+   CAMBIAR FONDO GENERAL
+   ============================================================ */
+.upload-bg-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    padding: 10px 18px;
+    border-radius: var(--radius-full);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    z-index: 999;
+}
+
+/* ============================================================
+   CARDS (Servicios)
    ============================================================ */
 .cards-label {
     color: var(--text-muted);
@@ -596,33 +721,19 @@ body::before {
     padding: 10px 16px 10px 10px;
     cursor: pointer;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    position: relative;
-    overflow: hidden;
-}
-
-/* Brillo sutil en la esquina superior */
-.card-row::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.03) 0%, transparent 60%);
-    pointer-events: none;
 }
 
 .card-row:hover {
     transform: translateX(6px) scale(1.02);
-    border-color: var(--accent);
+    border-color: rgba(198, 184, 255, 0.3);
     box-shadow: 0 8px 30px rgba(198, 184, 255, 0.15);
     background: rgba(26, 26, 36, 0.75);
 }
 
 .card-row.disabled-card {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
-    filter: grayscale(0.3);
+    filter: grayscale(0.2);
 }
 
 .card-row.disabled-card:hover {
@@ -697,71 +808,6 @@ body::before {
 }
 
 /* ============================================================
-   BOTÓN SHARE PROFILE
-   ============================================================ */
-.share-profile-btn {
-    position: absolute;
-    top: 12px;
-    right: 12px;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    color: var(--text-primary);
-    padding: 8px 16px;
-    border-radius: var(--radius-full);
-    font-size: 12px;
-    font-weight: 500;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    z-index: 10;
-}
-
-.share-profile-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: var(--accent);
-    transform: scale(1.05) translateY(-2px);
-    box-shadow: 0 4px 20px rgba(198, 184, 255, 0.2);
-}
-
-.share-profile-btn:active {
-    transform: scale(0.95);
-}
-
-.share-profile-btn svg {
-    flex-shrink: 0;
-}
-
-/* ============================================================
-   BOTÓN CAMBIAR FONDO
-   ============================================================ */
-.upload-bg-btn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    color: var(--text-primary);
-    padding: 10px 18px;
-    border-radius: var(--radius-full);
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-    z-index: 999;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.upload-bg-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: var(--accent);
-    transform: scale(1.05);
-}
-
-/* ============================================================
    BOTÓN DESCONECTAR SPOTIFY
    ============================================================ */
 .btn-disconnect-spotify {
@@ -773,14 +819,7 @@ body::before {
     font-size: 11px;
     cursor: pointer;
     font-family: inherit;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     flex-shrink: 0;
-}
-
-.btn-disconnect-spotify:hover {
-    background: rgba(255, 107, 107, 0.1);
-    border-color: #ff6b6b;
-    color: #ff6b6b;
 }
 
 .btn-disconnect-spotify.hidden {
@@ -898,7 +937,6 @@ body::before {
     height: 60px;
     border-radius: var(--radius-md);
     object-fit: cover;
-    transition: box-shadow 0.4s ease;
 }
 
 .track-info {
@@ -956,7 +994,7 @@ body::before {
 }
 
 /* ============================================================
-   LIKES
+   LIKES, ARTISTS, TRACKS
    ============================================================ */
 .likes-grid {
     display: grid;
@@ -997,9 +1035,6 @@ body::before {
     text-overflow: ellipsis;
 }
 
-/* ============================================================
-   ARTISTS & TRACKS
-   ============================================================ */
 .artist-list,
 .tracks-list {
     display: grid;
@@ -1110,14 +1145,6 @@ body::before {
     color: var(--accent);
 }
 
-.carousel-btn.prev {
-    margin-right: 2px;
-}
-
-.carousel-btn.next {
-    margin-left: 2px;
-}
-
 .carousel-item {
     flex-shrink: 0;
     width: 90px;
@@ -1201,6 +1228,55 @@ body::before {
     max-height: 200px;
     border-radius: var(--radius-md);
     margin: 8px 0;
+}
+
+#bio-display h1,
+#bio-display h2,
+#bio-display h3,
+#bio-display h4,
+#bio-display h5,
+#bio-display h6 {
+    color: var(--text-primary);
+    margin: 12px 0 6px 0;
+}
+
+#bio-display ul,
+#bio-display ol {
+    padding-left: 24px;
+    margin: 6px 0;
+}
+
+#bio-display blockquote {
+    border-left: 3px solid var(--accent);
+    padding: 8px 16px;
+    margin: 8px 0;
+    background: var(--surface-2);
+    border-radius: var(--radius-sm);
+}
+
+#bio-display code {
+    background: var(--surface-2);
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--accent);
+}
+
+#bio-display pre {
+    background: var(--surface-2);
+    padding: 12px;
+    border-radius: var(--radius-sm);
+    overflow-x: auto;
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+#bio-display hr {
+    border: none;
+    border-top: 1px solid var(--outline);
+    margin: 12px 0;
 }
 
 /* ============================================================
@@ -1316,7 +1392,7 @@ body::before {
 }
 
 /* ============================================================
-   OCULTAR BOTONES EN MODO PÚBLICO
+   MODO PÚBLICO
    ============================================================ */
 body[data-public="true"] .public-hide {
     display: none !important;
@@ -1384,5 +1460,9 @@ body[data-public="true"] .public-hide {
     }
     .auth-box {
         padding: 28px 20px;
+    }
+    .topbar {
+        padding: 10px 16px;
+        border-radius: var(--radius-lg);
     }
 }
