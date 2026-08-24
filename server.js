@@ -328,7 +328,42 @@
             res.status(500).json({ error: error.message });
         }
     });
+    // ============================================================
+    // PERFIL PÚBLICO (Para compartir sin login)
+    // ============================================================
+    app.get('/public-profile/:username', async (req, res) => {
+        try {
+            const username = req.params.username;
+            
+            // Buscar el perfil por username
+            const { data, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('username', username)
+                .maybeSingle();
 
+            if (error) throw error;
+
+            if (!data) {
+                return res.status(404).json({ error: 'Usuario no encontrado' });
+            }
+
+            // Devolver datos públicos (sin tokens de Spotify)
+            res.json({
+                id: data.user_id,
+                email: null, // No mostrar email
+                username: data.username,
+                bio: data.bio || '',
+                banner_url: data.banner_url || '',
+                avatar_url: data.avatar_url || '',
+                social_links: data.social_links || {},
+                spotify_connected: false // No mostrar datos privados de Spotify
+            });
+        } catch (error) {
+            console.error('❌ Error en /public-profile:', error);
+            res.status(500).json({ error: error.message });
+        }
+    });
     // ============================================================
     // 10. PERFIL: ACTUALIZAR
     // ============================================================

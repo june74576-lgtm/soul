@@ -783,7 +783,7 @@ body {
 .track-name {
     font-weight: 600;
     font-size: 16px;
-    color: var(--track-accent); /* 🔥 AHORA USA LA VARIABLE DINÁMICA */
+    color: var(--text-primary); /* 🔥 AHORA USA LA VARIABLE DINÁMICA */
 }
 
 .track-artist {

@@ -102,6 +102,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
+// Detectar si estamos en modo visualización (perfil compartido)
+function isPublicView() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('user') !== null;
+}
+
 // ============================================================
 // INICIALIZAR PERFIL
 // ============================================================
@@ -109,9 +115,27 @@ async function initProfile() {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
-    console.log('🔍 Token:', token ? '✅ Existe' : '❌ No existe');
-    console.log('🔍 UserData:', userData ? '✅ Existe' : '❌ No existe');
+    // 🔥 Si es vista pública, cargar perfil por username
+    if (isPublicView()) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const username = urlParams.get('user');
+        
+        try {
+            const response = await fetch(`${API_URL}/public-profile/${username}`);
+            if (!response.ok) throw new Error('Perfil no encontrado');
+            
+            const user = await response.json();
+            console.log('✅ Perfil público cargado:', user);
+            renderProfile(user, { isPublic: true }); // Pasamos flag de público
+            return;
+        } catch (error) {
+            console.error('❌ Error cargando perfil público:', error);
+            window.location.href = 'profile.html'; // Si falla, redirigir al propio perfil
+            return;
+        }
+    }
 
+    // 🔥 Si es vista normal (logueado), usar el flujo anterior
     if (!token || !userData) {
         console.log('❌ No hay sesión, redirigiendo...');
         window.location.href = 'index.html';
@@ -130,17 +154,17 @@ async function initProfile() {
         if (response.ok) {
             const user = await response.json();
             console.log('✅ Perfil del backend:', user);
-            renderProfile(user);
+            renderProfile(user, { isPublic: false });
             localStorage.setItem('user', JSON.stringify(user));
         } else {
             console.warn('⚠️ Backend falló, usando localStorage');
             const savedUser = JSON.parse(userData);
-            renderProfile(savedUser);
+            renderProfile(savedUser, { isPublic: false });
         }
     } catch (error) {
         console.warn('⚠️ Error, usando localStorage:', error.message);
         const savedUser = JSON.parse(userData);
-        renderProfile(savedUser);
+        renderProfile(savedUser, { isPublic: false });
     }
 }
 
@@ -149,6 +173,13 @@ async function initProfile() {
 // ============================================================
 function setupProfileEvents() {
 
+        // Si es vista pública, no permitir click en logout
+    if (isPublicView()) {
+        document.getElementById('logout-btn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            alert('You are viewing a public profile. You need to log in to access your own profile.');
+        });
+    }
     // 1. LOGOUT
     document.getElementById('logout-btn')?.addEventListener('click', () => {
         stopNowPlayingUpdates();
@@ -433,19 +464,22 @@ function setupProfileEvents() {
 
     // 9. SHARE PROFILE
     document.getElementById('share-profile-btn')?.addEventListener('click', async () => {
-        const token = localStorage.getItem('token');
-        if (!token) {
-            showShareToast('❌ You must be logged in', 'error');
-            return;
-        }
-
-        try {
+        // Si es vista pública, usar el username de la URL
+        let username;
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('user')) {
+            username = urlParams.get('user');
+        } else {
+            // Si es vista normal, usar el username del usuario logueado
             const userData = localStorage.getItem('user');
             const user = userData ? JSON.parse(userData) : null;
-            const username = user?.username || 'user';
-            const baseUrl = window.location.origin;
-            const profileUrl = `${baseUrl}/profile.html?user=${encodeURIComponent(username)}`;
-            
+            username = user?.username || 'user';
+        }
+
+        const baseUrl = window.location.origin;
+        const profileUrl = `${baseUrl}/profile.html?user=${encodeURIComponent(username)}`;
+        
+        try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(profileUrl);
                 showShareToast('✅ Profile link copied!', 'success');
@@ -474,8 +508,9 @@ function setupProfileEvents() {
 // ============================================================
 // RENDER FUNCTIONS
 // ============================================================
-function renderProfile(user) {
-    console.log('🎨 Renderizando perfil con:', user);
+function renderProfile(user, options = {}) {
+    const isPublic = options.isPublic || false;
+    console.log('🎨 Renderizando perfil con:', user, 'Público:', isPublic);
 
     const username = user.username || user.email || 'soul_user';
     document.getElementById('display-username').textContent = `@${username}`;
@@ -492,29 +527,57 @@ function renderProfile(user) {
 
     renderSocialLinks(user.social_links || {});
 
-    // 🔥 ACTUALIZAR ESTADO DE SPOTIFY Y MOSTRAR BOTÓN DE DESCONEXIÓN
-    const spotifyStatus = document.getElementById('spotify-status');
-    const spotifyBadge = document.getElementById('spotify-badge');
-    const disconnectBtn = document.getElementById('disconnect-spotify-btn');
-
-    if (user.spotify_connected) {
-        spotifyStatus.textContent = 'Connected';
-        spotifyBadge.textContent = '● Live';
-        spotifyBadge.style.background = 'var(--accent)';
-        spotifyBadge.style.color = 'var(--bg)';
-        document.getElementById('music-card').classList.remove('disabled-card');
+    // 🔥 OCULTAR BOTONES DE EDICIÓN SI ES PÚBLICO
+    if (isPublic) {
+        // Ocultar botones de edición
+        document.getElementById('edit-bio-btn').classList.add('hidden');
+        document.getElementById('add-social-btn').classList.add('hidden');
+        document.getElementById('upload-banner-btn').classList.add('hidden');
+        document.getElementById('upload-avatar-btn').classList.add('hidden');
+        document.getElementById('logout-btn').classList.add('hidden'); // Ocultar logout
         
-        // Mostrar botón de desconexión
-        if (disconnectBtn) disconnectBtn.classList.remove('hidden');
-    } else {
-        spotifyStatus.textContent = 'Not connected';
-        spotifyBadge.textContent = 'Connect';
+        // La tarjeta de Spotify se pone en modo solo lectura (no conectada)
+        const spotifyStatus = document.getElementById('spotify-status');
+        const spotifyBadge = document.getElementById('spotify-badge');
+        const disconnectBtn = document.getElementById('disconnect-spotify-btn');
+        
+        spotifyStatus.textContent = 'Preview only';
+        spotifyBadge.textContent = 'View';
         spotifyBadge.style.background = 'var(--surface-2)';
         spotifyBadge.style.color = 'var(--text-muted)';
         document.getElementById('music-card').classList.add('disabled-card');
-        
-        // Ocultar botón de desconexión
         if (disconnectBtn) disconnectBtn.classList.add('hidden');
+        
+        // No hacer clickeable la tarjeta de música
+        document.getElementById('music-card').onclick = () => {};
+    } else {
+        // Si NO es público, restablecer botones
+        document.getElementById('edit-bio-btn').classList.remove('hidden');
+        document.getElementById('add-social-btn').classList.remove('hidden');
+        document.getElementById('upload-banner-btn').classList.remove('hidden');
+        document.getElementById('upload-avatar-btn').classList.remove('hidden');
+        document.getElementById('logout-btn').classList.remove('hidden');
+        
+        // (El resto de la lógica de Spotify normal)
+        const spotifyStatus = document.getElementById('spotify-status');
+        const spotifyBadge = document.getElementById('spotify-badge');
+        const disconnectBtn = document.getElementById('disconnect-spotify-btn');
+
+        if (user.spotify_connected) {
+            spotifyStatus.textContent = 'Connected';
+            spotifyBadge.textContent = '● Live';
+            spotifyBadge.style.background = 'var(--accent)';
+            spotifyBadge.style.color = 'var(--bg)';
+            document.getElementById('music-card').classList.remove('disabled-card');
+            if (disconnectBtn) disconnectBtn.classList.remove('hidden');
+        } else {
+            spotifyStatus.textContent = 'Not connected';
+            spotifyBadge.textContent = 'Connect';
+            spotifyBadge.style.background = 'var(--surface-2)';
+            spotifyBadge.style.color = 'var(--text-muted)';
+            document.getElementById('music-card').classList.add('disabled-card');
+            if (disconnectBtn) disconnectBtn.classList.add('hidden');
+        }
     }
 }
 
