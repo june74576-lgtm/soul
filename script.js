@@ -1,7 +1,7 @@
 // ============================================================
 // URL BASE DEL BACKEND
 // ============================================================
-const API_URL = 'https://soul-backend-hbdp.onrender.com';
+const API_URL = 'https://soul-backend-1.onrender.com';
 
 // ============================================================
 // CONFIGURACIÓN DE REDES SOCIALES CON SVG
