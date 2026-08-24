@@ -544,7 +544,7 @@ function renderProfile(user, options = {}) {
 
     renderSocialLinks(user.social_links || {});
 
-    // 🔥 BLOQUE PARA OCULTAR/MOSTRAR BOTONES DE EDICIÓN
+    // 🔥 Ocultar todo lo que puede editarse (Bio, Social, Banner, Avatar, Logout)
     const editBioBtn = document.getElementById('edit-bio-btn');
     const addSocialBtn = document.getElementById('add-social-btn');
     const uploadBannerBtn = document.getElementById('upload-banner-btn');
@@ -552,14 +552,12 @@ function renderProfile(user, options = {}) {
     const logoutBtn = document.getElementById('logout-btn');
 
     if (isPublic) {
-        // Ocultar botones de edición y logout
         if (editBioBtn) editBioBtn.classList.add('hidden');
         if (addSocialBtn) addSocialBtn.classList.add('hidden');
         if (uploadBannerBtn) uploadBannerBtn.classList.add('hidden');
         if (uploadAvatarBtn) uploadAvatarBtn.classList.add('hidden');
         if (logoutBtn) logoutBtn.classList.add('hidden');
     } else {
-        // Mostrar todos los botones de edición y logout
         if (editBioBtn) editBioBtn.classList.remove('hidden');
         if (addSocialBtn) addSocialBtn.classList.remove('hidden');
         if (uploadBannerBtn) uploadBannerBtn.classList.remove('hidden');
@@ -572,6 +570,7 @@ function renderProfile(user, options = {}) {
     const spotifyBadge = document.getElementById('spotify-badge');
     const disconnectBtn = document.getElementById('disconnect-spotify-btn');
 
+    // Si el perfil público tiene su Spotify conectado, mostrar como "Connected"
     if (user.spotify_connected) {
         spotifyStatus.textContent = 'Connected';
         spotifyBadge.textContent = '● Live';
@@ -579,11 +578,10 @@ function renderProfile(user, options = {}) {
         spotifyBadge.style.color = 'var(--bg)';
         document.getElementById('music-card').classList.remove('disabled-card');
         
-        // En modo público NO se muestra el botón de desconexión
         if (isPublic) {
-            if (disconnectBtn) disconnectBtn.classList.add('hidden');
+            if (disconnectBtn) disconnectBtn.classList.add('hidden'); // Ocultar desconexión
         } else {
-            if (disconnectBtn) disconnectBtn.classList.remove('hidden');
+            if (disconnectBtn) disconnectBtn.classList.remove('hidden'); // Mostrar desconexión
         }
     } else {
         spotifyStatus.textContent = 'Not connected';
