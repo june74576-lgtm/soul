@@ -376,7 +376,7 @@ function setupProfileEvents() {
             if (modal) {
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
-                loadModalDataPublic();
+                setTimeout(() => loadModalDataPublic(), 100); // ✅ Espera 100ms
             }
             return;
         }
@@ -392,7 +392,7 @@ function setupProfileEvents() {
                 if (modal) {
                     modal.classList.add('active');
                     document.body.style.overflow = 'hidden';
-                    loadModalData();
+                    setTimeout(() => loadModalData(), 100); // ✅ Espera 100ms
                 }
                 return;
             }
