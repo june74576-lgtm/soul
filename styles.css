@@ -382,6 +382,26 @@ body::before {
     color: var(--text-primary);
 }
 
+/* ============================================================
+   USERNAME EN CÁPSULA CON BLUR (igual que Social)
+   ============================================================ */
+.username-capsule {
+    display: inline-block;
+    margin-bottom: 8px;
+    padding: 4px 16px;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.username-capsule #display-username {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
 .block-description .block-content p {
     color: var(--text-secondary);
     font-size: 14px;
@@ -1392,6 +1412,35 @@ body::before {
     animation: lightboxFade 0.4s ease;
 }
 
+/* Animación de cierre suave */
+.lightbox.closing {
+    animation: lightboxClose 0.35s ease forwards;
+}
+
+@keyframes lightboxClose {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.lightbox-content.closing {
+    animation: lightboxZoomOut 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes lightboxZoomOut {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+}
+
 @keyframes lightboxFade {
     0% {
         opacity: 0;
@@ -1402,27 +1451,29 @@ body::before {
 }
 
 .lightbox-content {
-    max-width: 98%;
-    max-height: 92vh;
+    width: auto;
+    height: auto;
+    max-width: 98vw;
+    max-height: 98vh;
     border-radius: var(--radius-md);
     box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
     animation: lightboxZoom 0.5s cubic-bezier(0.22, 1, 0.36, 1);
     cursor: zoom-out;
-    object-fit: contain;
+    object-fit: scale-down;
 }
 
 /* En pantallas grandes, ocupar casi todo el espacio */
 @media (min-width: 1024px) {
     .lightbox-content {
-        max-width: 95%;
-        max-height: 95vh;
+        max-width: 96vw;
+        max-height: 96vh;
     }
 }
 
 @media (min-width: 1600px) {
     .lightbox-content {
-        max-width: 90%;
-        max-height: 96vh;
+        max-width: 94vw;
+        max-height: 94vh;
     }
 }
 

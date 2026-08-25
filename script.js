@@ -738,6 +738,52 @@ function renderProfile(user, options = {}) {
         document.getElementById('upload-avatar-btn').classList.add('hidden');
         document.getElementById('logout-btn').classList.add('hidden');
     }
+    // ===== MODO PÚBLICO: Mostrar solo servicios conectados =====
+    if (isPublicView()) {
+        const cardsStack = document.querySelector('.cards-stack');
+        const cardsLabel = document.querySelector('.cards-label');
+        const cardRows = cardsStack?.querySelectorAll('.card-row');
+        
+        if (cardsStack && cardRows) {
+            let hasConnectedService = false;
+            
+            cardRows.forEach(card => {
+                // Solo mostrar Spotify si está conectado
+                const isSpotify = card.id === 'music-card';
+                const isConnected = user.spotify_connected;
+                
+                if (isSpotify && isConnected) {
+                    card.style.display = 'flex';
+                    hasConnectedService = true;
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Si no hay servicios conectados, mostrar mensaje
+            if (!hasConnectedService) {
+                // Eliminar tarjetas existentes y mostrar mensaje
+                cardsStack.innerHTML = `
+                    <div style="
+                        text-align: center;
+                        padding: 40px 20px;
+                        color: var(--text-muted);
+                        font-size: 14px;
+                        background: rgba(26, 26, 36, 0.5);
+                        border-radius: var(--radius-lg);
+                        border: 1px dashed var(--outline);
+                        backdrop-filter: blur(10px);
+                    ">
+                        <p style="margin-bottom: 4px;">No services</p>
+                        <p style="font-size: 12px; opacity: 0.6;">This user hasn't connected any services yet</p>
+                    </div>
+                `;
+                if (cardsLabel) cardsLabel.style.display = 'none';
+            } else {
+                if (cardsLabel) cardsLabel.style.display = 'block';
+            }
+        }
+    }
 }
 
 function renderSocialLinks(socialLinks) {
@@ -1344,8 +1390,18 @@ function openLightbox(src) {
 
 function closeLightbox() {
     const lightbox = document.getElementById('lightbox');
-    lightbox.classList.remove('active');
-    document.body.style.overflow = '';
+    const lightboxImg = document.getElementById('lightbox-img');
+    
+    // Añadir clase de cierre para animación
+    lightbox.classList.add('closing');
+    lightboxImg.classList.add('closing');
+    
+    // Esperar a que termine la animación antes de ocultar
+    setTimeout(() => {
+        lightbox.classList.remove('active', 'closing');
+        lightboxImg.classList.remove('closing');
+        document.body.style.overflow = '';
+    }, 350); // 350ms = duración de la animación
 }
 
 // Agregar evento de click a todas las imágenes (bio, banner, avatar)
