@@ -161,28 +161,35 @@ async function initProfile() {
             console.log('✅ Perfil del backend:', user);
             renderProfile(user, { isPublic: false });
             localStorage.setItem('user', JSON.stringify(user));
+            
+            // 🔥 APLICAR FONDO DESDE SUPABASE (incluso en incógnito)
+            if (user.background_url && user.background_url !== '') {
+                localStorage.setItem('customBg', user.background_url);
+                document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
+                document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+                console.log('✅ Fondo cargado desde Supabase:', user.background_url);
+            } else {
+                // Si no hay fondo en Supabase, resetear
+                document.documentElement.style.setProperty('--custom-bg-url', 'none');
+                document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+                localStorage.removeItem('customBg');
+            }
         } else {
             console.warn('⚠️ Backend falló, usando localStorage');
             const savedUser = JSON.parse(userData);
             renderProfile(savedUser, { isPublic: false });
-        }
-            if (user.background_url) {
-                localStorage.setItem('customBg', user.background_url);
-                document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
+            // Intentar cargar fondo desde localStorage como fallback
+            const savedBg = localStorage.getItem('customBg');
+            if (savedBg) {
+                document.documentElement.style.setProperty('--custom-bg-url', `url(${savedBg})`);
                 document.documentElement.style.setProperty('--custom-bg-blur', '0px');
             }
-    
+        }
         }
     catch (error) {
         console.warn('⚠️ Error, usando localStorage:', error.message);
         const savedUser = JSON.parse(userData);
         renderProfile(savedUser, { isPublic: false });
-    }
-    // Al final de initProfile(), después de renderProfile()
-    const savedBg = localStorage.getItem('customBg');
-    if (savedBg) {
-        document.documentElement.style.setProperty('--custom-bg-url', `url(${savedBg})`);
-        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
     }
 }
 
@@ -422,9 +429,11 @@ function setupProfileEvents() {
         if (isPublicView()) {
             const modal = document.getElementById('modal-music');
             if (modal) {
+                // Quitar clase closing si existe
+                modal.classList.remove('closing');
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
-                setTimeout(() => loadModalDataPublic(), 100); // ✅ Espera 100ms
+                setTimeout(() => loadModalDataPublic(), 100);
             }
             return;
         }
@@ -438,9 +447,11 @@ function setupProfileEvents() {
             if (user.spotify_connected) {
                 const modal = document.getElementById('modal-music');
                 if (modal) {
+                    // Quitar clase closing si existe
+                    modal.classList.remove('closing');
                     modal.classList.add('active');
                     document.body.style.overflow = 'hidden';
-                    setTimeout(() => loadModalData(), 100); // ✅ Espera 100ms
+                    setTimeout(() => loadModalData(), 100);
                 }
                 return;
             }
@@ -499,26 +510,36 @@ function setupProfileEvents() {
     }
 
     // 8. CERRAR MODAL CON ANIMACIÓN (siempre funciona)
+    // Eliminar los event listeners anteriores y usar estos:
     document.querySelectorAll('.modal-close').forEach(btn => {
-        btn.addEventListener('click', () => {
+        // Remover event listeners antiguos (si los hay)
+        btn.removeEventListener('click', btn._closeHandler);
+        // Crear nuevo handler
+        btn._closeHandler = () => {
             const target = btn.dataset.close;
             const modal = document.getElementById(target);
             if (modal) {
                 closeModalWithAnimation(modal);
             }
-        });
+        };
+        btn.addEventListener('click', btn._closeHandler);
     });
 
+    // Para los overlays, usar delegación de eventos o reemplazar
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', (e) => {
+        overlay.removeEventListener('click', overlay._closeHandler);
+        overlay._closeHandler = (e) => {
             if (e.target === overlay) {
                 closeModalWithAnimation(overlay);
             }
-        });
+        };
+        overlay.addEventListener('click', overlay._closeHandler);
     });
 
     // Función para cerrar modal con animación
     function closeModalWithAnimation(modal) {
+        if (!modal) return;
+        
         // Añadir clase de cierre para animación
         modal.classList.add('closing');
         
@@ -531,7 +552,6 @@ function setupProfileEvents() {
             document.body.style.overflow = '';
         }, 350); // 350ms = duración de la animación
     }
-
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {

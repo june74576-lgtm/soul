@@ -932,6 +932,9 @@ body::before {
 /* ============================================================
    ANIMACIONES DE APERTURA Y CIERRE PARA MODAL
    ============================================================ */
+/* ============================================================
+   ANIMACIONES DE APERTURA Y CIERRE PARA MODAL
+   ============================================================ */
 .modal-overlay.active .modal-card {
     animation: modalSlideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
@@ -976,14 +979,32 @@ body::before {
     }
 }
 
-@keyframes slideUp {
-    from {
-        transform: translateY(50px);
+/* Para el lightbox también */
+.lightbox.closing {
+    animation: lightboxFadeOut 0.35s ease forwards;
+}
+
+@keyframes lightboxFadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
         opacity: 0;
     }
-    to {
-        transform: translateY(0);
+}
+
+.lightbox.closing .lightbox-content {
+    animation: lightboxZoomOut 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes lightboxZoomOut {
+    0% {
+        transform: scale(1);
         opacity: 1;
+    }
+    100% {
+        transform: scale(0.9);
+        opacity: 0;
     }
 }
 
