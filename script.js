@@ -498,18 +498,39 @@ function setupProfileEvents() {
         });
     }
 
-    // 8. CERRAR MODAL (siempre funciona)
+    // 8. CERRAR MODAL CON ANIMACIÓN (siempre funciona)
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.addEventListener('click', () => {
             const target = btn.dataset.close;
             const modal = document.getElementById(target);
             if (modal) {
-                modal.classList.remove('active');
-                document.body.style.overflow = '';
-                stopNowPlayingUpdates();
+                closeModalWithAnimation(modal);
             }
         });
     });
+
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                closeModalWithAnimation(overlay);
+            }
+        });
+    });
+
+    // Función para cerrar modal con animación
+    function closeModalWithAnimation(modal) {
+        // Añadir clase de cierre para animación
+        modal.classList.add('closing');
+        
+        // Detener actualizaciones de Spotify
+        stopNowPlayingUpdates();
+        
+        // Esperar a que termine la animación antes de ocultar
+        setTimeout(() => {
+            modal.classList.remove('active', 'closing');
+            document.body.style.overflow = '';
+        }, 350); // 350ms = duración de la animación
+    }
 
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {
@@ -783,6 +804,15 @@ function renderProfile(user, options = {}) {
                 if (cardsLabel) cardsLabel.style.display = 'block';
             }
         }
+    }
+    // Al final de renderProfile(), después de todo el código
+    // Forzar carga del fondo incluso en modo público
+    if (user.background_url && user.background_url !== '') {
+        document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
+        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+    } else {
+        document.documentElement.style.setProperty('--custom-bg-url', 'none');
+        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
     }
 }
 
@@ -1392,16 +1422,18 @@ function closeLightbox() {
     const lightbox = document.getElementById('lightbox');
     const lightboxImg = document.getElementById('lightbox-img');
     
+    if (!lightbox) return;
+    
     // Añadir clase de cierre para animación
     lightbox.classList.add('closing');
-    lightboxImg.classList.add('closing');
+    lightboxImg?.classList.add('closing');
     
     // Esperar a que termine la animación antes de ocultar
     setTimeout(() => {
         lightbox.classList.remove('active', 'closing');
-        lightboxImg.classList.remove('closing');
+        lightboxImg?.classList.remove('closing');
         document.body.style.overflow = '';
-    }, 350); // 350ms = duración de la animación
+    }, 350);
 }
 
 // Agregar evento de click a todas las imágenes (bio, banner, avatar)

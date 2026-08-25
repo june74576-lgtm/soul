@@ -385,10 +385,13 @@ body::before {
 /* ============================================================
    USERNAME EN CÁPSULA CON BLUR (igual que Social)
    ============================================================ */
-.username-capsule {
+.block-description .block-content .username-capsule {
     display: inline-block;
-    margin-bottom: 8px;
-    padding: 4px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin-bottom: 12px;
+    padding: 6px 16px;
     background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
@@ -924,6 +927,53 @@ body::before {
 
 .modal-overlay.active .modal-card {
     animation: slideUp 0.3s ease;
+}
+
+/* ============================================================
+   ANIMACIONES DE APERTURA Y CIERRE PARA MODAL
+   ============================================================ */
+.modal-overlay.active .modal-card {
+    animation: modalSlideUp 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes modalSlideUp {
+    0% {
+        transform: translateY(40px) scale(0.96);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Animación de cierre */
+.modal-overlay.closing {
+    animation: modalFadeOut 0.35s ease forwards;
+}
+
+@keyframes modalFadeOut {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0;
+    }
+}
+
+.modal-overlay.closing .modal-card {
+    animation: modalSlideDown 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes modalSlideDown {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(30px) scale(0.96);
+        opacity: 0;
+    }
 }
 
 @keyframes slideUp {
