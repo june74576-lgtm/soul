@@ -4,7 +4,7 @@
 
 :root {
     /* Variables de color */
-    --bg: #0a0a0e3a;
+    --bg: #0A0A0E;
     --surface: #12121A;
     --surface-1: #1A1A24;
     --surface-2: #222230;
@@ -170,9 +170,11 @@ body::before {
     width: 100%;
 }
 
+/* Asegurar que el login tenga el fondo correcto */
 .auth-box {
     padding: 40px 32px;
     border-radius: var(--radius-xl);
+    background: rgba(26, 26, 36, 0.85) !important; /* Más opaco para legibilidad */
 }
 
 .auth-box.hidden {
@@ -479,8 +481,20 @@ body::before {
     top: 0;
     padding: 0 0 8px 0;
     z-index: 2;
-    background: linear-gradient(to bottom, rgba(26, 26, 36, 0.95), rgba(26, 26, 36, 0.7), transparent);
-    backdrop-filter: blur(4px);
+    background: linear-gradient(to bottom, rgba(18, 18, 26, 0.98) 0%, rgba(18, 18, 26, 0.85) 60%, transparent 100%);
+}
+
+/* Degradado en la parte inferior de la descripción - MEJORADO */
+.block-description::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 30px;
+    display: block;
+    background: linear-gradient(to bottom, transparent 0%, rgba(18, 18, 26, 0.95) 100%);
+    pointer-events: none;
 }
 
 .block-social.hidden {
@@ -720,6 +734,35 @@ body::before {
 }
 
 /* ============================================================
+   BOTÓN ELIMINAR FONDO
+   ============================================================ */
+.delete-bg-btn {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #ff6b6b;
+    font-size: 16px;
+    transition: all 0.2s ease;
+}
+
+.delete-bg-btn:hover {
+    background: rgba(255, 107, 107, 0.2);
+    border-color: #ff6b6b;
+    transform: scale(1.05);
+}
+
+.delete-bg-btn svg {
+    stroke: #ff6b6b;
+}
+
+/* ============================================================
    CARDS (Servicios)
    ============================================================ */
 .cards-label {
@@ -896,6 +939,30 @@ body::before {
     position: relative;
     scrollbar-width: none;
     -ms-overflow-style: none;
+}
+
+/* Degradado para el scroll del modal */
+.modal-card::after {
+    content: '';
+    position: sticky;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    display: block;
+    background: linear-gradient(to bottom, transparent 0%, rgba(18, 18, 26, 0.95) 100%);
+    pointer-events: none;
+}
+
+/* Degradado para el título de secciones dentro del modal */
+.modal-card .section h3 {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: linear-gradient(to bottom, rgba(18, 18, 26, 0.98) 0%, rgba(18, 18, 26, 0.7) 80%, transparent 100%);
+    padding: 8px 0 12px 0;
+    margin-bottom: 8px;
+    backdrop-filter: blur(4px);
 }
 
 .modal-card::-webkit-scrollbar {

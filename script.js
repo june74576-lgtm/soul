@@ -565,6 +565,45 @@ function setupProfileEvents() {
         document.getElementById('bg-input').click();
     });
 
+    // Eliminar fondo (resetear a colores originales)
+    document.getElementById('delete-bg-btn')?.addEventListener('click', async () => {
+        const token = localStorage.getItem('token');
+        
+        try {
+            // 1. Eliminar de la base de datos
+            const response = await fetch(`${API_URL}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ background_url: null })
+            });
+            
+            if (!response.ok) throw new Error('Error al eliminar fondo');
+            
+            // 2. Eliminar del localStorage
+            localStorage.removeItem('customBg');
+            
+            // 3. Actualizar perfil en localStorage
+            const userData = localStorage.getItem('user');
+            if (userData) {
+                const user = JSON.parse(userData);
+                user.background_url = null;
+                localStorage.setItem('user', JSON.stringify(user));
+            }
+            
+            // 4. Resetear CSS
+            document.documentElement.style.setProperty('--custom-bg-url', 'none');
+            document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+            
+            showShareToast('Background removed!', 'success');
+            
+        } catch (error) {
+            console.error('❌ Error al eliminar fondo:', error);
+            alert('Error al eliminar el fondo: ' + error.message);
+        }
+    });
     // En setupProfileEvents(), líneas ~566-590
     document.getElementById('bg-input')?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -630,8 +669,12 @@ function renderProfile(user, options = {}) {
     if (user.banner_url) {
         document.getElementById('banner-img').src = user.banner_url;
     }
-    if (user.background_url) {
+    if (user.background_url && user.background_url !== '') {
         document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
+        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+    } else {
+        // Resetear a fondo por defecto (sin imagen)
+        document.documentElement.style.setProperty('--custom-bg-url', 'none');
         document.documentElement.style.setProperty('--custom-bg-blur', '0px');
     }
     if (user.avatar_url) {
