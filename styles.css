@@ -375,19 +375,6 @@ body::before {
     display: none;
 }
 
-/* Degradado suave en la parte inferior del scroll */
-.block-description::after {
-    content: '';
-    position: sticky;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 30px;
-    display: block;
-    background: linear-gradient(to bottom, transparent, rgba(26, 26, 36, 0.9));
-    pointer-events: none;
-}
-
 .block-description .block-content h2 {
     font-size: 20px;
     font-weight: 600;
@@ -472,20 +459,28 @@ body::before {
     display: none;
 }
 
-/* Degradado en el header SOCIAL cuando se hace scroll - CORREGIDO */
+/* Título SOCIAL dentro de cápsula con blur */
 .block-social .block-content h3 {
     font-size: 12px;
     font-weight: 600;
     color: var(--text-secondary);
     text-transform: uppercase;
     letter-spacing: 1.5px;
-    margin-bottom: 10px;
+    margin-bottom: 12px;
     position: sticky;
     top: 0;
-    padding: 8px 0 12px 0;
+    padding: 6px 14px;
     z-index: 2;
-    background: var(--surface-1);
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-radius: var(--radius-full);
+    border: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.block-social.hidden {
+    display: none;
 }
 
 /* Degradado suave en la parte inferior del scroll - CORREGIDO */
@@ -947,31 +942,6 @@ body::before {
     position: relative;
     scrollbar-width: none;
     -ms-overflow-style: none;
-}
-
-/* Degradado para el scroll del modal - CORREGIDO */
-.modal-card::after {
-    content: '';
-    position: sticky;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    display: block;
-    background: linear-gradient(to bottom, transparent 0%, rgba(18, 18, 26, 0.98) 100%);
-    pointer-events: none;
-    margin-top: -40px;
-}
-
-/* Degradado para el título de secciones dentro del modal - CORREGIDO */
-.modal-card .section h3 {
-    position: sticky;
-    top: 0;
-    z-index: 2;
-    background: rgba(18, 18, 26, 0.98);
-    padding: 12px 0 12px 0;
-    margin-bottom: 8px;
-    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
 }
 
 .modal-card::-webkit-scrollbar {
@@ -1447,8 +1417,8 @@ body::before {
 }
 
 .lightbox-content {
-    max-width: 95%;
-    max-height: 85vh;
+    max-width: 98%;
+    max-height: 92vh;
     border-radius: var(--radius-md);
     box-shadow: 0 0 60px rgba(0, 0, 0, 0.8);
     animation: lightboxZoom 0.5s cubic-bezier(0.22, 1, 0.36, 1);
@@ -1456,18 +1426,18 @@ body::before {
     object-fit: contain;
 }
 
-/* En pantallas grandes, ocupar más espacio */
+/* En pantallas grandes, ocupar casi todo el espacio */
 @media (min-width: 1024px) {
     .lightbox-content {
-        max-width: 80%;
-        max-height: 90vh;
+        max-width: 95%;
+        max-height: 95vh;
     }
 }
 
 @media (min-width: 1600px) {
     .lightbox-content {
-        max-width: 70%;
-        max-height: 92vh;
+        max-width: 90%;
+        max-height: 96vh;
     }
 }
 
