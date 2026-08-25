@@ -704,7 +704,6 @@ body::before {
    CAMBIAR FONDO GENERAL
    ============================================================ */
 .upload-bg-btn {
-    position: fixed;
     bottom: 20px;
     right: 20px;
     background: rgba(0, 0, 0, 0.11);
