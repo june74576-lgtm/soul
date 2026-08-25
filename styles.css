@@ -483,20 +483,6 @@ body::before {
     display: none;
 }
 
-/* Degradado suave en la parte inferior del scroll - CORREGIDO */
-.block-description::after {
-    content: '';
-    position: sticky;
-    bottom: -2px;
-    left: 0;
-    width: 100%;
-    height: 30px;
-    display: block;
-    background: linear-gradient(to bottom, transparent 0%, var(--surface-1) 100%);
-    pointer-events: none;
-    margin-top: -30px;
-}
-
 .block-social.hidden {
     display: none;
 }
