@@ -265,163 +265,6 @@ function setupProfileEvents() {
         });
     }
 
-    // 2. EDITAR BIO (solo si NO es pública)
-    if (!isPublicView()) {
-        document.getElementById('edit-bio-btn').addEventListener('click', () => {
-            const bioDisplay = document.getElementById('bio-display');
-            const bioEditor = document.getElementById('bio-editor');
-            const bioTextarea = document.getElementById('bio-textarea');
-            const currentBio = document.getElementById('display-bio').textContent;
-            bioTextarea.value = currentBio === 'Edit your bio' ? '' : currentBio;
-            bioDisplay.classList.add('hidden');
-            bioEditor.classList.remove('hidden');
-        });
-    }
-
-    // 3. SOCIAL: AÑADIR (solo si NO es pública)
-    if (!isPublicView()) {
-        document.getElementById('add-social-btn').addEventListener('click', () => {
-            document.getElementById('social-card').classList.add('hidden');
-            document.getElementById('social-editor').classList.remove('hidden');
-        });
-
-        document.getElementById('social-cancel').addEventListener('click', () => {
-            document.getElementById('social-card').classList.remove('hidden');
-            document.getElementById('social-editor').classList.add('hidden');
-        });
-
-        document.getElementById('social-save').addEventListener('click', async () => {
-            const platformSelect = document.getElementById('social-platform');
-            const platform = platformSelect.value;
-            const username = document.getElementById('social-username').value.trim();
-            
-            if (!platform) {
-                alert('❌ Por favor selecciona una red social de la lista');
-                platformSelect.focus();
-                return;
-            }
-            
-            if (!username) {
-                alert('❌ Por favor ingresa tu usuario');
-                document.getElementById('social-username').focus();
-                return;
-            }
-            
-            const token = localStorage.getItem('token');
-            try {
-                const meResponse = await fetch(`${API_URL}/auth/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const user = await meResponse.json();
-                const socialLinks = user.social_links || {};
-                socialLinks[platform] = username;
-                const response = await fetch(`${API_URL}/profile`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ social_links: socialLinks })
-                });
-                if (!response.ok) throw new Error('Error al guardar red social');
-                const data = await response.json();
-                renderSocialLinks(data.social_links);
-                document.getElementById('social-card').classList.remove('hidden');
-                document.getElementById('social-editor').classList.add('hidden');
-                document.getElementById('social-platform').value = '';
-                document.getElementById('social-username').value = '';
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        });
-
-        document.getElementById('social-list').addEventListener('click', async (e) => {
-            const deleteBtn = e.target.closest('.social-delete');
-            if (!deleteBtn) return;
-            const platform = deleteBtn.dataset.platform;
-            const token = localStorage.getItem('token');
-            try {
-                const meResponse = await fetch(`${API_URL}/auth/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const user = await meResponse.json();
-                const socialLinks = user.social_links || {};
-                delete socialLinks[platform];
-                const response = await fetch(`${API_URL}/profile`, {
-                    method: 'PUT',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    },
-                    body: JSON.stringify({ social_links: socialLinks })
-                });
-                if (!response.ok) throw new Error('Error al eliminar red social');
-                const data = await response.json();
-                renderSocialLinks(data.social_links);
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        });
-    }
-
-    // 4. SUBIR BANNER (solo si NO es pública)
-    if (!isPublicView()) {
-        document.getElementById('upload-banner-btn').addEventListener('click', () => {
-            document.getElementById('banner-input').click();
-        });
-
-        document.getElementById('banner-input').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const formData = new FormData();
-            formData.append('image', file);
-            formData.append('type', 'banner');
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetch(`${API_URL}/profile/upload`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                });
-                if (!response.ok) throw new Error('Error al subir banner');
-                const data = await response.json();
-                document.getElementById('banner-img').src = data.url;
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-            e.target.value = '';
-        });
-    }
-
-    // 5. SUBIR AVATAR (solo si NO es pública)
-    if (!isPublicView()) {
-        document.getElementById('upload-avatar-btn').addEventListener('click', () => {
-            document.getElementById('avatar-input').click();
-        });
-
-        document.getElementById('avatar-input').addEventListener('change', async (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            const formData = new FormData();
-            formData.append('image', file);
-            formData.append('type', 'avatar');
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetch(`${API_URL}/profile/upload`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` },
-                    body: formData
-                });
-                if (!response.ok) throw new Error('Error al subir avatar');
-                const data = await response.json();
-                document.getElementById('avatar-img').src = data.url;
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-            e.target.value = '';
-        });
-    }
-
     // 6. CONECTAR SPOTIFY (O VER MODAL EN MODO PÚBLICO)
     document.getElementById('music-card').addEventListener('click', async () => {
         const token = localStorage.getItem('token');
@@ -430,7 +273,6 @@ function setupProfileEvents() {
         if (isPublicView()) {
             const modal = document.getElementById('modal-music');
             if (modal) {
-                // Quitar clase closing si existe
                 modal.classList.remove('closing');
                 modal.classList.add('active');
                 document.body.style.overflow = 'hidden';
@@ -448,7 +290,6 @@ function setupProfileEvents() {
             if (user.spotify_connected) {
                 const modal = document.getElementById('modal-music');
                 if (modal) {
-                    // Quitar clase closing si existe
                     modal.classList.remove('closing');
                     modal.classList.add('active');
                     document.body.style.overflow = 'hidden';
@@ -467,63 +308,6 @@ function setupProfileEvents() {
             console.error('Error al conectar Spotify:', error);
             alert('Error al conectar Spotify');
         }
-    });
-
-    // 7. DESCONECTAR SPOTIFY (solo si NO es pública)
-    if (!isPublicView()) {
-        document.getElementById('disconnect-spotify-btn').addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetch(`${API_URL}/spotify/disconnect`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!response.ok) throw new Error('Error al desconectar Spotify');
-                
-                const data = await response.json();
-                console.log('✅ Spotify desconectado');
-                
-                const userData = localStorage.getItem('user');
-                if (userData) {
-                    const user = JSON.parse(userData);
-                    user.spotify_connected = false;
-                    localStorage.setItem('user', JSON.stringify(user));
-                }
-                
-                const spotifyStatus = document.getElementById('spotify-status');
-                const spotifyBadge = document.getElementById('spotify-badge');
-                if (spotifyStatus) spotifyStatus.textContent = 'Not connected';
-                if (spotifyBadge) {
-                    spotifyBadge.textContent = 'Connect';
-                    spotifyBadge.style.background = 'var(--surface-2)';
-                    spotifyBadge.style.color = 'var(--text-muted)';
-                }
-                
-                document.getElementById('disconnect-spotify-btn').classList.add('hidden');
-                document.getElementById('music-card').classList.add('disabled-card');
-                
-            } catch (error) {
-                console.error('Error al desconectar Spotify:', error);
-                alert('Error al desconectar Spotify');
-            }
-        });
-    }
-
-    // 8. CERRAR MODAL CON ANIMACIÓN (siempre funciona)
-    // Eliminar los event listeners anteriores y usar estos:
-    document.querySelectorAll('.modal-close').forEach(btn => {
-        // Remover event listeners antiguos (si los hay)
-        btn.removeEventListener('click', btn._closeHandler);
-        // Crear nuevo handler
-        btn._closeHandler = () => {
-            const target = btn.dataset.close;
-            const modal = document.getElementById(target);
-            if (modal) {
-                closeModalWithAnimation(modal);
-            }
-        };
-        btn.addEventListener('click', btn._closeHandler);
     });
 
     // Para los overlays, usar delegación de eventos o reemplazar
@@ -840,6 +624,424 @@ function renderProfile(user, options = {}) {
             }
         }
     }
+    // ============================================================
+    // SETTINGS MODAL - ABRIR
+    // ============================================================
+    document.getElementById('settings-toggle-btn')?.addEventListener('click', () => {
+        const modal = document.getElementById('modal-settings');
+        if (modal) {
+            modal.classList.remove('closing');
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            loadSettingsData(); // Cargar datos actuales
+        }
+    });
+
+    // ============================================================
+    // CARGAR DATOS EN SETTINGS
+    // ============================================================
+    function loadSettingsData() {
+        const userData = localStorage.getItem('user');
+        if (!userData) return;
+        const user = JSON.parse(userData);
+
+        // Username
+        document.getElementById('settings-username').value = user.username || '';
+
+        // Banner
+        if (user.banner_url) {
+            document.getElementById('settings-banner-preview').src = user.banner_url;
+        }
+
+        // Avatar
+        if (user.avatar_url) {
+            document.getElementById('settings-avatar-preview').src = user.avatar_url;
+        }
+
+        // Background
+        const bgUrl = user.background_url || localStorage.getItem('customBg') || '';
+        if (bgUrl) {
+            document.getElementById('settings-bg-preview').src = bgUrl;
+            document.getElementById('settings-bg-preview').style.display = 'block';
+        } else {
+            document.getElementById('settings-bg-preview').style.display = 'none';
+        }
+
+        // Bio
+        document.getElementById('settings-bio-textarea').value = user.bio || '';
+        updateBioPreview(user.bio || '');
+
+        // Social Links
+        renderSettingsSocialLinks(user.social_links || {});
+
+        // Spotify Status
+        const spotifyStatus = document.getElementById('settings-spotify-status');
+        const spotifyBtn = document.getElementById('settings-spotify-connect');
+        if (user.spotify_connected) {
+            spotifyStatus.textContent = 'Connected ✓';
+            spotifyStatus.style.color = '#4ade80';
+            spotifyBtn.textContent = 'Disconnect';
+            spotifyBtn.style.background = '#ff6b6b';
+        } else {
+            spotifyStatus.textContent = 'Not connected';
+            spotifyStatus.style.color = 'var(--text-muted)';
+            spotifyBtn.textContent = 'Connect';
+            spotifyBtn.style.background = 'var(--accent)';
+        }
+    }
+
+    // ============================================================
+    // RENDER SOCIAL LINKS EN SETTINGS
+    // ============================================================
+    function renderSettingsSocialLinks(socialLinks) {
+        const container = document.getElementById('settings-social-list');
+        container.innerHTML = '';
+
+        if (!socialLinks || Object.keys(socialLinks).length === 0) {
+            container.innerHTML = '<p style="color:var(--text-muted);font-size:13px;padding:8px;">No social links yet</p>';
+            return;
+        }
+
+        Object.entries(socialLinks).forEach(([platform, username]) => {
+            const platformLower = platform.toLowerCase();
+            const platformInfo = socialPlatforms[platformLower];
+            if (!platformInfo) return;
+
+            const div = document.createElement('div');
+            div.className = 'settings-social-item';
+            div.innerHTML = `
+                <div class="social-info">
+                    <span>${platformInfo.svg}</span>
+                    <span class="platform-name">${platformInfo.name}</span>
+                    <span class="username">${username}</span>
+                </div>
+                <button class="social-delete-btn" data-platform="${platform}">✕</button>
+            `;
+            container.appendChild(div);
+        });
+
+        // Event listeners para eliminar
+        container.querySelectorAll('.social-delete-btn').forEach(btn => {
+            btn.addEventListener('click', async (e) => {
+                const platform = e.target.dataset.platform;
+                const token = localStorage.getItem('token');
+                try {
+                    const meResponse = await fetch(`${API_URL}/auth/me`, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    const user = await meResponse.json();
+                    const socialLinks = user.social_links || {};
+                    delete socialLinks[platform];
+                    const response = await fetch(`${API_URL}/profile`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({ social_links: socialLinks })
+                    });
+                    if (!response.ok) throw new Error('Error al eliminar red social');
+                    const data = await response.json();
+                    renderSettingsSocialLinks(data.social_links);
+                    renderSocialLinks(data.social_links);
+                    showShareToast('Social link removed!', 'success');
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            });
+        });
+    }
+
+    // ============================================================
+    // SETTINGS - BIO PREVIEW EN TIEMPO REAL
+    // ============================================================
+    document.getElementById('settings-bio-textarea')?.addEventListener('input', (e) => {
+        updateBioPreview(e.target.value);
+    });
+
+    function updateBioPreview(html) {
+        const preview = document.getElementById('settings-bio-preview-display');
+        if (!preview) return;
+        if (!html || html.trim() === '') {
+            preview.innerHTML = '<em style="color: var(--text-muted);">Your bio will appear here</em>';
+            return;
+        }
+        const cleanBio = DOMPurify.sanitize(html, {
+            ALLOWED_TAGS: [
+                'b', 'strong', 'i', 'em', 'u', 's', 'strike',
+                'a', 'br', 'p', 'span', 'div',
+                'img', 'ul', 'ol', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
+                'blockquote', 'code', 'pre', 'hr'
+            ],
+            ALLOWED_ATTR: ['href', 'target', 'rel', 'style', 'class', 'id', 'src', 'alt', 'width', 'height']
+        });
+        preview.innerHTML = cleanBio;
+    }
+
+    // ============================================================
+    // SETTINGS - GUARDAR USERNAME
+    // ============================================================
+    document.getElementById('settings-save-username')?.addEventListener('click', async () => {
+        const username = document.getElementById('settings-username').value.trim();
+        if (!username) {
+            alert('Username cannot be empty');
+            return;
+        }
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`${API_URL}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ username })
+            });
+            if (!response.ok) throw new Error('Error al guardar username');
+            const data = await response.json();
+            const userData = localStorage.getItem('user');
+            if (userData) {
+                const user = JSON.parse(userData);
+                user.username = username;
+                localStorage.setItem('user', JSON.stringify(user));
+            }
+            document.getElementById('display-username').textContent = `@${username}`;
+            document.getElementById('profile-username').textContent = `@${username}`;
+            showShareToast('Username updated!', 'success');
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+
+    // ============================================================
+    // SETTINGS - GUARDAR BIO
+    // ============================================================
+    document.getElementById('settings-save-bio')?.addEventListener('click', async () => {
+        const bio = document.getElementById('settings-bio-textarea').value;
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`${API_URL}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ bio })
+            });
+            if (!response.ok) throw new Error('Error al guardar bio');
+            const data = await response.json();
+            renderBioWithHTML(data.bio);
+            showShareToast('Bio updated!', 'success');
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+
+    // ============================================================
+    // SETTINGS - SUBIR BANNER
+    // ============================================================
+    document.getElementById('settings-upload-banner')?.addEventListener('click', () => {
+        document.getElementById('settings-banner-input').click();
+    });
+
+    document.getElementById('settings-banner-input')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('type', 'banner');
+        try {
+            const response = await fetch(`${API_URL}/profile/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            if (!response.ok) throw new Error('Error al subir banner');
+            const data = await response.json();
+            document.getElementById('settings-banner-preview').src = data.url;
+            document.getElementById('banner-img').src = data.url;
+            showShareToast('Banner updated!', 'success');
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+        e.target.value = '';
+    });
+
+    // ============================================================
+    // SETTINGS - SUBIR AVATAR
+    // ============================================================
+    document.getElementById('settings-upload-avatar')?.addEventListener('click', () => {
+        document.getElementById('settings-avatar-input').click();
+    });
+
+    document.getElementById('settings-avatar-input')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('type', 'avatar');
+        try {
+            const response = await fetch(`${API_URL}/profile/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            if (!response.ok) throw new Error('Error al subir avatar');
+            const data = await response.json();
+            document.getElementById('settings-avatar-preview').src = data.url;
+            document.getElementById('avatar-img').src = data.url;
+            showShareToast('Avatar updated!', 'success');
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+        e.target.value = '';
+    });
+
+    // ============================================================
+    // SETTINGS - SUBIR/ELIMINAR FONDO
+    // ============================================================
+    document.getElementById('settings-upload-bg')?.addEventListener('click', () => {
+        document.getElementById('settings-bg-input').click();
+    });
+
+    document.getElementById('settings-bg-input')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const token = localStorage.getItem('token');
+        const formData = new FormData();
+        formData.append('image', file);
+        formData.append('type', 'background');
+        try {
+            const response = await fetch(`${API_URL}/profile/upload`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: formData
+            });
+            if (!response.ok) throw new Error('Error al subir fondo');
+            const data = await response.json();
+            document.getElementById('settings-bg-preview').src = data.url;
+            document.getElementById('settings-bg-preview').style.display = 'block';
+            document.documentElement.style.setProperty('--custom-bg-url', `url(${data.url})`);
+            document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+            localStorage.setItem('customBg', data.url);
+            showShareToast('Background updated!', 'success');
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+        e.target.value = '';
+    });
+
+    document.getElementById('settings-delete-bg')?.addEventListener('click', async () => {
+        const token = localStorage.getItem('token');
+        try {
+            const response = await fetch(`${API_URL}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ background_url: null })
+            });
+            if (!response.ok) throw new Error('Error al eliminar fondo');
+            document.getElementById('settings-bg-preview').style.display = 'none';
+            document.documentElement.style.setProperty('--custom-bg-url', 'none');
+            document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+            localStorage.removeItem('customBg');
+            showShareToast('Background removed!', 'success');
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+
+    // ============================================================
+    // SETTINGS - AÑADIR SOCIAL
+    // ============================================================
+    document.getElementById('settings-social-add')?.addEventListener('click', async () => {
+        const platform = document.getElementById('settings-social-platform').value;
+        const username = document.getElementById('settings-social-username').value.trim();
+        if (!platform) {
+            alert('Select a platform');
+            return;
+        }
+        if (!username) {
+            alert('Enter your username');
+            return;
+        }
+        const token = localStorage.getItem('token');
+        try {
+            const meResponse = await fetch(`${API_URL}/auth/me`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const user = await meResponse.json();
+            const socialLinks = user.social_links || {};
+            socialLinks[platform] = username;
+            const response = await fetch(`${API_URL}/profile`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ social_links: socialLinks })
+            });
+            if (!response.ok) throw new Error('Error al guardar red social');
+            const data = await response.json();
+            renderSettingsSocialLinks(data.social_links);
+            renderSocialLinks(data.social_links);
+            document.getElementById('settings-social-platform').value = '';
+            document.getElementById('settings-social-username').value = '';
+            showShareToast('Social link added!', 'success');
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    });
+
+    // ============================================================
+    // SETTINGS - SPOTIFY CONNECT/DISCONNECT
+    // ============================================================
+    document.getElementById('settings-spotify-connect')?.addEventListener('click', async () => {
+        const token = localStorage.getItem('token');
+        const btn = document.getElementById('settings-spotify-connect');
+        const status = document.getElementById('settings-spotify-status');
+        
+        // Si está conectado, desconectar
+        if (btn.textContent === 'Disconnect') {
+            try {
+                const response = await fetch(`${API_URL}/spotify/disconnect`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error('Error al desconectar Spotify');
+                status.textContent = 'Not connected';
+                status.style.color = 'var(--text-muted)';
+                btn.textContent = 'Connect';
+                btn.style.background = 'var(--accent)';
+                document.getElementById('spotify-status').textContent = 'Not connected';
+                document.getElementById('spotify-badge').textContent = 'Connect';
+                document.getElementById('spotify-badge').style.background = 'var(--surface-2)';
+                document.getElementById('spotify-badge').style.color = 'var(--text-muted)';
+                document.getElementById('music-card').classList.add('disabled-card');
+                showShareToast('Spotify disconnected', 'success');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+            return;
+        }
+        
+        // Conectar Spotify
+        try {
+            const response = await fetch(`${API_URL}/spotify/connect`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await response.json();
+            if (data.url) {
+                window.location.href = data.url;
+            }
+        } catch (error) {
+            alert('Error connecting Spotify: ' + error.message);
+        }
+    });
 }
 function renderSocialLinks(socialLinks) {
     const container = document.getElementById('social-list');

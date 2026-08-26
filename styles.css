@@ -1670,3 +1670,421 @@ body[data-public="true"] .public-hide {
         border-radius: var(--radius-lg);
     }
 }
+
+/* ============================================================
+   SETTINGS MODAL
+   ============================================================ */
+.modal-settings {
+    max-width: 680px !important;
+}
+
+.settings-section {
+    margin-bottom: 24px;
+}
+
+.settings-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-secondary);
+    margin-bottom: 12px;
+}
+
+.settings-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.settings-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.2s;
+}
+
+.settings-input:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.settings-save-btn {
+    padding: 8px 20px;
+    font-size: 12px;
+    width: auto;
+    white-space: nowrap;
+}
+
+.settings-divider {
+    border: none;
+    border-top: 1px solid var(--outline);
+    margin: 20px 0;
+}
+
+/* Image previews */
+.settings-image-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.settings-image-preview {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    border-radius: var(--radius-md);
+    background: var(--surface-2);
+    border: 1px solid var(--outline);
+}
+
+.settings-avatar-row {
+    flex-direction: row;
+    gap: 20px;
+    align-items: center;
+}
+
+.settings-avatar-preview {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--outline);
+    background: var(--surface-2);
+}
+
+.settings-image-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.settings-upload-btn {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--outline);
+    color: var(--text-secondary);
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.settings-upload-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.settings-delete-btn {
+    background: rgba(255, 107, 107, 0.1);
+    border: 1px solid rgba(255, 107, 107, 0.3);
+    color: #ff6b6b;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s ease;
+}
+
+.settings-delete-btn:hover {
+    background: rgba(255, 107, 107, 0.2);
+    border-color: #ff6b6b;
+}
+
+/* Social Links in Settings */
+.settings-social-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 12px;
+}
+
+.settings-social-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--outline);
+}
+
+.settings-social-item:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.settings-social-item .social-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.settings-social-item .social-info svg {
+    width: 18px;
+    height: 18px;
+}
+
+.settings-social-item .social-info .platform-name {
+    font-size: 13px;
+    color: var(--text-primary);
+}
+
+.settings-social-item .social-info .username {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.settings-social-item .social-delete-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 16px;
+    padding: 4px 8px;
+    border-radius: var(--radius-full);
+    transition: all 0.2s ease;
+}
+
+.settings-social-item .social-delete-btn:hover {
+    color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.1);
+}
+
+.settings-social-add {
+    display: flex;
+    gap: 8px;
+}
+
+.settings-select {
+    background: var(--bg);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13px;
+    min-width: 140px;
+    cursor: pointer;
+}
+
+.settings-select:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+.settings-add-btn {
+    padding: 8px 20px;
+    font-size: 12px;
+    width: auto;
+    white-space: nowrap;
+}
+
+/* Bio Editor */
+.settings-bio-editor {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.settings-bio-preview,
+.settings-bio-input-area {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-bio-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--text-muted);
+}
+
+.settings-bio-preview-content {
+    min-height: 120px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-md);
+    font-size: 14px;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    overflow-y: auto;
+    max-height: 200px;
+}
+
+.settings-bio-preview-content strong,
+.settings-bio-preview-content b {
+    color: var(--text-primary);
+}
+
+.settings-bio-preview-content a {
+    color: var(--accent);
+    text-decoration: none;
+}
+
+.settings-bio-preview-content a:hover {
+    text-decoration: underline;
+}
+
+.settings-textarea {
+    flex: 1;
+    min-height: 120px;
+    background: var(--bg);
+    border: 1px solid var(--outline);
+    border-radius: var(--radius-md);
+    padding: 10px 14px;
+    color: var(--text-primary);
+    font-family: 'Courier New', monospace;
+    font-size: 13px;
+    resize: vertical;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.settings-textarea::-webkit-scrollbar {
+    display: none;
+}
+
+.settings-textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+}
+
+/* Services List */
+.settings-services-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-service-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-radius: var(--radius-sm);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid var(--outline);
+}
+
+.settings-service-item.disabled {
+    opacity: 0.5;
+}
+
+.settings-service-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.settings-service-icon {
+    width: 24px;
+    height: 24px;
+    color: var(--text-secondary);
+}
+
+.settings-service-status {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-left: 8px;
+}
+
+.settings-service-btn {
+    background: var(--accent);
+    color: var(--bg);
+    border: none;
+    padding: 6px 16px;
+    border-radius: var(--radius-full);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: opacity 0.2s ease;
+}
+
+.settings-service-btn:hover {
+    opacity: 0.85;
+}
+
+.settings-service-btn.disabled {
+    background: var(--surface-2);
+    color: var(--text-muted);
+    cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .settings-bio-editor {
+        grid-template-columns: 1fr;
+    }
+    .settings-social-add {
+        flex-wrap: wrap;
+    }
+    .settings-avatar-row {
+        flex-direction: column;
+        align-items: center;
+    }
+}
+
+/* ============================================================
+   SETTINGS TOGGLE BUTTON
+   ============================================================ */
+.settings-toggle-btn {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: var(--text-primary);
+    font-size: 18px;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.settings-toggle-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    border-color: var(--accent);
+    transform: scale(1.05);
+}
+
+.settings-toggle-btn svg {
+    stroke: var(--text-primary);
+    transition: stroke 0.3s ease;
+}
+
+.settings-toggle-btn:hover svg {
+    stroke: var(--accent);
+}
+
+/* Ajuste para el botón Settings */
+.settings-toggle-btn {
+    /* ... */
+}
+
+/* Scroll en el modal de settings */
+.modal-settings .modal-body {
+    max-height: 70vh;
+    overflow-y: auto;
+    padding-right: 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.modal-settings .modal-body::-webkit-scrollbar {
+    display: none;
+}
