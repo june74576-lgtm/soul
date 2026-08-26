@@ -497,14 +497,11 @@ function renderProfile(user, options = {}) {
         document.getElementById('upload-banner-btn').classList.add('hidden');
         document.getElementById('upload-avatar-btn').classList.add('hidden');
         document.getElementById('logout-btn').classList.add('hidden');
-    }
 
-    // ===== MODO PÚBLICO: Mostrar solo servicios conectados =====
-    if (isPublicView()) {
     // ===== SERVICIOS: Mostrar SOLO los que están conectados (en todos los modos) =====
-        const cardsStack = document.querySelector('.cards-stack');
-        const cardsLabel = document.querySelector('.cards-label');
-        const cardRows = cardsStack?.querySelectorAll('.card-row');
+    const cardsStack = document.querySelector('.cards-stack');
+    const cardsLabel = document.querySelector('.cards-label');
+    const cardRows = cardsStack?.querySelectorAll('.card-row');
 
     if (cardsStack && cardRows) {
         let hasConnectedService = false;
