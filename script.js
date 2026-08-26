@@ -316,9 +316,12 @@ function setupProfileEvents() {
     // Cerrar modales con el botón X
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.removeEventListener('click', btn._closeHandler);
-        btn._closeHandler = () => {
+        btn._closeHandler = (e) => {
+            e.stopPropagation(); // 🔥 AÑADE ESTO
             const target = btn.dataset.close;
+            console.log('🔴 Botón clickeado, target:', target); // 🔥 LOG
             const modal = document.getElementById(target);
+            console.log('🔴 Modal encontrado:', modal ? '✅' : '❌', modal?.id); // 🔥 LOG
             if (modal) {
                 closeModalWithAnimation(modal);
             }
@@ -337,25 +340,30 @@ function setupProfileEvents() {
         overlay.addEventListener('click', overlay._closeHandler);
     });
 
-    // Función para cerrar modal con animación
     function closeModalWithAnimation(modal) {
-        if (!modal) return;
+        console.log('🔴 closeModalWithAnimation llamado para:', modal?.id); // 🔥 LOG
         
-        // Si ya está cerrando, no hacer nada
-        if (modal.classList.contains('closing')) return;
+        if (!modal) {
+            console.log('🔴 modal es null/undefined');
+            return;
+        }
         
-        // Añadir clase de cierre para animación
+        if (modal.classList.contains('closing')) {
+            console.log('🔴 ya está cerrando, ignorando');
+            return;
+        }
+        
+        console.log('🔴 Añadiendo clase closing...');
         modal.classList.add('closing');
         
-        // Detener actualizaciones de Spotify
         stopNowPlayingUpdates();
         
-        // Esperar a que termine la animación antes de ocultar
         setTimeout(() => {
+            console.log('🔴 Removiendo clases y ocultando...');
             modal.classList.remove('active', 'closing');
-            // 🔥 FORZAR display:none
             modal.style.display = 'none';
             document.body.style.overflow = '';
+            console.log('🔴 Modal cerrado correctamente');
         }, 400);
     }
 
