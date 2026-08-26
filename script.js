@@ -725,14 +725,6 @@ function renderProfile(user, options = {}) {
     if (user.banner_url) {
         document.getElementById('banner-img').src = user.banner_url;
     }
-    if (user.background_url && user.background_url !== '') {
-        document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
-        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
-    } else {
-        // Resetear a fondo por defecto (sin imagen)
-        document.documentElement.style.setProperty('--custom-bg-url', 'none');
-        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
-    }
     if (user.avatar_url) {
         document.getElementById('avatar-img').src = user.avatar_url;
     }
@@ -841,14 +833,14 @@ function renderProfile(user, options = {}) {
         }
     }
     // Al final de renderProfile(), después de todo el código
-    // Forzar carga del fondo incluso en modo público
+    // Forzar carga del fondo (sin sobrescribir con none si hay fondo)
     if (user.background_url && user.background_url !== '') {
         document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
         document.documentElement.style.setProperty('--custom-bg-blur', '0px');
-    } else {
-        document.documentElement.style.setProperty('--custom-bg-url', 'none');
-        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+        console.log('✅ Fondo aplicado desde renderProfile:', user.background_url);
     }
+    // ⚠️ ELIMINAR EL ELSE - NO RESETEAR A NONE AQUÍ
+    // Si no hay fondo, simplemente no hacemos nada (se mantiene el que ya estaba o el por defecto)
 }
 
 function renderSocialLinks(socialLinks) {
