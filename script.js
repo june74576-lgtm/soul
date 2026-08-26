@@ -164,20 +164,6 @@ async function initProfile() {
             renderProfile(user, { isPublic: false });
             localStorage.setItem('user', JSON.stringify(user));
             
-            // 🔥 APLICAR FONDO DESDE SUPABASE (incluso en incógnito)
-            if (user.background_url && user.background_url !== '') {
-                localStorage.setItem('customBg', user.background_url);
-                document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
-                document.documentElement.style.setProperty('--custom-bg-blur', '0px');
-                console.log('✅ Fondo cargado desde Supabase:', user.background_url);
-            } else {
-                // Si no hay fondo en Supabase, resetear
-                document.documentElement.style.setProperty('--custom-bg-url', 'none');
-                document.documentElement.style.setProperty('--custom-bg-blur', '0px');
-                localStorage.removeItem('customBg');
-                console.log('ℹ️ No hay fondo guardado en Supabase');
-            }
-            
             return; // ✅ IMPORTANTE: Salir después de éxito
         } else {
             // Si el backend falla, usar localStorage
@@ -725,6 +711,27 @@ function renderProfile(user, options = {}) {
     if (user.banner_url) {
         document.getElementById('banner-img').src = user.banner_url;
     }
+
+    // 🔥 APLICAR FONDO DESDE SUPABASE O LOCALSTORAGE
+    const bgUrl = user.background_url;
+    if (bgUrl && bgUrl !== '') {
+        document.documentElement.style.setProperty('--custom-bg-url', `url(${bgUrl})`);
+        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+        localStorage.setItem('customBg', bgUrl);
+        console.log('✅ Fondo aplicado desde renderProfile:', bgUrl);
+    } else {
+        // Si no hay fondo en el perfil, usar el de localStorage o resetear
+        const savedBg = localStorage.getItem('customBg');
+        if (savedBg && savedBg !== '') {
+            document.documentElement.style.setProperty('--custom-bg-url', `url(${savedBg})`);
+            document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+            console.log('ℹ️ Fondo cargado desde localStorage (fallback):', savedBg);
+        } else {
+            document.documentElement.style.setProperty('--custom-bg-url', 'none');
+            document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+        }
+    }
+
     if (user.avatar_url) {
         document.getElementById('avatar-img').src = user.avatar_url;
     }
@@ -786,6 +793,7 @@ function renderProfile(user, options = {}) {
         document.getElementById('upload-avatar-btn').classList.add('hidden');
         document.getElementById('logout-btn').classList.add('hidden');
     }
+
     // ===== MODO PÚBLICO: Mostrar solo servicios conectados =====
     if (isPublicView()) {
         const cardsStack = document.querySelector('.cards-stack');
@@ -832,17 +840,7 @@ function renderProfile(user, options = {}) {
             }
         }
     }
-    // Al final de renderProfile(), después de todo el código
-    // Forzar carga del fondo (sin sobrescribir con none si hay fondo)
-    if (user.background_url && user.background_url !== '') {
-        document.documentElement.style.setProperty('--custom-bg-url', `url(${user.background_url})`);
-        document.documentElement.style.setProperty('--custom-bg-blur', '0px');
-        console.log('✅ Fondo aplicado desde renderProfile:', user.background_url);
-    }
-    // ⚠️ ELIMINAR EL ELSE - NO RESETEAR A NONE AQUÍ
-    // Si no hay fondo, simplemente no hacemos nada (se mantiene el que ya estaba o el por defecto)
 }
-
 function renderSocialLinks(socialLinks) {
     const container = document.getElementById('social-list');
     container.innerHTML = '';
