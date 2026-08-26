@@ -519,58 +519,6 @@ function renderProfile(user, options = {}) {
         document.getElementById('upload-banner-btn').classList.add('hidden');
         document.getElementById('upload-avatar-btn').classList.add('hidden');
         document.getElementById('logout-btn').classList.add('hidden');
-
-    // ===== SERVICIOS: Mostrar SOLO los que están conectados (en todos los modos) =====
-    const cardsStack = document.querySelector('.cards-stack');
-    const cardsLabel = document.querySelector('.cards-label');
-    const cardRows = cardsStack?.querySelectorAll('.card-row');
-
-    if (cardsStack && cardRows) {
-        let hasConnectedService = false;
-        
-        cardRows.forEach(card => {
-            // Solo mostrar servicios que están conectados
-            const isSpotify = card.id === 'music-card';
-            const isConnected = user.spotify_connected;
-            
-            if (isSpotify && isConnected) {
-                card.style.display = 'flex';
-                hasConnectedService = true;
-            } else {
-                card.style.display = 'none';
-            }
-        });
-        
-        // Si no hay servicios conectados, mostrar mensaje
-        if (!hasConnectedService) {
-            const existingMsg = cardsStack.querySelector('.no-services-msg');
-            if (!existingMsg) {
-                const msg = document.createElement('div');
-                msg.className = 'no-services-msg';
-                msg.style.cssText = `
-                    text-align: center;
-                    padding: 40px 20px;
-                    color: var(--text-muted);
-                    font-size: 14px;
-                    background: rgba(26, 26, 36, 0.5);
-                    border-radius: var(--radius-lg);
-                    border: 1px dashed var(--outline);
-                    backdrop-filter: blur(10px);
-                `;
-                msg.innerHTML = `
-                    <p style="margin-bottom: 4px;">No connected services</p>
-                    <p style="font-size: 12px; opacity: 0.6;">Connect a service in Settings</p>
-                `;
-                cardsStack.appendChild(msg);
-            }
-            if (cardsLabel) cardsLabel.style.display = 'none';
-        } else {
-            // Remover mensaje si existe
-            const msg = cardsStack.querySelector('.no-services-msg');
-            if (msg) msg.remove();
-            if (cardsLabel) cardsLabel.style.display = 'block';
-        }
-    }
     }
     // ============================================================
     // SETTINGS MODAL - ABRIR
