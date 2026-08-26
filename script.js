@@ -976,10 +976,6 @@ function renderSocialLinks(socialLinks) {
             <span class="social-username">${username}</span>
         `;
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.className = 'social-delete public-hide'; // 🔥 AQUÍ AGREGAMOS public-hide
-        deleteBtn.dataset.platform = platform;
-        deleteBtn.textContent = '✕';
 
         div.appendChild(link);
         div.appendChild(deleteBtn);
