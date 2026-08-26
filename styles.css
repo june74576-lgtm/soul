@@ -958,15 +958,24 @@ body::before {
 @keyframes modalFadeOut {
     0% {
         opacity: 1;
-        display: flex; /* Mantener visible durante la animación */
-    }
-    99% {
-        opacity: 0;
-        display: flex;
     }
     100% {
         opacity: 0;
-        display: none; /* Ocultar al final */
+    }
+}
+
+.modal-overlay.closing .modal-card {
+    animation: modalSlideDown 0.35s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes modalSlideDown {
+    0% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(30px) scale(0.96);
+        opacity: 0;
     }
 }
 

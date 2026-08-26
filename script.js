@@ -337,7 +337,7 @@ function setupProfileEvents() {
         overlay.addEventListener('click', overlay._closeHandler);
     });
 
-    // Función para cerrar modal con animación
+    // Función para cerrar modal con animación - REEMPLAZAR
     function closeModalWithAnimation(modal) {
         if (!modal) return;
         
@@ -350,14 +350,10 @@ function setupProfileEvents() {
         // Esperar a que termine la animación antes de ocultar
         setTimeout(() => {
             modal.classList.remove('active', 'closing');
-            // 🔥 FORZAR display:none después de la animación
             modal.style.display = 'none';
             document.body.style.overflow = '';
-            // Resetear display para la próxima apertura
-            setTimeout(() => {
-                modal.style.display = '';
-            }, 10);
-        }, 350);
+            // 🔥 NO resetear display, se mantiene en none hasta que se abra de nuevo
+        }, 400);
     }
 
     // 9. SHARE PROFILE (siempre funciona)
@@ -464,30 +460,53 @@ function renderProfile(user, options = {}) {
         if (logoutBtn) logoutBtn.classList.remove('hidden');
     }
 
-    // 🔥 Spotify: SIEMPRE debe estar activo
-    const spotifyStatus = document.getElementById('spotify-status');
-    const spotifyBadge = document.getElementById('spotify-badge');
-    const disconnectBtn = document.getElementById('disconnect-spotify-btn');
+    // ===== SERVICIOS: Mostrar SOLO los que están conectados (TODOS LOS MODOS) =====
+    const cardsStack = document.querySelector('.cards-stack');
+    const cardsLabel = document.querySelector('.cards-label');
+    const cardRows = cardsStack?.querySelectorAll('.card-row');
 
-    if (user.spotify_connected) {
-        spotifyStatus.textContent = 'Connected';
-        spotifyBadge.textContent = '● Live';
-        spotifyBadge.style.background = 'var(--accent)';
-        spotifyBadge.style.color = 'var(--bg)';
-        document.getElementById('music-card').classList.remove('disabled-card');
+    if (cardsStack && cardRows) {
+        let hasConnectedService = false;
         
-        if (isPublic) {
-            if (disconnectBtn) disconnectBtn.classList.add('hidden');
+        cardRows.forEach(card => {
+            const isSpotify = card.id === 'music-card';
+            const isConnected = user.spotify_connected;
+            
+            if (isSpotify && isConnected) {
+                card.style.display = 'flex';
+                hasConnectedService = true;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        
+        // Si no hay servicios conectados, mostrar mensaje
+        const existingMsg = cardsStack.querySelector('.no-services-msg');
+        if (!hasConnectedService) {
+            if (!existingMsg) {
+                const msg = document.createElement('div');
+                msg.className = 'no-services-msg';
+                msg.style.cssText = `
+                    text-align: center;
+                    padding: 40px 20px;
+                    color: var(--text-muted);
+                    font-size: 14px;
+                    background: rgba(26, 26, 36, 0.5);
+                    border-radius: var(--radius-lg);
+                    border: 1px dashed var(--outline);
+                    backdrop-filter: blur(10px);
+                `;
+                msg.innerHTML = `
+                    <p style="margin-bottom: 4px;">No connected services</p>
+                    <p style="font-size: 12px; opacity: 0.6;">Connect a service in Settings</p>
+                `;
+                cardsStack.appendChild(msg);
+            }
+            if (cardsLabel) cardsLabel.style.display = 'none';
         } else {
-            if (disconnectBtn) disconnectBtn.classList.remove('hidden');
+            if (existingMsg) existingMsg.remove();
+            if (cardsLabel) cardsLabel.style.display = 'block';
         }
-    } else {
-        spotifyStatus.textContent = 'Not connected';
-        spotifyBadge.textContent = 'Connect';
-        spotifyBadge.style.background = 'var(--surface-2)';
-        spotifyBadge.style.color = 'var(--text-muted)';
-        document.getElementById('music-card').classList.add('disabled-card');
-        if (disconnectBtn) disconnectBtn.classList.add('hidden');
     }
     
     // 🔥 SIEMPRE ocultar los botones de edición si es público (sin depender de eventos)
