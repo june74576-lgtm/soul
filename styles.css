@@ -2183,3 +2183,35 @@ body[data-public="true"] .public-hide {
 .modal-settings .modal-body::-webkit-scrollbar {
     display: none;
 }
+.modal-close {
+    position: absolute;
+    top: 14px;
+    right: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: none;
+    color: var(--text-secondary);
+    font-size: 18px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.25s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1001; /* 🔥 Asegurar que esté encima */
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 14, 0.92);
+    backdrop-filter: blur(16px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
