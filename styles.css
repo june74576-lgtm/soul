@@ -958,9 +958,15 @@ body::before {
 @keyframes modalFadeOut {
     0% {
         opacity: 1;
+        display: flex; /* Mantener visible durante la animación */
+    }
+    99% {
+        opacity: 0;
+        display: flex;
     }
     100% {
         opacity: 0;
+        display: none; /* Ocultar al final */
     }
 }
 
