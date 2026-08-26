@@ -337,9 +337,12 @@ function setupProfileEvents() {
         overlay.addEventListener('click', overlay._closeHandler);
     });
 
-    // Función para cerrar modal con animación - REEMPLAZAR
+    // Función para cerrar modal con animación
     function closeModalWithAnimation(modal) {
         if (!modal) return;
+        
+        // Si ya está cerrando, no hacer nada
+        if (modal.classList.contains('closing')) return;
         
         // Añadir clase de cierre para animación
         modal.classList.add('closing');
@@ -350,9 +353,9 @@ function setupProfileEvents() {
         // Esperar a que termine la animación antes de ocultar
         setTimeout(() => {
             modal.classList.remove('active', 'closing');
+            // 🔥 FORZAR display:none
             modal.style.display = 'none';
             document.body.style.overflow = '';
-            // 🔥 NO resetear display, se mantiene en none hasta que se abra de nuevo
         }, 400);
     }
 
@@ -575,12 +578,12 @@ function renderProfile(user, options = {}) {
     document.getElementById('settings-toggle-btn')?.addEventListener('click', () => {
         const modal = document.getElementById('modal-settings');
         if (modal) {
-            // 🔥 Asegurar que el overlay sea visible
-            modal.style.display = 'flex';
+            // 🔥 Remover cualquier clase de cierre residual
             modal.classList.remove('closing');
+            modal.style.display = 'flex';
             modal.classList.add('active');
             document.body.style.overflow = 'hidden';
-            loadSettingsData(); // Cargar datos actuales
+            loadSettingsData();
         }
     });
 

@@ -953,6 +953,7 @@ body::before {
 /* Animación de cierre */
 .modal-overlay.closing {
     animation: modalFadeOut 0.35s ease forwards;
+    display: flex !important; /* Mantener visible durante la animación */
 }
 
 @keyframes modalFadeOut {
@@ -961,6 +962,7 @@ body::before {
     }
     100% {
         opacity: 0;
+        display: none !important; /* Ocultar al final con !important */
     }
 }
 
