@@ -131,11 +131,11 @@ async function initProfile() {
             
             const user = await response.json();
             console.log('✅ Perfil público cargado:', user);
-            renderProfile(user, { isPublic: true }); // Pasamos flag de público
+            renderProfile(user, { isPublic: true });
             return;
         } catch (error) {
             console.error('❌ Error cargando perfil público:', error);
-            window.location.href = 'profile.html'; // Si falla, redirigir al propio perfil
+            window.location.href = 'profile.html';
             return;
         }
     }
@@ -159,6 +159,8 @@ async function initProfile() {
         if (response.ok) {
             const user = await response.json();
             console.log('✅ Perfil del backend:', user);
+            
+            // Renderizar perfil
             renderProfile(user, { isPublic: false });
             localStorage.setItem('user', JSON.stringify(user));
             
@@ -173,23 +175,36 @@ async function initProfile() {
                 document.documentElement.style.setProperty('--custom-bg-url', 'none');
                 document.documentElement.style.setProperty('--custom-bg-blur', '0px');
                 localStorage.removeItem('customBg');
+                console.log('ℹ️ No hay fondo guardado en Supabase');
             }
+            
+            return; // ✅ IMPORTANTE: Salir después de éxito
         } else {
-            console.warn('⚠️ Backend falló, usando localStorage');
+            // Si el backend falla, usar localStorage
+            console.warn('⚠️ Backend falló (status ' + response.status + '), usando localStorage');
             const savedUser = JSON.parse(userData);
             renderProfile(savedUser, { isPublic: false });
+            
             // Intentar cargar fondo desde localStorage como fallback
             const savedBg = localStorage.getItem('customBg');
             if (savedBg) {
                 document.documentElement.style.setProperty('--custom-bg-url', `url(${savedBg})`);
                 document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+                console.log('ℹ️ Fondo cargado desde localStorage (fallback)');
             }
+            return;
         }
-        }
-    catch (error) {
-        console.warn('⚠️ Error, usando localStorage:', error.message);
+    } catch (error) {
+        console.warn('⚠️ Error en fetch, usando localStorage:', error.message);
         const savedUser = JSON.parse(userData);
         renderProfile(savedUser, { isPublic: false });
+        
+        // Intentar cargar fondo desde localStorage como fallback
+        const savedBg = localStorage.getItem('customBg');
+        if (savedBg) {
+            document.documentElement.style.setProperty('--custom-bg-url', `url(${savedBg})`);
+            document.documentElement.style.setProperty('--custom-bg-blur', '0px');
+        }
     }
 }
 
