@@ -1630,3 +1630,21 @@ function showShareToast(message, type = 'success') {
         toast.classList.remove('show');
     }, 3000);
 }
+
+// ============================================================
+// FUNCIÓN GLOBAL PARA CERRAR SETTINGS - SOLUCIÓN DEFINITIVA
+// ============================================================
+function closeSettings() {
+    console.log('🔴 closeSettings() ejecutado');
+    const modal = document.getElementById('modal-settings');
+    if (modal) {
+        modal.classList.add('closing');
+        setTimeout(() => {
+            modal.classList.remove('active', 'closing');
+            modal.style.display = 'none';
+            document.body.style.overflow = '';
+        }, 350);
+    } else {
+        console.log('❌ modal-settings no encontrado');
+    }
+}
