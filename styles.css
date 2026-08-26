@@ -2183,35 +2183,32 @@ body[data-public="true"] .public-hide {
 .modal-settings .modal-body::-webkit-scrollbar {
     display: none;
 }
-.modal-close {
-    position: absolute;
-    top: 14px;
-    right: 18px;
-    background: rgba(255, 255, 255, 0.04);
-    border: none;
-    color: var(--text-secondary);
-    font-size: 18px;
-    width: 36px;
-    height: 36px;
+.modal-settings .modal-close {
+    z-index: 9999;
+    position: absolute !important; /* Cambiar fixed a absolute */
+    top: 16px;
+    right: 16px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     cursor: pointer;
-    transition: 0.25s;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 1001; /* 🔥 Asegurar que esté encima */
+    transition: 0.25s;
 }
 
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(10, 10, 14, 0.92);
-    backdrop-filter: blur(16px);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+.modal-settings .modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Asegurar que el modal-card de settings tenga position relative */
+.modal-settings {
+    position: relative !important;
 }
