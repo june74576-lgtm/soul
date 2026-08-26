@@ -310,7 +310,23 @@ function setupProfileEvents() {
         }
     });
 
-    // Para los overlays, usar delegación de eventos o reemplazar
+    // ============================================================
+    // 8. CERRAR MODAL CON ANIMACIÓN (MUSIC Y SETTINGS)
+    // ============================================================
+    // Cerrar modales con el botón X
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.removeEventListener('click', btn._closeHandler);
+        btn._closeHandler = () => {
+            const target = btn.dataset.close;
+            const modal = document.getElementById(target);
+            if (modal) {
+                closeModalWithAnimation(modal);
+            }
+        };
+        btn.addEventListener('click', btn._closeHandler);
+    });
+
+    // Cerrar modales al hacer click en el overlay (fondo)
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.removeEventListener('click', overlay._closeHandler);
         overlay._closeHandler = (e) => {
@@ -335,17 +351,8 @@ function setupProfileEvents() {
         setTimeout(() => {
             modal.classList.remove('active', 'closing');
             document.body.style.overflow = '';
-        }, 350); // 350ms = duración de la animación
+        }, 350);
     }
-    document.querySelectorAll('.modal-overlay').forEach(overlay => {
-        overlay.addEventListener('click', (e) => {
-            if (e.target === overlay) {
-                overlay.classList.remove('active');
-                document.body.style.overflow = '';
-                stopNowPlayingUpdates();
-            }
-        });
-    });
 
     // 9. SHARE PROFILE (siempre funciona)
     document.getElementById('share-profile-btn').addEventListener('click', async () => {
@@ -386,98 +393,6 @@ function setupProfileEvents() {
     if (urlParams.get('spotify') === 'connected') {
         window.location.href = 'profile.html';
     }
-    // 11. CAMBIAR FONDO GENERAL
-    document.getElementById('upload-bg-btn')?.addEventListener('click', () => {
-        document.getElementById('bg-input').click();
-    });
-
-    // Eliminar fondo (resetear a colores originales)
-    document.getElementById('delete-bg-btn')?.addEventListener('click', async () => {
-        const token = localStorage.getItem('token');
-        
-        try {
-            // 1. Eliminar de la base de datos
-            const response = await fetch(`${API_URL}/profile`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ background_url: null })
-            });
-            
-            if (!response.ok) throw new Error('Error al eliminar fondo');
-            
-            // 2. Eliminar del localStorage
-            localStorage.removeItem('customBg');
-            
-            // 3. Actualizar perfil en localStorage
-            const userData = localStorage.getItem('user');
-            if (userData) {
-                const user = JSON.parse(userData);
-                user.background_url = null;
-                localStorage.setItem('user', JSON.stringify(user));
-            }
-            
-            // 4. Resetear CSS
-            document.documentElement.style.setProperty('--custom-bg-url', 'none');
-            document.documentElement.style.setProperty('--custom-bg-blur', '0px');
-            
-            showShareToast('Background removed!', 'success');
-            
-        } catch (error) {
-            console.error('❌ Error al eliminar fondo:', error);
-            alert('Error al eliminar el fondo: ' + error.message);
-        }
-    });
-    // En setupProfileEvents(), líneas ~566-590
-    document.getElementById('bg-input')?.addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-        const token = localStorage.getItem('token');
-        
-        const formData = new FormData();
-        formData.append('image', file);
-        formData.append('type', 'background'); // ✅ Ahora es válido
-        
-        try {
-            const response = await fetch(`${API_URL}/profile/upload`, {
-                method: 'POST',
-                headers: { 'Authorization': `Bearer ${token}` },
-                body: formData
-            });
-            
-            if (!response.ok) {
-                const errorData = await response.json();
-                throw new Error(errorData.error || 'Error al subir fondo');
-            }
-            
-            const data = await response.json();
-            
-            // Aplicar el fondo en la página
-            document.documentElement.style.setProperty('--custom-bg-url', `url(${data.url})`);
-            document.documentElement.style.setProperty('--custom-bg-blur', '0px');
-            
-            // ✅ Actualizar localStorage para acceso rápido (cache)
-            localStorage.setItem('customBg', data.url);
-            
-            // ✅ También actualizar el perfil en localStorage
-            const userData = localStorage.getItem('user');
-            if (userData) {
-                const user = JSON.parse(userData);
-                user.background_url = data.url;
-                localStorage.setItem('user', JSON.stringify(user));
-            }
-            
-            // Mostrar mensaje de éxito
-            showShareToast('Background updated!', 'success');
-            
-        } catch (error) {
-            console.error('❌ Error al subir fondo:', error);
-            alert('Error al subir el fondo: ' + error.message);
-        }
-        e.target.value = '';
-    });
 }
 
 // ============================================================
@@ -588,7 +503,7 @@ function renderProfile(user, options = {}) {
             let hasConnectedService = false;
             
             cardRows.forEach(card => {
-                // Solo mostrar Spotify si está conectado
+                // Solo mostrar servicios que están conectados
                 const isSpotify = card.id === 'music-card';
                 const isConnected = user.spotify_connected;
                 
@@ -602,7 +517,6 @@ function renderProfile(user, options = {}) {
             
             // Si no hay servicios conectados, mostrar mensaje
             if (!hasConnectedService) {
-                // Eliminar tarjetas existentes y mostrar mensaje
                 cardsStack.innerHTML = `
                     <div style="
                         text-align: center;
