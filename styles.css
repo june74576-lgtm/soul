@@ -2205,3 +2205,56 @@ body[data-public="true"] #settings-toggle-btn,
 body[data-public="true"] .settings-toggle-btn {
     display: none !important;
 }
+
+/* ============================================================
+   ESTILIZAR BARRA DE DESPLAZAMIENTO PRINCIPAL
+   ============================================================ */
+/* Para Firefox */
+html {
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-2) transparent;
+}
+
+/* Para Chrome, Safari, Edge */
+html::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+html::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+html::-webkit-scrollbar-thumb {
+    background: var(--surface-2);
+    border-radius: 999px;
+    transition: background 0.3s ease;
+}
+
+html::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-3);
+}
+
+/* También para elementos con scroll interno */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--surface-2) transparent;
+}
+
+*::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+*::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--surface-2);
+    border-radius: 999px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--surface-3);
+}
