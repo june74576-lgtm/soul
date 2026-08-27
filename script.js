@@ -761,7 +761,7 @@ function renderProfile(user, options = {}) {
     
     // 🔥 SIEMPRE ocultar los botones de edición si es público
     if (isPublicView()) {
-        const publicHideIds = ['edit-bio-btn', 'add-social-btn', 'upload-banner-btn', 'upload-avatar-btn', 'logout-btn'];
+        const publicHideIds = ['edit-bio-btn', 'add-social-btn', 'upload-banner-btn', 'upload-avatar-btn', 'logout-btn', 'settings-toggle-btn'];
         publicHideIds.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
