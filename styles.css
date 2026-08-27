@@ -2379,7 +2379,7 @@ html::-webkit-scrollbar-thumb:hover {
     }
 
     .username-mobile .at-symbol {
-        color: var(--text-muted);
+        color: var(--text-primary); /* Mismo color que el nombre */
     }
 
     /* Ocultar username en la bio en móvil */
@@ -2730,4 +2730,19 @@ html::-webkit-scrollbar-thumb:hover {
         width: 14px;
         height: 14px;
     }
+}
+
+/* ============================================================
+   ELIMINAR HIGHLIGHT EN MÓVIL
+   ============================================================ */
+* {
+    -webkit-tap-highlight-color: transparent !important;
+    -webkit-touch-callout: none !important;
+}
+
+/* ============================================================
+   CORREGIR COLOR DEL @ EN USERNAME MÓVIL
+   ============================================================ */
+.username-mobile .at-symbol {
+    color: var(--text-primary) !important; /* Mismo color que el nombre */
 }
