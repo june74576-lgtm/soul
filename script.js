@@ -367,26 +367,63 @@ function setupProfileEvents() {
         }, 400);
     }
 
-    // 9. SHARE PROFILE (siempre funciona)
+    // 9. SHARE PROFILE (siempre funciona) - Versión mejorada
     document.getElementById('share-profile-btn').addEventListener('click', async () => {
         let username;
         const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('user')) {
-            username = urlParams.get('user');
-        } else {
-            const userData = localStorage.getItem('user');
-            const user = userData ? JSON.parse(userData) : null;
-            username = user?.username || 'user';
-        }
-
-        const baseUrl = window.location.origin;
-        const profileUrl = `${baseUrl}/profile.html?user=${encodeURIComponent(username)}`;
         
         try {
+            // 🔥 Obtener username de manera segura
+            if (isPublicView()) {
+                username = urlParams.get('user');
+            } else {
+                const userData = localStorage.getItem('user');
+                if (userData) {
+                    try {
+                        const user = JSON.parse(userData);
+                        username = user?.username || user?.email?.split('@')[0] || 'user';
+                    } catch (e) {
+                        console.warn('⚠️ Error parseando user data:', e);
+                        username = 'user';
+                    }
+                } else {
+                    // Intentar obtener de la URL si hay token pero no user
+                    const token = localStorage.getItem('token');
+                    if (token) {
+                        // Podríamos hacer un fetch al backend para obtener el username
+                        try {
+                            const response = await fetch(`${API_URL}/auth/me`, {
+                                headers: { 'Authorization': `Bearer ${token}` }
+                            });
+                            if (response.ok) {
+                                const user = await response.json();
+                                username = user.username || 'user';
+                                // Guardar en localStorage para futuros usos
+                                localStorage.setItem('user', JSON.stringify(user));
+                            }
+                        } catch (fetchError) {
+                            console.warn('⚠️ Error obteniendo username del backend:', fetchError);
+                        }
+                    }
+                    // Si todo falla, usar 'user' por defecto
+                    if (!username) username = 'user';
+                }
+            }
+
+            // Asegurar que username no sea null/undefined
+            if (!username) {
+                username = 'user';
+            }
+
+            const baseUrl = window.location.origin;
+            const profileUrl = `${baseUrl}/profile.html?user=${encodeURIComponent(username)}`;
+            
+            // Copiar al portapapeles
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(profileUrl);
                 showShareToast('Profile link copied!', 'success');
             } else {
+                // Fallback
                 const textArea = document.createElement('textarea');
                 textArea.value = profileUrl;
                 document.body.appendChild(textArea);
@@ -396,8 +433,8 @@ function setupProfileEvents() {
                 showShareToast('Profile link copied!', 'success');
             }
         } catch (error) {
-            console.error('Error al compartir perfil:', error);
-            showShareToast('Error copying link', 'error');
+            console.error('❌ Error al compartir perfil:', error);
+            showShareToast('Error copying link. Please try again.', 'error');
         }
     });
 
