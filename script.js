@@ -20,7 +20,14 @@ const socialPlatforms = {
 // ============================================================
 function isPublicView() {
     const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.has('user'); // Usa .has() en lugar de !== null (más seguro)
+    const hasUser = urlParams.has('user');
+    const userParam = urlParams.get('user');
+    
+    // Si hay parámetro 'user' y no está vacío, es vista pública
+    const isPublic = hasUser && userParam && userParam.trim() !== '';
+    
+    console.log('🔍 isPublicView():', isPublic, 'user:', userParam);
+    return isPublic;
 }
 
 // ============================================================
@@ -112,11 +119,20 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================================
 // INICIALIZAR PERFIL
 // ============================================================
+// ============================================================
+// INICIALIZAR PERFIL
+// ============================================================
 async function initProfile() {
+    console.log('🔵 initProfile() iniciado');
+    console.log('🔵 URL actual:', window.location.href);
+    console.log('🔵 isPublicView():', isPublicView());
+    
     // 🔥 MARCADOR DE VISTA PÚBLICA EN EL BODY
     if (isPublicView()) {
         document.body.setAttribute('data-public', 'true');
+        console.log('🔵 Vista pública detectada, marcador aplicado');
     }
+    
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
 
@@ -125,24 +141,53 @@ async function initProfile() {
         const urlParams = new URLSearchParams(window.location.search);
         const username = urlParams.get('user');
         
+        if (!username) {
+            console.error('❌ No se encontró username en la URL');
+            window.location.href = 'profile.html';
+            return;
+        }
+        
+        console.log('🔵 Cargando perfil público para:', username);
+        
         try {
             const response = await fetch(`${API_URL}/public-profile/${username}`);
-            if (!response.ok) throw new Error('Perfil no encontrado');
+            if (!response.ok) {
+                if (response.status === 404) {
+                    console.error('❌ Usuario no encontrado');
+                    // Redirigir a perfil del usuario logueado si existe
+                    if (token && userData) {
+                        window.location.href = 'profile.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                    return;
+                }
+                throw new Error('Error al cargar perfil');
+            }
             
             const user = await response.json();
             console.log('✅ Perfil público cargado:', user);
             renderProfile(user, { isPublic: true });
+            
+            // 🔥 Cargar datos de Spotify en modo público
+            loadModalDataPublic(username);
+            
             return;
         } catch (error) {
             console.error('❌ Error cargando perfil público:', error);
-            window.location.href = 'profile.html';
+            // Si falla, redirigir a perfil normal o login
+            if (token && userData) {
+                window.location.href = 'profile.html';
+            } else {
+                window.location.href = 'index.html';
+            }
             return;
         }
     }
 
     // 🔥 Si es vista normal (logueado), usar el flujo anterior
     if (!token || !userData) {
-        console.log('❌ No hay sesión, redirigiendo...');
+        console.log('❌ No hay sesión, redirigiendo a login...');
         window.location.href = 'index.html';
         return;
     }
@@ -160,23 +205,18 @@ async function initProfile() {
             const user = await response.json();
             console.log('✅ Perfil del backend:', user);
             
-            // Renderizar perfil
             renderProfile(user, { isPublic: false });
             localStorage.setItem('user', JSON.stringify(user));
-            
-            return; // ✅ IMPORTANTE: Salir después de éxito
+            return;
         } else {
-            // Si el backend falla, usar localStorage
             console.warn('⚠️ Backend falló (status ' + response.status + '), usando localStorage');
             const savedUser = JSON.parse(userData);
             renderProfile(savedUser, { isPublic: false });
             
-            // Intentar cargar fondo desde localStorage como fallback
             const savedBg = localStorage.getItem('customBg');
             if (savedBg) {
                 document.documentElement.style.setProperty('--custom-bg-url', `url(${savedBg})`);
                 document.documentElement.style.setProperty('--custom-bg-blur', '0px');
-                console.log('ℹ️ Fondo cargado desde localStorage (fallback)');
             }
             return;
         }
@@ -185,7 +225,6 @@ async function initProfile() {
         const savedUser = JSON.parse(userData);
         renderProfile(savedUser, { isPublic: false });
         
-        // Intentar cargar fondo desde localStorage como fallback
         const savedBg = localStorage.getItem('customBg');
         if (savedBg) {
             document.documentElement.style.setProperty('--custom-bg-url', `url(${savedBg})`);
@@ -194,9 +233,6 @@ async function initProfile() {
     }
 }
 
-// ============================================================
-// EVENTOS
-// ============================================================
 // ============================================================
 // EVENTOS
 // ============================================================
@@ -567,7 +603,7 @@ function setupShareProfileButton() {
         try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
                 await navigator.clipboard.writeText(profileUrl);
-                showShareToast('✅ Profile link copied!', 'success');
+                showShareToast('Profile link copied!', 'success');
             } else {
                 // Fallback
                 const textArea = document.createElement('textarea');
@@ -579,7 +615,7 @@ function setupShareProfileButton() {
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                showShareToast('✅ Profile link copied!', 'success');
+                showShareToast('Profile link copied!', 'success');
             }
         } catch (error) {
             console.error('❌ Error al copiar:', error);
@@ -1831,3 +1867,16 @@ function closeSettings() {
         console.log('❌ modal-settings no encontrado');
     }
 }
+
+// Al final de script.js, después de todas las funciones
+// ============================================================
+// FORZAR RECARGA SI SE DETECTA VISTA PÚBLICA PERO ESTÁ EN MODO PRIVADO
+// ============================================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Si estamos en la página de perfil y hay parámetro 'user' en la URL
+    if (window.location.pathname.includes('profile.html') && isPublicView()) {
+        // Asegurar que el body tenga el atributo data-public
+        document.body.setAttribute('data-public', 'true');
+        console.log('🔵 Forzando modo público desde DOMContentLoaded');
+    }
+});
