@@ -197,36 +197,67 @@ async function initProfile() {
 // ============================================================
 // EVENTOS
 // ============================================================
+// ============================================================
+// EVENTOS
+// ============================================================
 function setupProfileEvents() {
+    console.log('🔵 setupProfileEvents() iniciado');
+    
     // 🔥 SI ES VISTA PÚBLICA: Bloquear botones
     if (isPublicView()) {
-        document.getElementById('edit-bio-btn').classList.add('hidden');
-        document.getElementById('add-social-btn').classList.add('hidden');
-        document.getElementById('upload-banner-btn').classList.add('hidden');
-        document.getElementById('upload-avatar-btn').classList.add('hidden');
-        document.getElementById('logout-btn').classList.add('hidden');
-        document.getElementById('disconnect-spotify-btn').classList.add('hidden');
+        // Ocultar botones
+        const elementsToHide = [
+            'edit-bio-btn',
+            'add-social-btn', 
+            'upload-banner-btn',
+            'upload-avatar-btn',
+            'logout-btn',
+            'disconnect-spotify-btn'
+        ];
         
-        document.getElementById('edit-bio-btn').onclick = () => {};
-        document.getElementById('add-social-btn').onclick = () => {};
-        document.getElementById('upload-banner-btn').onclick = () => {};
-        document.getElementById('upload-avatar-btn').onclick = () => {};
-        document.getElementById('logout-btn').onclick = () => {};
-        document.getElementById('disconnect-spotify-btn').onclick = () => {};
+        elementsToHide.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('hidden');
+                el.onclick = () => {}; // Deshabilitar eventos
+            }
+        });
+        
+        // 🔥 Salir temprano si es vista pública (evita errores)
+        console.log('🔵 Vista pública, configurando solo lo esencial');
+        setupShareProfileButton();
+        return;
     }
 
-    // 🔥 SI NO ES VISTA PÚBLICA: NO bloquear nada (todo funciona)
-    else {
-        // Quitar la función vacía de los botones
-        document.getElementById('edit-bio-btn').onclick = null;
-        document.getElementById('add-social-btn').onclick = null;
-        document.getElementById('upload-banner-btn').onclick = null;
-        document.getElementById('upload-avatar-btn').onclick = null;
-        document.getElementById('logout-btn').onclick = null;
-        document.getElementById('disconnect-spotify-btn').onclick = null;
-        
-        // 🔥 RE-ASIGNAR EL BOTÓN DE GUARDAR BIO (SIEMPRE QUE NO SEA PÚBLICO)
-        document.getElementById('bio-save').onclick = async () => {
+    // 🔥 SI NO ES VISTA PÚBLICA: Configurar todo
+    console.log('🔵 Vista normal, configurando todos los eventos');
+    
+    // 1. LOGOUT
+    const logoutBtn = document.getElementById('logout-btn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', () => {
+            stopNowPlayingUpdates();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'index.html';
+        });
+    }
+
+    // 2. BIO - EDITAR
+    const editBioBtn = document.getElementById('edit-bio-btn');
+    if (editBioBtn) {
+        editBioBtn.addEventListener('click', () => {
+            const currentBio = document.getElementById('display-bio')?.textContent || '';
+            document.getElementById('bio-textarea').value = currentBio;
+            document.getElementById('bio-display').classList.add('hidden');
+            document.getElementById('bio-editor').classList.remove('hidden');
+        });
+    }
+
+    // 3. BIO - GUARDAR
+    const bioSaveBtn = document.getElementById('bio-save');
+    if (bioSaveBtn) {
+        bioSaveBtn.addEventListener('click', async () => {
             const bio = document.getElementById('bio-textarea').value;
             const token = localStorage.getItem('token');
             try {
@@ -246,82 +277,209 @@ function setupProfileEvents() {
             } catch (error) {
                 alert('Error al guardar la bio: ' + error.message);
             }
-        };
-        
-        // 🔥 RE-ASIGNAR EL BOTÓN DE CANCELAR BIO
-        document.getElementById('bio-cancel').onclick = () => {
-            document.getElementById('bio-display').classList.remove('hidden');
-            document.getElementById('bio-editor').classList.add('hidden');
-        };
-    }
-
-    // 1. LOGOUT (solo si NO es pública)
-    if (!isPublicView()) {
-        document.getElementById('logout-btn').addEventListener('click', () => {
-            stopNowPlayingUpdates();
-            localStorage.removeItem('token');
-            localStorage.removeItem('user');
-            window.location.href = 'index.html';
         });
     }
 
-    // 6. CONECTAR SPOTIFY (O VER MODAL EN MODO PÚBLICO)
-    document.getElementById('music-card').addEventListener('click', async () => {
-        const token = localStorage.getItem('token');
-        
-        // 🔥 Si es vista pública, el modal se abre igual, solo para visualizar
-        if (isPublicView()) {
-            const modal = document.getElementById('modal-music');
-            if (modal) {
-                modal.classList.remove('closing');
-                modal.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                setTimeout(() => loadModalDataPublic(), 100);
-            }
-            return;
-        }
+    // 4. BIO - CANCELAR
+    const bioCancelBtn = document.getElementById('bio-cancel');
+    if (bioCancelBtn) {
+        bioCancelBtn.addEventListener('click', () => {
+            document.getElementById('bio-display').classList.remove('hidden');
+            document.getElementById('bio-editor').classList.add('hidden');
+        });
+    }
 
-        // 🔥 Si NO es vista pública, usar el flujo normal
-        try {
-            const meResponse = await fetch(`${API_URL}/auth/me`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const user = await meResponse.json();
-            if (user.spotify_connected) {
-                const modal = document.getElementById('modal-music');
-                if (modal) {
-                    modal.classList.remove('closing');
-                    modal.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                    setTimeout(() => loadModalData(), 100);
-                }
+    // 5. SOCIAL - AGREGAR
+    const addSocialBtn = document.getElementById('add-social-btn');
+    if (addSocialBtn) {
+        addSocialBtn.addEventListener('click', () => {
+            document.getElementById('social-card').classList.add('hidden');
+            document.getElementById('social-editor').classList.remove('hidden');
+        });
+    }
+
+    // 6. SOCIAL - GUARDAR
+    const socialSaveBtn = document.getElementById('social-save');
+    if (socialSaveBtn) {
+        socialSaveBtn.addEventListener('click', async () => {
+            const platform = document.getElementById('social-platform').value;
+            const username = document.getElementById('social-username').value.trim();
+            if (!platform || !username) {
+                alert('Completa todos los campos');
                 return;
             }
-            const response = await fetch(`${API_URL}/spotify/connect`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-            const data = await response.json();
-            if (data.url) {
-                window.location.href = data.url;
+            const token = localStorage.getItem('token');
+            try {
+                const meResponse = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const user = await meResponse.json();
+                const socialLinks = user.social_links || {};
+                socialLinks[platform] = username;
+                const response = await fetch(`${API_URL}/profile`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ social_links: socialLinks })
+                });
+                if (!response.ok) throw new Error('Error al guardar red social');
+                const data = await response.json();
+                renderSocialLinks(data.social_links);
+                document.getElementById('social-card').classList.remove('hidden');
+                document.getElementById('social-editor').classList.add('hidden');
+                document.getElementById('social-platform').value = '';
+                document.getElementById('social-username').value = '';
+                showShareToast('Social link added!', 'success');
+            } catch (error) {
+                alert('Error: ' + error.message);
             }
-        } catch (error) {
-            console.error('Error al conectar Spotify:', error);
-            alert('Error al conectar Spotify');
-        }
-    });
+        });
+    }
 
-    // ============================================================
-    // 8. CERRAR MODAL CON ANIMACIÓN (MUSIC Y SETTINGS)
-    // ============================================================
-    // Cerrar modales con el botón X
+    // 7. SOCIAL - CANCELAR
+    const socialCancelBtn = document.getElementById('social-cancel');
+    if (socialCancelBtn) {
+        socialCancelBtn.addEventListener('click', () => {
+            document.getElementById('social-card').classList.remove('hidden');
+            document.getElementById('social-editor').classList.add('hidden');
+        });
+    }
+
+    // 8. CONECTAR SPOTIFY
+    const musicCard = document.getElementById('music-card');
+    if (musicCard) {
+        musicCard.addEventListener('click', async () => {
+            const token = localStorage.getItem('token');
+            try {
+                const meResponse = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const user = await meResponse.json();
+                if (user.spotify_connected) {
+                    const modal = document.getElementById('modal-music');
+                    if (modal) {
+                        modal.classList.remove('closing');
+                        modal.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                        setTimeout(() => loadModalData(), 100);
+                    }
+                    return;
+                }
+                const response = await fetch(`${API_URL}/spotify/connect`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                }
+            } catch (error) {
+                console.error('Error al conectar Spotify:', error);
+                alert('Error al conectar Spotify');
+            }
+        });
+    }
+
+    // 9. SPOTIFY - DESCONECTAR
+    const disconnectBtn = document.getElementById('disconnect-spotify-btn');
+    if (disconnectBtn) {
+        disconnectBtn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const token = localStorage.getItem('token');
+            try {
+                const response = await fetch(`${API_URL}/spotify/disconnect`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if (!response.ok) throw new Error('Error al desconectar Spotify');
+                document.getElementById('spotify-status').textContent = 'Not connected';
+                document.getElementById('spotify-badge').textContent = 'Connect';
+                document.getElementById('spotify-badge').style.background = 'var(--surface-2)';
+                document.getElementById('spotify-badge').style.color = 'var(--text-muted)';
+                document.getElementById('music-card').classList.add('disabled-card');
+                showShareToast('Spotify disconnected', 'success');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        });
+    }
+
+    // 10. BANNER - SUBIR
+    const uploadBannerBtn = document.getElementById('upload-banner-btn');
+    if (uploadBannerBtn) {
+        uploadBannerBtn.addEventListener('click', () => {
+            document.getElementById('banner-input').click();
+        });
+    }
+
+    const bannerInput = document.getElementById('banner-input');
+    if (bannerInput) {
+        bannerInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('type', 'banner');
+            try {
+                const response = await fetch(`${API_URL}/profile/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                if (!response.ok) throw new Error('Error al subir banner');
+                const data = await response.json();
+                document.getElementById('banner-img').src = data.url;
+                showShareToast('Banner updated!', 'success');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+            e.target.value = '';
+        });
+    }
+
+    // 11. AVATAR - SUBIR
+    const uploadAvatarBtn = document.getElementById('upload-avatar-btn');
+    if (uploadAvatarBtn) {
+        uploadAvatarBtn.addEventListener('click', () => {
+            document.getElementById('avatar-input').click();
+        });
+    }
+
+    const avatarInput = document.getElementById('avatar-input');
+    if (avatarInput) {
+        avatarInput.addEventListener('change', async (e) => {
+            const file = e.target.files[0];
+            if (!file) return;
+            const token = localStorage.getItem('token');
+            const formData = new FormData();
+            formData.append('image', file);
+            formData.append('type', 'avatar');
+            try {
+                const response = await fetch(`${API_URL}/profile/upload`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` },
+                    body: formData
+                });
+                if (!response.ok) throw new Error('Error al subir avatar');
+                const data = await response.json();
+                document.getElementById('avatar-img').src = data.url;
+                showShareToast('Avatar updated!', 'success');
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+            e.target.value = '';
+        });
+    }
+
+    // 12. CERRAR MODALES
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.removeEventListener('click', btn._closeHandler);
         btn._closeHandler = (e) => {
-            e.stopPropagation(); // 🔥 AÑADE ESTO
+            e.stopPropagation();
             const target = btn.dataset.close;
-            console.log('🔴 Botón clickeado, target:', target); // 🔥 LOG
             const modal = document.getElementById(target);
-            console.log('🔴 Modal encontrado:', modal ? '✅' : '❌', modal?.id); // 🔥 LOG
             if (modal) {
                 closeModalWithAnimation(modal);
             }
@@ -329,7 +487,6 @@ function setupProfileEvents() {
         btn.addEventListener('click', btn._closeHandler);
     });
 
-    // Cerrar modales al hacer click en el overlay (fondo)
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.removeEventListener('click', overlay._closeHandler);
         overlay._closeHandler = (e) => {
@@ -340,123 +497,79 @@ function setupProfileEvents() {
         overlay.addEventListener('click', overlay._closeHandler);
     });
 
-    function closeModalWithAnimation(modal) {
-        console.log('🔴 closeModalWithAnimation llamado para:', modal?.id); // 🔥 LOG
-        
-        if (!modal) {
-            console.log('🔴 modal es null/undefined');
-            return;
-        }
-        
-        if (modal.classList.contains('closing')) {
-            console.log('🔴 ya está cerrando, ignorando');
-            return;
-        }
-        
-        console.log('🔴 Añadiendo clase closing...');
-        modal.classList.add('closing');
-        
-        stopNowPlayingUpdates();
-        
-        setTimeout(() => {
-            console.log('🔴 Removiendo clases y ocultando...');
-            modal.classList.remove('active', 'closing');
-            modal.style.display = 'none';
-            document.body.style.overflow = '';
-            console.log('🔴 Modal cerrado correctamente');
-        }, 400);
+    // 13. SETTINGS TOGGLE
+    const settingsToggle = document.getElementById('settings-toggle-btn');
+    if (settingsToggle) {
+        settingsToggle.addEventListener('click', () => {
+            const modal = document.getElementById('modal-settings');
+            if (modal) {
+                modal.classList.remove('closing');
+                modal.style.display = 'flex';
+                modal.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                loadSettingsData();
+            }
+        });
     }
 
-    // 9. SHARE PROFILE (siempre funciona) - VERSIÓN CON DEBUG
-    document.getElementById('share-profile-btn').addEventListener('click', async (e) => {
-        console.log('🔵 Botón Share Profile clickeado');
+    // 14. SHARE PROFILE - 🔥 FUNCIÓN SEPARADA PARA QUE SIEMPRE FUNCIONE
+    setupShareProfileButton();
+
+    console.log('✅ setupProfileEvents() completado');
+}
+
+// ============================================================
+// FUNCIÓN ESPECÍFICA PARA SHARE PROFILE (SIEMPRE FUNCIONA)
+// ============================================================
+function setupShareProfileButton() {
+    console.log('🔵 setupShareProfileButton() ejecutado');
+    
+    const shareBtn = document.getElementById('share-profile-btn');
+    if (!shareBtn) {
+        console.error('❌ Botón Share Profile NO encontrado');
+        return;
+    }
+    
+    console.log('✅ Botón Share Profile encontrado');
+    
+    // Eliminar eventos anteriores
+    shareBtn.removeEventListener('click', shareBtn._shareHandler);
+    
+    // Asignar nuevo evento
+    shareBtn._shareHandler = async function(e) {
+        console.log('🔵 Click en Share Profile');
         e.preventDefault();
         e.stopPropagation();
         
-        let username;
+        let username = 'user';
         const urlParams = new URLSearchParams(window.location.search);
-        console.log('🔵 URL params:', window.location.search);
-        console.log('🔵 isPublicView():', isPublicView());
         
-        // 🔥 OBTENER USERNAME DE MANERA SEGURA
-        try {
-            if (isPublicView()) {
-                // Vista pública: obtener de la URL
-                username = urlParams.get('user');
-                console.log('🔵 Vista pública, username de URL:', username);
-            } else {
-                // Vista normal: obtener de localStorage
+        // Obtener username
+        if (isPublicView()) {
+            username = urlParams.get('user') || 'user';
+        } else {
+            try {
                 const userData = localStorage.getItem('user');
-                console.log('🔵 userData de localStorage:', userData);
-                
                 if (userData) {
-                    try {
-                        const user = JSON.parse(userData);
-                        username = user?.username || 'user';
-                        console.log('🔵 Username parseado:', username);
-                    } catch (parseError) {
-                        console.error('❌ Error parseando userData:', parseError);
-                        username = 'user';
-                    }
-                } else {
-                    console.warn('⚠️ No hay userData en localStorage');
-                    // Intentar obtener del token
-                    const token = localStorage.getItem('token');
-                    if (token) {
-                        console.log('🔵 Token encontrado, intentando obtener perfil...');
-                        try {
-                            const response = await fetch(`${API_URL}/auth/me`, {
-                                headers: { 'Authorization': `Bearer ${token}` }
-                            });
-                            if (response.ok) {
-                                const user = await response.json();
-                                username = user.username || 'user';
-                                localStorage.setItem('user', JSON.stringify(user));
-                                console.log('🔵 Perfil obtenido del backend:', user);
-                            } else {
-                                console.warn('⚠️ Error obteniendo perfil:', response.status);
-                                username = 'user';
-                            }
-                        } catch (fetchError) {
-                            console.error('❌ Error en fetch:', fetchError);
-                            username = 'user';
-                        }
-                    } else {
-                        console.warn('⚠️ No hay token ni userData');
-                        username = 'user';
-                    }
+                    const user = JSON.parse(userData);
+                    username = user.username || 'user';
                 }
-            }
-
-            // Asegurar username
-            if (!username || username === 'null' || username === 'undefined') {
+            } catch (error) {
+                console.error('❌ Error obteniendo username:', error);
                 username = 'user';
             }
-            
-            console.log('🔵 Username final:', username);
-
-            // CONSTRUIR URL DEL PERFIL
-            const baseUrl = window.location.origin;
-            const profileUrl = `${baseUrl}/profile.html?user=${encodeURIComponent(username)}`;
-            console.log('🔵 URL del perfil:', profileUrl);
-
-            // COPIAR AL PORTAPAPELES
-            let copySuccess = false;
-            
+        }
+        
+        const profileUrl = `${window.location.origin}/profile.html?user=${encodeURIComponent(username)}`;
+        console.log('🔵 URL del perfil:', profileUrl);
+        
+        // Copiar al portapapeles
+        try {
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                try {
-                    await navigator.clipboard.writeText(profileUrl);
-                    copySuccess = true;
-                    console.log('✅ Copiado con clipboard API');
-                } catch (clipError) {
-                    console.error('❌ Error con clipboard API:', clipError);
-                    copySuccess = false;
-                }
-            }
-            
-            // Fallback si clipboard API falla o no está disponible
-            if (!copySuccess) {
-                console.log('🔵 Usando fallback con textarea');
+                await navigator.clipboard.writeText(profileUrl);
+                showShareToast('✅ Profile link copied!', 'success');
+            } else {
+                // Fallback
                 const textArea = document.createElement('textarea');
                 textArea.value = profileUrl;
                 textArea.style.position = 'fixed';
@@ -464,38 +577,19 @@ function setupProfileEvents() {
                 textArea.style.top = '-9999px';
                 document.body.appendChild(textArea);
                 textArea.select();
-                try {
-                    document.execCommand('copy');
-                    copySuccess = true;
-                    console.log('✅ Copiado con execCommand fallback');
-                } catch (execError) {
-                    console.error('❌ Error con execCommand:', execError);
-                    copySuccess = false;
-                }
+                document.execCommand('copy');
                 document.body.removeChild(textArea);
-            }
-
-            // Mostrar resultado
-            if (copySuccess) {
                 showShareToast('✅ Profile link copied!', 'success');
-            } else {
-                showShareToast('❌ Could not copy link', 'error');
-                console.error('❌ Todos los métodos de copia fallaron');
             }
-
         } catch (error) {
-            console.error('❌ Error general en Share Profile:', error);
-            showShareToast('Error sharing profile', 'error');
+            console.error('❌ Error al copiar:', error);
+            showShareToast('❌ Error copying link', 'error');
         }
-    });
-
-    // 10. SPOTIFY CONNECTION CHECK
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('spotify') === 'connected') {
-        window.location.href = 'profile.html';
-    }
+    };
+    
+    shareBtn.addEventListener('click', shareBtn._shareHandler);
+    console.log('✅ Evento de Share Profile asignado correctamente');
 }
-
 // ============================================================
 // RENDER FUNCTIONS
 // ============================================================
