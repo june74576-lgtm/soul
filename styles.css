@@ -2127,19 +2127,23 @@ body[data-public="true"] .public-hide {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    /* 🔥 NUEVO: Mismo estilo que las tarjetas */
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    background: rgba(26, 26, 36, 0.65);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
     color: var(--text-primary);
     font-size: 18px;
-    transition: all 0.2s ease;
+    transition: all 0.3s ease;
     cursor: pointer;
     font-family: inherit;
 }
 
 .settings-toggle-btn:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: var(--accent);
+    background: rgba(26, 26, 36, 0.75);
+    border-color: rgba(198, 184, 255, 0.3);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 20px rgba(198, 184, 255, 0.05);
     transform: scale(1.05);
 }
 
@@ -2151,7 +2155,6 @@ body[data-public="true"] .public-hide {
 .settings-toggle-btn:hover svg {
     stroke: var(--accent);
 }
-
 /* Scroll en el modal de settings */
 .modal-settings .modal-body {
     max-height: 70vh;
