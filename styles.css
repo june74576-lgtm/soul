@@ -2135,7 +2135,7 @@ body[data-public="true"] .public-hide {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(255, 255, 255, 0.15);
     backdrop-filter: blur(12px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     color: var(--text-primary);
@@ -2158,11 +2158,6 @@ body[data-public="true"] .public-hide {
 
 .settings-toggle-btn:hover svg {
     stroke: var(--accent);
-}
-
-/* Ajuste para el botón Settings */
-.settings-toggle-btn {
-    /* ... */
 }
 
 /* Scroll en el modal de settings */

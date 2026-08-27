@@ -268,7 +268,8 @@ function setupProfileEvents() {
             'upload-banner-btn',
             'upload-avatar-btn',
             'logout-btn',
-            'disconnect-spotify-btn'
+            'disconnect-spotify-btn',
+            'settings-toggle-btn'  // ← Agrega esta línea
         ];
         
         elementsToHide.forEach(id => {
