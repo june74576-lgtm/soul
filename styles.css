@@ -2258,3 +2258,401 @@ html::-webkit-scrollbar-thumb:hover {
 *::-webkit-scrollbar-thumb:hover {
     background: var(--surface-3);
 }
+
+/* ============================================================
+   DISEÑO MÓVIL - VERSIÓN CELULAR
+   ============================================================ */
+
+@media (max-width: 768px) {
+    /* ===== CONTENEDOR PRINCIPAL ===== */
+    .container {
+        padding: 0;
+        max-width: 100%;
+    }
+
+    body {
+        padding: 12px;
+        align-items: flex-start;
+        padding-top: 12px;
+    }
+
+    /* ===== TOPBAR ===== */
+    .topbar {
+        padding: 10px 16px;
+        margin-bottom: 16px;
+        border-radius: var(--radius-lg);
+        background: rgba(10, 10, 14, 0.6);
+    }
+
+    .brand {
+        font-size: 18px;
+        letter-spacing: 2px;
+    }
+
+    #profile-username {
+        font-size: 12px;
+    }
+
+    .btn-logout {
+        padding: 4px 12px;
+        font-size: 11px;
+    }
+
+    /* ===== COLUMNAS ===== */
+    .two-columns {
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .col-left {
+        flex: 1;
+        flex-direction: column;
+        gap: 12px;
+        order: 2; /* Mover SOCIAL y BIO después del banner */
+    }
+
+    .col-right {
+        flex: 1;
+        order: 1; /* Banner y avatar primero */
+    }
+
+    /* ===== BANNER ===== */
+    .banner {
+        height: 160px;
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--outline);
+        position: relative;
+    }
+
+    .banner img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* ===== SHARE PROFILE BUTTON ===== */
+    .share-profile-btn {
+        top: 10px;
+        right: 10px;
+        padding: 6px 12px;
+        font-size: 11px;
+        gap: 6px;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(12px);
+        border-radius: var(--radius-full);
+    }
+
+    .share-profile-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    /* ===== AVATAR ===== */
+    .avatar-wrapper {
+        height: 0;
+        position: relative;
+        z-index: 2;
+    }
+
+    .avatar-circle {
+        position: absolute;
+        top: -50px;
+        left: 16px;
+        transform: none;
+        width: 80px;
+        height: 80px;
+        border: 4px solid var(--bg);
+        box-shadow: 0 0 0 2px var(--outline), 0 8px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .avatar-circle img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* ===== USERNAME (debajo del avatar/banner) ===== */
+    .username-mobile {
+        display: block !important;
+        padding: 8px 16px 4px 16px;
+        font-size: 22px;
+        font-weight: 600;
+        color: var(--text-primary);
+        margin-top: -10px;
+    }
+
+    .username-mobile .at-symbol {
+        color: var(--text-muted);
+    }
+
+    /* Ocultar username en la bio en móvil */
+    .username-capsule {
+        display: none !important;
+    }
+
+    /* ===== BIO CARD ===== */
+    .block-description {
+        padding: 16px 18px;
+        min-height: auto;
+        max-height: none;
+        border-radius: var(--radius-lg);
+        margin-top: 4px;
+    }
+
+    .block-description .block-content h2 {
+        font-size: 18px;
+    }
+
+    .block-description .block-content p {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    /* ===== SOCIAL CARD ===== */
+    .block-social {
+        padding: 14px 18px;
+        min-height: auto;
+        max-height: none;
+        border-radius: var(--radius-lg);
+    }
+
+    .block-social .block-content h3 {
+        font-size: 11px;
+        letter-spacing: 1.5px;
+        padding: 4px 12px;
+        margin-bottom: 10px;
+    }
+
+    .social-item {
+        padding: 4px 6px;
+        font-size: 12px;
+    }
+
+    .social-item .social-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    .social-item .social-platform {
+        font-size: 12px;
+        min-width: 60px;
+    }
+
+    .social-item .social-username {
+        font-size: 11px;
+    }
+
+    /* ===== CARDS LABEL ===== */
+    .cards-label {
+        font-size: 10px;
+        letter-spacing: 2px;
+        margin-top: 16px;
+        margin-bottom: 8px;
+        padding-left: 4px;
+    }
+
+    /* ===== CARDS STACK ===== */
+    .cards-stack {
+        gap: 8px;
+        margin-top: 0;
+    }
+
+    .card-row {
+        padding: 8px 12px 8px 8px;
+        border-radius: var(--radius-md);
+        gap: 10px;
+    }
+
+    .card-thumbnail {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-sm);
+    }
+
+    .card-icon-small {
+        width: 20px;
+        height: 20px;
+    }
+
+    .card-content h3 {
+        font-size: 14px;
+    }
+
+    .card-sub {
+        font-size: 11px;
+    }
+
+    .card-badge {
+        font-size: 9px;
+        padding: 3px 10px;
+    }
+
+    /* ===== SETTINGS BUTTON ===== */
+    .settings-toggle-btn {
+        width: 40px;
+        height: 40px;
+        bottom: 16px;
+        right: 16px;
+    }
+
+    .settings-toggle-btn svg {
+        width: 16px;
+        height: 16px;
+    }
+
+    /* ===== MODAL ===== */
+    .modal-card {
+        padding: 20px;
+        max-width: 94%;
+        max-height: 90vh;
+        border-radius: var(--radius-lg);
+    }
+
+    .modal-card.modal-large {
+        max-width: 94%;
+    }
+
+    .modal-title {
+        font-size: 18px;
+        margin-bottom: 14px;
+    }
+
+    .modal-close {
+        top: 10px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        font-size: 16px;
+    }
+
+    /* Now Playing */
+    .now-playing {
+        padding: 10px 14px;
+        gap: 12px;
+    }
+
+    .cover-art {
+        width: 48px;
+        height: 48px;
+    }
+
+    .track-name {
+        font-size: 14px;
+    }
+
+    .track-artist {
+        font-size: 12px;
+    }
+
+    .pulse-bars span {
+        width: 3px;
+    }
+
+    .pulse-bars span:nth-child(1) { height: 10px; }
+    .pulse-bars span:nth-child(2) { height: 18px; }
+    .pulse-bars span:nth-child(3) { height: 14px; }
+    .pulse-bars span:nth-child(4) { height: 20px; }
+
+    /* Lists */
+    .artist-list,
+    .tracks-list {
+        grid-template-columns: 1fr;
+    }
+
+    .likes-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    /* Carousel */
+    .carousel-item {
+        width: 72px;
+    }
+
+    .carousel-item .item-image {
+        width: 64px;
+        height: 64px;
+    }
+
+    .carousel-item .item-name {
+        font-size: 10px;
+    }
+
+    .carousel-btn {
+        width: 24px;
+        height: 24px;
+        font-size: 14px;
+    }
+
+    /* ===== SETTINGS MODAL ===== */
+    .modal-settings {
+        max-width: 94% !important;
+    }
+
+    .settings-bio-editor {
+        grid-template-columns: 1fr;
+    }
+
+    .settings-row {
+        flex-wrap: wrap;
+    }
+
+    .settings-avatar-row {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .settings-social-add {
+        flex-wrap: wrap;
+    }
+
+    .settings-select {
+        min-width: 100%;
+    }
+
+    /* ===== LIGHTBOX ===== */
+    .lightbox-content {
+        max-width: 98vw;
+        max-height: 90vh;
+    }
+
+    /* ===== TOAST ===== */
+    .share-toast {
+        font-size: 13px;
+        padding: 10px 20px;
+        bottom: 20px;
+    }
+}
+
+/* ============================================================
+   DISEÑO MÓVIL - EXTRA PEQUEÑO (< 400px)
+   ============================================================ */
+@media (max-width: 400px) {
+    .avatar-circle {
+        width: 64px;
+        height: 64px;
+        top: -40px;
+        left: 12px;
+    }
+
+    .banner {
+        height: 130px;
+    }
+
+    .username-mobile {
+        font-size: 18px;
+        padding: 4px 12px 2px 12px;
+    }
+
+    .block-description {
+        padding: 12px 14px;
+    }
+
+    .block-social {
+        padding: 12px 14px;
+    }
+
+    .settings-toggle-btn {
+        width: 36px;
+        height: 36px;
+    }
+}

@@ -991,6 +991,12 @@ function renderProfile(user, options = {}) {
             }
             document.getElementById('display-username').textContent = `@${username}`;
             document.getElementById('profile-username').textContent = `@${username}`;
+
+            // 🔥 NUEVO: Actualizar username móvil
+            const mobileUsername = document.getElementById('mobile-username');
+            if (mobileUsername) {
+                mobileUsername.textContent = username;
+            }
             showShareToast('Username updated!', 'success');
         } catch (error) {
             alert('Error: ' + error.message);
