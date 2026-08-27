@@ -572,15 +572,9 @@ body::before {
     font-size: 12px;
 }
 
+/* Ocultar botones de eliminar en la vista principal */
 .social-delete {
-    background: transparent;
-    border: none;
-    color: var(--text-muted);
-    cursor: pointer;
-    font-size: 14px;
-    padding: 4px 8px;
-    border-radius: var(--radius-full);
-    transition: all 0.2s;
+    display: none !important;
 }
 
 .social-delete:hover {

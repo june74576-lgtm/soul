@@ -976,7 +976,6 @@ function renderSocialLinks(socialLinks) {
             <span class="social-username">${username}</span>
         `;
 
-
         div.appendChild(link);
         div.appendChild(deleteBtn);
         container.appendChild(div);
