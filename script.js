@@ -367,30 +367,43 @@ function setupProfileEvents() {
         }, 400);
     }
 
-    // 9. SHARE PROFILE (siempre funciona) - Versión mejorada
-    document.getElementById('share-profile-btn').addEventListener('click', async () => {
+    // 9. SHARE PROFILE (siempre funciona) - VERSIÓN CON DEBUG
+    document.getElementById('share-profile-btn').addEventListener('click', async (e) => {
+        console.log('🔵 Botón Share Profile clickeado');
+        e.preventDefault();
+        e.stopPropagation();
+        
         let username;
         const urlParams = new URLSearchParams(window.location.search);
+        console.log('🔵 URL params:', window.location.search);
+        console.log('🔵 isPublicView():', isPublicView());
         
+        // 🔥 OBTENER USERNAME DE MANERA SEGURA
         try {
-            // 🔥 Obtener username de manera segura
             if (isPublicView()) {
+                // Vista pública: obtener de la URL
                 username = urlParams.get('user');
+                console.log('🔵 Vista pública, username de URL:', username);
             } else {
+                // Vista normal: obtener de localStorage
                 const userData = localStorage.getItem('user');
+                console.log('🔵 userData de localStorage:', userData);
+                
                 if (userData) {
                     try {
                         const user = JSON.parse(userData);
-                        username = user?.username || user?.email?.split('@')[0] || 'user';
-                    } catch (e) {
-                        console.warn('⚠️ Error parseando user data:', e);
+                        username = user?.username || 'user';
+                        console.log('🔵 Username parseado:', username);
+                    } catch (parseError) {
+                        console.error('❌ Error parseando userData:', parseError);
                         username = 'user';
                     }
                 } else {
-                    // Intentar obtener de la URL si hay token pero no user
+                    console.warn('⚠️ No hay userData en localStorage');
+                    // Intentar obtener del token
                     const token = localStorage.getItem('token');
                     if (token) {
-                        // Podríamos hacer un fetch al backend para obtener el username
+                        console.log('🔵 Token encontrado, intentando obtener perfil...');
                         try {
                             const response = await fetch(`${API_URL}/auth/me`, {
                                 headers: { 'Authorization': `Bearer ${token}` }
@@ -398,43 +411,81 @@ function setupProfileEvents() {
                             if (response.ok) {
                                 const user = await response.json();
                                 username = user.username || 'user';
-                                // Guardar en localStorage para futuros usos
                                 localStorage.setItem('user', JSON.stringify(user));
+                                console.log('🔵 Perfil obtenido del backend:', user);
+                            } else {
+                                console.warn('⚠️ Error obteniendo perfil:', response.status);
+                                username = 'user';
                             }
                         } catch (fetchError) {
-                            console.warn('⚠️ Error obteniendo username del backend:', fetchError);
+                            console.error('❌ Error en fetch:', fetchError);
+                            username = 'user';
                         }
+                    } else {
+                        console.warn('⚠️ No hay token ni userData');
+                        username = 'user';
                     }
-                    // Si todo falla, usar 'user' por defecto
-                    if (!username) username = 'user';
                 }
             }
 
-            // Asegurar que username no sea null/undefined
-            if (!username) {
+            // Asegurar username
+            if (!username || username === 'null' || username === 'undefined') {
                 username = 'user';
             }
+            
+            console.log('🔵 Username final:', username);
 
+            // CONSTRUIR URL DEL PERFIL
             const baseUrl = window.location.origin;
             const profileUrl = `${baseUrl}/profile.html?user=${encodeURIComponent(username)}`;
+            console.log('🔵 URL del perfil:', profileUrl);
+
+            // COPIAR AL PORTAPAPELES
+            let copySuccess = false;
             
-            // Copiar al portapapeles
             if (navigator.clipboard && navigator.clipboard.writeText) {
-                await navigator.clipboard.writeText(profileUrl);
-                showShareToast('Profile link copied!', 'success');
-            } else {
-                // Fallback
+                try {
+                    await navigator.clipboard.writeText(profileUrl);
+                    copySuccess = true;
+                    console.log('✅ Copiado con clipboard API');
+                } catch (clipError) {
+                    console.error('❌ Error con clipboard API:', clipError);
+                    copySuccess = false;
+                }
+            }
+            
+            // Fallback si clipboard API falla o no está disponible
+            if (!copySuccess) {
+                console.log('🔵 Usando fallback con textarea');
                 const textArea = document.createElement('textarea');
                 textArea.value = profileUrl;
+                textArea.style.position = 'fixed';
+                textArea.style.left = '-9999px';
+                textArea.style.top = '-9999px';
                 document.body.appendChild(textArea);
                 textArea.select();
-                document.execCommand('copy');
+                try {
+                    document.execCommand('copy');
+                    copySuccess = true;
+                    console.log('✅ Copiado con execCommand fallback');
+                } catch (execError) {
+                    console.error('❌ Error con execCommand:', execError);
+                    copySuccess = false;
+                }
                 document.body.removeChild(textArea);
-                showShareToast('Profile link copied!', 'success');
             }
+
+            // Mostrar resultado
+            if (copySuccess) {
+                showShareToast('✅ Profile link copied!', 'success');
+            } else {
+                showShareToast('❌ Could not copy link', 'error');
+                console.error('❌ Todos los métodos de copia fallaron');
+            }
+
         } catch (error) {
-            console.error('❌ Error al compartir perfil:', error);
-            showShareToast('Error copying link. Please try again.', 'error');
+            console.error('❌ Error general en Share Profile:', error);
+            showShareToast('Error sharing profile', 'error');
         }
     });
 
