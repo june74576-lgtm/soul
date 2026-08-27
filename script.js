@@ -120,7 +120,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // INICIALIZAR PERFIL
 // ============================================================
 // ============================================================
-// INICIALIZAR PERFIL
+// INICIALIZAR PERFIL - VERSIÓN CORREGIDA
 // ============================================================
 async function initProfile() {
     console.log('🔵 initProfile() iniciado');
@@ -141,9 +141,14 @@ async function initProfile() {
         const urlParams = new URLSearchParams(window.location.search);
         const username = urlParams.get('user');
         
-        if (!username) {
+        if (!username || username.trim() === '') {
             console.error('❌ No se encontró username en la URL');
-            window.location.href = 'profile.html';
+            // Si hay sesión, ir a perfil normal, si no, al login
+            if (token && userData) {
+                window.location.href = 'profile.html';
+            } else {
+                window.location.href = 'index.html';
+            }
             return;
         }
         
@@ -151,36 +156,51 @@ async function initProfile() {
         
         try {
             const response = await fetch(`${API_URL}/public-profile/${username}`);
+            
             if (!response.ok) {
                 if (response.status === 404) {
                     console.error('❌ Usuario no encontrado');
-                    // Redirigir a perfil del usuario logueado si existe
-                    if (token && userData) {
-                        window.location.href = 'profile.html';
-                    } else {
-                        window.location.href = 'index.html';
-                    }
+                    // Mostrar mensaje de usuario no encontrado en lugar de redirigir
+                    document.body.innerHTML = `
+                        <div style="display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;gap:20px;color:var(--text-secondary);">
+                            <h1 style="font-size:48px;color:var(--text-primary);">👤</h1>
+                            <h2 style="color:var(--text-primary);">Usuario no encontrado</h2>
+                            <p>El usuario "@${username}" no existe o no está disponible.</p>
+                            <a href="/" style="color:var(--accent);text-decoration:none;border:1px solid var(--outline);padding:10px 24px;border-radius:999px;">Volver al inicio</a>
+                        </div>
+                    `;
                     return;
                 }
-                throw new Error('Error al cargar perfil');
+                throw new Error(`Error ${response.status}: ${response.statusText}`);
             }
             
             const user = await response.json();
             console.log('✅ Perfil público cargado:', user);
+            
+            // ✅ Renderizar el perfil público
             renderProfile(user, { isPublic: true });
             
-            // 🔥 Cargar datos de Spotify en modo público
+            // ✅ Cargar datos de Spotify en modo público
             loadModalDataPublic(username);
             
-            return;
+            // ✅ IMPORTANTE: No hacer nada más, el perfil ya está renderizado
+            console.log('✅ Perfil público renderizado correctamente');
+            return; // Salir de la función
+            
         } catch (error) {
             console.error('❌ Error cargando perfil público:', error);
-            // Si falla, redirigir a perfil normal o login
-            if (token && userData) {
-                window.location.href = 'profile.html';
-            } else {
-                window.location.href = 'index.html';
-            }
+            
+            // ✅ Mostrar mensaje de error en la página en lugar de redirigir
+            const username = urlParams.get('user') || 'usuario';
+            document.body.innerHTML = `
+                <div style="display:flex;justify-content:center;align-items:center;height:100vh;flex-direction:column;gap:20px;color:var(--text-secondary);">
+                    <h1 style="font-size:48px;color:var(--text-primary);">⚠️</h1>
+                    <h2 style="color:var(--text-primary);">Error al cargar el perfil</h2>
+                    <p>No se pudo cargar el perfil de "@${username}".</p>
+                    <p style="font-size:12px;color:var(--text-muted);">${error.message}</p>
+                    <a href="/" style="color:var(--accent);text-decoration:none;border:1px solid var(--outline);padding:10px 24px;border-radius:999px;">Volver al inicio</a>
+                </div>
+            `;
             return;
         }
     }
