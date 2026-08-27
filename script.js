@@ -506,18 +506,41 @@ function setupProfileEvents() {
         });
     }
 
-    // 12. CERRAR MODALES
+    // 12. CERRAR MODALES - VERSIÓN MEJORADA
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.removeEventListener('click', btn._closeHandler);
         btn._closeHandler = (e) => {
             e.stopPropagation();
+            console.log('🔴 Botón cerrar clickeado, target:', btn.dataset.close);
             const target = btn.dataset.close;
-            const modal = document.getElementById(target);
-            if (modal) {
-                closeModalWithAnimation(modal);
+            if (target) {
+                const modal = document.getElementById(target);
+                console.log('🔴 Modal encontrado:', modal ? '✅' : '❌', modal?.id);
+                if (modal) {
+                    closeModalWithAnimation(modal);
+                } else {
+                    // Fallback: buscar el modal más cercano
+                    const closestModal = btn.closest('.modal-overlay');
+                    if (closestModal) {
+                        console.log('🔴 Cerrando modal por closest:', closestModal.id);
+                        closeModalWithAnimation(closestModal);
+                    }
+                }
             }
         };
         btn.addEventListener('click', btn._closeHandler);
+    });
+
+    // Cerrar modales al hacer click en el overlay (fondo)
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.removeEventListener('click', overlay._closeHandler);
+        overlay._closeHandler = (e) => {
+            if (e.target === overlay) {
+                console.log('🔴 Click en overlay, cerrando:', overlay.id);
+                closeModalWithAnimation(overlay);
+            }
+        };
+        overlay.addEventListener('click', overlay._closeHandler);
     });
 
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
@@ -665,6 +688,30 @@ function renderProfile(user, options = {}) {
 
     renderSocialLinks(user.social_links || {});
 
+    // ===== ACTUALIZAR ESTADO DE SPOTIFY EN LA TARJETA =====
+    const spotifyStatus = document.getElementById('spotify-status');
+    const spotifyBadge = document.getElementById('spotify-badge');
+
+    if (user.spotify_connected) {
+        if (spotifyStatus) spotifyStatus.textContent = 'Connected';
+        if (spotifyBadge) {
+            spotifyBadge.textContent = 'Connected';
+            spotifyBadge.style.background = 'var(--accent-dim)';
+            spotifyBadge.style.color = 'var(--accent)';
+        }
+        // Quitar clase disabled-card para que sea clickeable
+        const musicCard = document.getElementById('music-card');
+        if (musicCard) musicCard.classList.remove('disabled-card');
+    } else {
+        if (spotifyStatus) spotifyStatus.textContent = 'Not connected';
+        if (spotifyBadge) {
+            spotifyBadge.textContent = 'Connect';
+            spotifyBadge.style.background = 'var(--surface-2)';
+            spotifyBadge.style.color = 'var(--text-muted)';
+        }
+        const musicCard = document.getElementById('music-card');
+        if (musicCard) musicCard.classList.add('disabled-card');
+    }
     // 🔥 HACER SÍ O SÍ: Oculta los botones de edición
     const editBioBtn = document.getElementById('edit-bio-btn');
     const addSocialBtn = document.getElementById('add-social-btn');
@@ -1635,6 +1682,36 @@ function stopNowPlayingUpdates() {
         clearInterval(nowPlayingInterval);
         nowPlayingInterval = null;
     }
+}
+
+// ============================================================
+// CERRAR MODAL CON ANIMACIÓN
+// ============================================================
+function closeModalWithAnimation(modal) {
+    console.log('🔴 closeModalWithAnimation llamado para:', modal?.id);
+    
+    if (!modal) {
+        console.log('🔴 modal es null/undefined');
+        return;
+    }
+    
+    if (modal.classList.contains('closing')) {
+        console.log('🔴 ya está cerrando, ignorando');
+        return;
+    }
+    
+    console.log('🔴 Añadiendo clase closing...');
+    modal.classList.add('closing');
+    
+    stopNowPlayingUpdates();
+    
+    setTimeout(() => {
+        console.log('🔴 Removiendo clases y ocultando...');
+        modal.classList.remove('active', 'closing');
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+        console.log('🔴 Modal cerrado correctamente');
+    }, 400);
 }
 
 async function updateNowPlayingOnly() {
