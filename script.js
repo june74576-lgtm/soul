@@ -976,8 +976,14 @@ function renderSocialLinks(socialLinks) {
             <span class="social-username">${username}</span>
         `;
 
+        // 🔥 ELIMINADO: Ya no hay botón de eliminar en la vista principal
+        // const deleteBtn = document.createElement('button');
+        // deleteBtn.className = 'social-delete public-hide';
+        // deleteBtn.dataset.platform = platform;
+        // deleteBtn.textContent = '✕';
+
         div.appendChild(link);
-        div.appendChild(deleteBtn);
+        // div.appendChild(deleteBtn); // 🔥 ELIMINADO
         container.appendChild(div);
     });
 }
