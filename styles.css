@@ -2206,3 +2206,10 @@ body[data-public="true"] .public-hide {
 #modal-settings .modal-close:active {
     transform: scale(0.92);
 }
+/* ============================================================
+   OCULTAR SETTINGS EN VISTA PÚBLICA
+   ============================================================ */
+body[data-public="true"] #settings-toggle-btn,
+body[data-public="true"] .settings-toggle-btn {
+    display: none !important;
+}
