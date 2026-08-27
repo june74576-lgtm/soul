@@ -654,14 +654,33 @@ function renderProfile(user, options = {}) {
     console.log('🎨 Renderizando perfil con:', user, 'Público:', isPublic);
 
     const username = user.username || user.email || 'soul_user';
-    document.getElementById('display-username').textContent = `@${username}`;
-    renderBioWithHTML(user.bio);
-    document.getElementById('profile-username').textContent = `@${username}`;
 
+    // 🔥 ACTUALIZAR USERNAME MÓVIL (en el banner)
+    const mobileUsername = document.getElementById('mobile-username');
+    if (mobileUsername) {
+        mobileUsername.textContent = username;
+        console.log('✅ Username móvil actualizado a:', username);
+    }
+    
+    // 🔥 ACTUALIZAR USERNAME EN TOPBAR
+    const profileUsername = document.getElementById('profile-username');
+    if (profileUsername) {
+        profileUsername.textContent = `@${username}`;
+    }
+    
+    // 🔥 ACTUALIZAR USERNAME EN LA BIO (si existe)
+    const displayUsername = document.getElementById('display-username');
+    if (displayUsername) {
+        displayUsername.textContent = `@${username}`;
+    }
+    
+    // 🔥 RENDERIZAR BIO (UNA SOLA VEZ)
+    renderBioWithHTML(user.bio);
+
+    // 🔥 BANNER
     if (user.banner_url) {
         document.getElementById('banner-img').src = user.banner_url;
     }
-
     // 🔥 APLICAR FONDO DESDE SUPABASE O LOCALSTORAGE
     const bgUrl = user.background_url;
     if (bgUrl && bgUrl !== '') {
