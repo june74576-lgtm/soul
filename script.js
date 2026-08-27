@@ -758,13 +758,15 @@ function renderProfile(user, options = {}) {
         }
     }
     
-    // 🔥 SIEMPRE ocultar los botones de edición si es público (sin depender de eventos)
+    // 🔥 SIEMPRE ocultar los botones de edición si es público
     if (isPublicView()) {
-        document.getElementById('edit-bio-btn').classList.add('hidden');
-        document.getElementById('add-social-btn').classList.add('hidden');
-        document.getElementById('upload-banner-btn').classList.add('hidden');
-        document.getElementById('upload-avatar-btn').classList.add('hidden');
-        document.getElementById('logout-btn').classList.add('hidden');
+        const publicHideIds = ['edit-bio-btn', 'add-social-btn', 'upload-banner-btn', 'upload-avatar-btn', 'logout-btn'];
+        publicHideIds.forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.classList.add('hidden');
+            }
+        });
     }
     // ============================================================
     // SETTINGS MODAL - ABRIR
@@ -789,48 +791,59 @@ function renderProfile(user, options = {}) {
         if (!userData) return;
         const user = JSON.parse(userData);
 
-        // Username
-        document.getElementById('settings-username').value = user.username || '';
+        // Username - con verificación
+        const usernameInput = document.getElementById('settings-username');
+        if (usernameInput) usernameInput.value = user.username || '';
 
-        // Banner
-        if (user.banner_url) {
-            document.getElementById('settings-banner-preview').src = user.banner_url;
+        // Banner - con verificación
+        const bannerPreview = document.getElementById('settings-banner-preview');
+        if (bannerPreview && user.banner_url) {
+            bannerPreview.src = user.banner_url;
         }
 
-        // Avatar
-        if (user.avatar_url) {
-            document.getElementById('settings-avatar-preview').src = user.avatar_url;
+        // Avatar - con verificación
+        const avatarPreview = document.getElementById('settings-avatar-preview');
+        if (avatarPreview && user.avatar_url) {
+            avatarPreview.src = user.avatar_url;
         }
 
-        // Background
+        // Background - con verificación
+        const bgPreview = document.getElementById('settings-bg-preview');
         const bgUrl = user.background_url || localStorage.getItem('customBg') || '';
-        if (bgUrl) {
-            document.getElementById('settings-bg-preview').src = bgUrl;
-            document.getElementById('settings-bg-preview').style.display = 'block';
-        } else {
-            document.getElementById('settings-bg-preview').style.display = 'none';
+        if (bgPreview) {
+            if (bgUrl) {
+                bgPreview.src = bgUrl;
+                bgPreview.style.display = 'block';
+            } else {
+                bgPreview.style.display = 'none';
+            }
         }
 
-        // Bio
-        document.getElementById('settings-bio-textarea').value = user.bio || '';
-        updateBioPreview(user.bio || '');
+        // Bio - con verificación
+        const bioTextarea = document.getElementById('settings-bio-textarea');
+        if (bioTextarea) {
+            bioTextarea.value = user.bio || '';
+            updateBioPreview(user.bio || '');
+        }
 
         // Social Links
         renderSettingsSocialLinks(user.social_links || {});
 
-        // Spotify Status
+        // Spotify Status - con verificación
         const spotifyStatus = document.getElementById('settings-spotify-status');
         const spotifyBtn = document.getElementById('settings-spotify-connect');
-        if (user.spotify_connected) {
-            spotifyStatus.textContent = 'Connected ✓';
-            spotifyStatus.style.color = '#4ade80';
-            spotifyBtn.textContent = 'Disconnect';
-            spotifyBtn.style.background = '#ff6b6b';
-        } else {
-            spotifyStatus.textContent = 'Not connected';
-            spotifyStatus.style.color = 'var(--text-muted)';
-            spotifyBtn.textContent = 'Connect';
-            spotifyBtn.style.background = 'var(--accent)';
+        if (spotifyStatus && spotifyBtn) {
+            if (user.spotify_connected) {
+                spotifyStatus.textContent = 'Connected ✓';
+                spotifyStatus.style.color = '#4ade80';
+                spotifyBtn.textContent = 'Disconnect';
+                spotifyBtn.style.background = '#ff6b6b';
+            } else {
+                spotifyStatus.textContent = 'Not connected';
+                spotifyStatus.style.color = 'var(--text-muted)';
+                spotifyBtn.textContent = 'Connect';
+                spotifyBtn.style.background = 'var(--accent)';
+            }
         }
     }
 
@@ -903,6 +916,9 @@ function renderProfile(user, options = {}) {
         updateBioPreview(e.target.value);
     });
 
+    // ============================================================
+    // SETTINGS - BIO PREVIEW EN TIEMPO REAL
+    // ============================================================
     function updateBioPreview(html) {
         const preview = document.getElementById('settings-bio-preview-display');
         if (!preview) return;
