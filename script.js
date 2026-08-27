@@ -438,30 +438,6 @@ function setupProfileEvents() {
         });
     }
 
-    // 9. SPOTIFY - DESCONECTAR
-    const disconnectBtn = document.getElementById('disconnect-spotify-btn');
-    if (disconnectBtn) {
-        disconnectBtn.addEventListener('click', async (e) => {
-            e.stopPropagation();
-            const token = localStorage.getItem('token');
-            try {
-                const response = await fetch(`${API_URL}/spotify/disconnect`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                if (!response.ok) throw new Error('Error al desconectar Spotify');
-                document.getElementById('spotify-status').textContent = 'Not connected';
-                document.getElementById('spotify-badge').textContent = 'Connect';
-                document.getElementById('spotify-badge').style.background = 'var(--surface-2)';
-                document.getElementById('spotify-badge').style.color = 'var(--text-muted)';
-                document.getElementById('music-card').classList.add('disabled-card');
-                showShareToast('Spotify disconnected', 'success');
-            } catch (error) {
-                alert('Error: ' + error.message);
-            }
-        });
-    }
-
     // 10. BANNER - SUBIR
     const uploadBannerBtn = document.getElementById('upload-banner-btn');
     if (uploadBannerBtn) {

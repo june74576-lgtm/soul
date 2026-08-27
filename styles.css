@@ -528,11 +528,6 @@ body::before {
     transition: background 0.2s;
 }
 
-.social-item:hover {
-    background: var(--accent-dim);
-    color: var(--text-primary);
-}
-
 .social-item a {
     display: flex;
     align-items: center;
@@ -570,6 +565,7 @@ body::before {
 .social-item .social-username {
     color: var(--text-muted);
     font-size: 12px;
+    margin-left: auto; /* 🔥 ESTO ALINEA A LA DERECHA */
 }
 
 /* Ocultar botones de eliminar en la vista principal */
@@ -707,10 +703,6 @@ body::before {
     align-items: center;
     gap: 8px;
     z-index: 10;
-}
-
-.share-profile-btn:active {
-    transform: scale(0.95);
 }
 
 .share-profile-btn svg {
