@@ -362,6 +362,7 @@ function setupProfileEvents() {
         setupShareProfileButton();
         return;
     }
+
     // 1. LOGOUT
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
@@ -475,98 +476,6 @@ function setupProfileEvents() {
             document.getElementById('social-card').classList.remove('hidden');
             document.getElementById('social-editor').classList.add('hidden');
         });
-    }
-
-    // 8. CONECTAR SPOTIFY / ABRIR MODAL
-    const musicCard = document.getElementById('music-card');
-    if (musicCard) {
-        // Eliminar eventos anteriores
-        musicCard.removeEventListener('click', musicCard._clickHandler);
-        
-        musicCard._clickHandler = async (e) => {
-            e.stopPropagation();
-            console.log('🔵 Click en tarjeta de música');
-            
-            const isPublic = isPublicView();
-            console.log('🔵 isPublicView():', isPublic);
-            
-            // Si es vista pública, abrir modal directamente
-            if (isPublic) {
-                console.log('🔵 Vista pública: abriendo modal sin autenticación');
-                const modal = document.getElementById('modal-music');
-                if (modal) {
-                    modal.classList.remove('closing');
-                    modal.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                    
-                    // Cargar datos públicos
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const username = urlParams.get('user');
-                    if (username) {
-                        loadModalDataPublic(username);
-                    } else {
-                        console.error('❌ No se encontró username en la URL');
-                        // Mostrar mensaje de error en el modal
-                        const artistContainer = document.getElementById('modal-artist-list');
-                        if (artistContainer) {
-                            artistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Error: usuario no especificado.</div>';
-                        }
-                    }
-                }
-                return;
-            }
-            
-            // === FLUJO NORMAL (usuario logueado) ===
-            const token = localStorage.getItem('token');
-            if (!token) {
-                console.warn('⚠️ No hay token, redirigiendo a login');
-                window.location.href = 'index.html';
-                return;
-            }
-            
-            try {
-                const meResponse = await fetch(`${API_URL}/auth/me`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                
-                if (!meResponse.ok) {
-                    console.warn('⚠️ Sesión expirada, redirigiendo a login');
-                    localStorage.removeItem('token');
-                    localStorage.removeItem('user');
-                    window.location.href = 'index.html';
-                    return;
-                }
-                
-                const user = await meResponse.json();
-                
-                if (user.spotify_connected) {
-                    const modal = document.getElementById('modal-music');
-                    if (modal) {
-                        modal.classList.remove('closing');
-                        modal.classList.add('active');
-                        document.body.style.overflow = 'hidden';
-                        setTimeout(() => loadModalData(), 100);
-                    }
-                    return;
-                }
-                
-                // Si no está conectado, iniciar flujo de conexión
-                const response = await fetch(`${API_URL}/spotify/connect`, {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-                const data = await response.json();
-                if (data.url) {
-                    window.location.href = data.url;
-                }
-                
-            } catch (error) {
-                console.error('Error al conectar Spotify:', error);
-                alert('Error al conectar Spotify');
-            }
-        };
-        
-        musicCard.addEventListener('click', musicCard._clickHandler);
-        console.log('✅ Evento de música configurado correctamente');
     }
 
     // 10. BANNER - SUBIR
