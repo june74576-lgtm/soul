@@ -750,6 +750,7 @@ function renderProfile(user, options = {}) {
     // ===== ACTUALIZAR ESTADO DE SPOTIFY EN LA TARJETA =====
     const spotifyStatus = document.getElementById('spotify-status');
     const spotifyBadge = document.getElementById('spotify-badge');
+    const musicCard = document.getElementById('music-card');
 
     if (user.spotify_connected) {
         if (spotifyStatus) spotifyStatus.textContent = 'Connected';
@@ -759,17 +760,27 @@ function renderProfile(user, options = {}) {
             spotifyBadge.style.color = 'var(--accent)';
         }
         // Quitar clase disabled-card para que sea clickeable
-        const musicCard = document.getElementById('music-card');
         if (musicCard) musicCard.classList.remove('disabled-card');
     } else {
-        if (spotifyStatus) spotifyStatus.textContent = 'Not connected';
-        if (spotifyBadge) {
-            spotifyBadge.textContent = 'Connect';
-            spotifyBadge.style.background = 'var(--surface-2)';
-            spotifyBadge.style.color = 'var(--text-muted)';
+        // 🔥 NUEVO: En vista pública, mostrar "View" en lugar de "Not connected"
+        if (isPublicView()) {
+            if (spotifyStatus) spotifyStatus.textContent = 'View profile';
+            if (spotifyBadge) {
+                spotifyBadge.textContent = 'View';
+                spotifyBadge.style.background = 'var(--accent-dim)';
+                spotifyBadge.style.color = 'var(--accent)';
+            }
+            // 🔥 IMPORTANTE: Quitar disabled-card en vista pública
+            if (musicCard) musicCard.classList.remove('disabled-card');
+        } else {
+            if (spotifyStatus) spotifyStatus.textContent = 'Not connected';
+            if (spotifyBadge) {
+                spotifyBadge.textContent = 'Connect';
+                spotifyBadge.style.background = 'var(--surface-2)';
+                spotifyBadge.style.color = 'var(--text-muted)';
+            }
+            if (musicCard) musicCard.classList.add('disabled-card');
         }
-        const musicCard = document.getElementById('music-card');
-        if (musicCard) musicCard.classList.add('disabled-card');
     }
     // 🔥 HACER SÍ O SÍ: Oculta los botones de edición
     const editBioBtn = document.getElementById('edit-bio-btn');
