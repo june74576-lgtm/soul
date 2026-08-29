@@ -395,16 +395,68 @@ function setupProfileEvents() {
         });
     }
 
-    // 8. CONECTAR SPOTIFY
+    // 8. CONECTAR SPOTIFY / ABRIR MODAL
     const musicCard = document.getElementById('music-card');
     if (musicCard) {
-        musicCard.addEventListener('click', async () => {
+        // Eliminar eventos anteriores
+        musicCard.removeEventListener('click', musicCard._clickHandler);
+        
+        musicCard._clickHandler = async (e) => {
+            e.stopPropagation();
+            console.log('🔵 Click en tarjeta de música');
+            
+            const isPublic = isPublicView();
+            console.log('🔵 isPublicView():', isPublic);
+            
+            // Si es vista pública, abrir modal directamente
+            if (isPublic) {
+                console.log('🔵 Vista pública: abriendo modal sin autenticación');
+                const modal = document.getElementById('modal-music');
+                if (modal) {
+                    modal.classList.remove('closing');
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    // Cargar datos públicos
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const username = urlParams.get('user');
+                    if (username) {
+                        loadModalDataPublic(username);
+                    } else {
+                        console.error('❌ No se encontró username en la URL');
+                        // Mostrar mensaje de error en el modal
+                        const artistContainer = document.getElementById('modal-artist-list');
+                        if (artistContainer) {
+                            artistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Error: usuario no especificado.</div>';
+                        }
+                    }
+                }
+                return;
+            }
+            
+            // === FLUJO NORMAL (usuario logueado) ===
             const token = localStorage.getItem('token');
+            if (!token) {
+                console.warn('⚠️ No hay token, redirigiendo a login');
+                window.location.href = 'index.html';
+                return;
+            }
+            
             try {
                 const meResponse = await fetch(`${API_URL}/auth/me`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
+                
+                if (!meResponse.ok) {
+                    console.warn('⚠️ Sesión expirada, redirigiendo a login');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
                 const user = await meResponse.json();
+                
                 if (user.spotify_connected) {
                     const modal = document.getElementById('modal-music');
                     if (modal) {
@@ -415,6 +467,8 @@ function setupProfileEvents() {
                     }
                     return;
                 }
+                
+                // Si no está conectado, iniciar flujo de conexión
                 const response = await fetch(`${API_URL}/spotify/connect`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
@@ -422,11 +476,15 @@ function setupProfileEvents() {
                 if (data.url) {
                     window.location.href = data.url;
                 }
+                
             } catch (error) {
                 console.error('Error al conectar Spotify:', error);
                 alert('Error al conectar Spotify');
             }
-        });
+        };
+        
+        musicCard.addEventListener('click', musicCard._clickHandler);
+        console.log('✅ Evento de música configurado correctamente');
     }
 
     // 10. BANNER - SUBIR
@@ -1362,155 +1420,214 @@ async function updatePublicNowPlaying(username) {
 }
 
 // Cargar datos de Spotify en modo público (sin login)
-async function loadModalDataPublic() {
-    console.log('📥 Cargando modal en modo público (solo visualización)');
-
-    // Obtener el username de la URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const username = urlParams.get('user');
-
-    // 🔥 INICIAR ACTUALIZACIÓN DEL NOW PLAYING CADA 2 SEGUNDOS
-    updatePublicNowPlaying(username);
-    setInterval(() => updatePublicNowPlaying(username), 2000);
-
+// Función global para cargar datos públicos de Spotify
+async function loadModalDataPublic(username) {
+    console.log('📥 Cargando modal en modo público para:', username);
+    
+    // Mostrar indicador de carga
+    const artistContainer = document.getElementById('modal-artist-list');
+    if (artistContainer) {
+        artistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Loading...</div>';
+    }
+    
     try {
         const response = await fetch(`${API_URL}/public-spotify/${username}`);
         if (!response.ok) throw new Error('No se pudieron cargar los datos de Spotify');
-
+        
         const data = await response.json();
         console.log('✅ Datos de Spotify público recibidos:', data);
-
+        
         if (data.connected) {
-            // ===== TOP ARTISTS =====
-            const artistContainer = document.getElementById('modal-artist-list');
-            if (data.top_artists?.items) {
-                artistContainer.innerHTML = '';
-                data.top_artists.items.slice(0, 5).forEach((artist, i) => {
-                    const div = document.createElement('div');
-                    div.className = 'artist-item';
-                    div.innerHTML = `
-                        <span class="rank">${i + 1}</span>
-                        <img src="${artist.images?.[0]?.url || 'https://picsum.photos/30/30?random=' + i}" class="artist-avatar" />
-                        <span>${artist.name || 'Unknown'}</span>
-                    `;
-                    div.style.cursor = 'pointer';
-                    div.addEventListener('click', () => {
-                        if (artist.external_urls?.spotify) window.open(artist.external_urls.spotify, '_blank');
-                    });
-                    artistContainer.appendChild(div);
-                });
+            // Renderizar todos los datos...
+            renderPublicSpotifyData(data);
+            
+            // Iniciar actualización del Now Playing cada 2 segundos
+            if (window._publicNowPlayingInterval) {
+                clearInterval(window._publicNowPlayingInterval);
             }
-
-            // ===== TOP TRACKS =====
-            const trackContainer = document.getElementById('modal-tracks-list');
-            if (data.top_tracks?.items) {
-                trackContainer.innerHTML = '';
-                data.top_tracks.items.slice(0, 5).forEach((track, i) => {
-                    const div = document.createElement('div');
-                    div.className = 'track-item';
-                    div.innerHTML = `
-                        <span class="rank">${i + 1}</span>
-                        <img src="${track.album?.images?.[0]?.url || 'https://picsum.photos/30/30?random=' + i}" class="track-avatar" />
-                        <span>${track.name || 'Unknown'}</span>
-                        <span class="track-artist-name">${track.artists?.[0]?.name || 'Unknown'}</span>
-                    `;
-                    div.style.cursor = 'pointer';
-                    div.addEventListener('click', () => {
-                        if (track.external_urls?.spotify) window.open(track.external_urls.spotify, '_blank');
-                    });
-                    trackContainer.appendChild(div);
-                });
-            }
-
-            // ===== RECENT LIKES =====
-            const likesGrid = document.getElementById('modal-likes-grid');
-            if (data.saved_tracks?.items) {
-                likesGrid.innerHTML = '';
-                data.saved_tracks.items.slice(0, 6).forEach((item, i) => {
-                    const track = item.track;
-                    const div = document.createElement('div');
-                    div.className = 'like-item';
-                    div.innerHTML = `
-                        <img src="${track.album?.images?.[0]?.url || 'https://picsum.photos/50/50?random=' + i}" />
-                        <span>${track.name || 'Unknown'}</span>
-                    `;
-                    div.style.cursor = 'pointer';
-                    div.addEventListener('click', () => {
-                        if (track.external_urls?.spotify) window.open(track.external_urls.spotify, '_blank');
-                    });
-                    likesGrid.appendChild(div);
-                });
-            }
-
-            // ===== FOLLOWING (Carrusel) =====
-            const followingList = document.getElementById('modal-following-list');
-            if (data.following?.artists?.items) {
-                followingList.innerHTML = '';
-                data.following.artists.items.slice(0, 20).forEach((artist) => {
-                    const div = document.createElement('div');
-                    div.className = 'carousel-item';
-                    div.innerHTML = `
-                        <img src="${artist.images?.[0]?.url || 'https://picsum.photos/80/80?random=' + Math.random()}" class="item-image" />
-                        <p class="item-name">${artist.name || 'Unknown'}</p>
-                    `;
-                    div.addEventListener('click', () => {
-                        if (artist.external_urls?.spotify) window.open(artist.external_urls.spotify, '_blank');
-                    });
-                    followingList.appendChild(div);
-                });
-            }
-
-            // ===== SAVED ALBUMS (Carrusel) =====
-            const albumsList = document.getElementById('modal-albums-list');
-            if (data.saved_albums?.items) {
-                albumsList.innerHTML = '';
-                data.saved_albums.items.slice(0, 20).forEach((item) => {
-                    const album = item.album;
-                    const div = document.createElement('div');
-                    div.className = 'carousel-item square';
-                    div.innerHTML = `
-                        <img src="${album.images?.[0]?.url || 'https://picsum.photos/80/80?random=' + Math.random()}" class="item-image" />
-                        <p class="item-name">${album.name || 'Unknown'}</p>
-                        <p class="item-subtitle">${album.artists?.[0]?.name || 'Unknown'}</p>
-                    `;
-                    div.addEventListener('click', () => {
-                        if (album.external_urls?.spotify) window.open(album.external_urls.spotify, '_blank');
-                    });
-                    albumsList.appendChild(div);
-                });
-            }
-
-            // ===== PLAYLISTS (Carrusel) =====
-            const playlistsList = document.getElementById('modal-playlists-list');
-            if (data.playlists?.length > 0) {
-                playlistsList.innerHTML = '';
-                data.playlists.slice(0, 10).forEach((playlist) => {
-                    const div = document.createElement('div');
-                    div.className = 'carousel-item square';
-                    div.innerHTML = `
-                        <img src="${playlist.images?.[0]?.url || 'https://picsum.photos/80/80?random=' + Math.random()}" class="item-image" />
-                        <p class="item-name">${playlist.name || 'Untitled'}</p>
-                    `;
-                    div.addEventListener('click', () => {
-                        if (playlist.external_urls?.spotify) window.open(playlist.external_urls.spotify, '_blank');
-                    });
-                    playlistsList.appendChild(div);
-                });
-            }
-
+            window._publicNowPlayingInterval = setInterval(() => {
+                updatePublicNowPlaying(username);
+            }, 2000);
+            
         } else {
-            document.getElementById('modal-artist-list').innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Este usuario no tiene Spotify conectado.</div>';
+            document.getElementById('modal-artist-list').innerHTML = 
+                '<div style="color: var(--text-muted); padding: 10px;">Este usuario no tiene Spotify conectado.</div>';
         }
-
+        
     } catch (error) {
         console.error('❌ Error cargando datos públicos de Spotify:', error);
-        document.getElementById('modal-artist-list').innerHTML = '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar los datos de Spotify.</div>';
+        document.getElementById('modal-artist-list').innerHTML = 
+            '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar los datos de Spotify.</div>';
     }
-
+    
     // Inicializar carruseles
     setupCarousel('following');
     setupCarousel('albums');
     setupCarousel('playlists');
+}
+
+// Función auxiliar para renderizar datos públicos
+function renderPublicSpotifyData(data) {
+    // ===== TOP ARTISTS =====
+    const artistContainer = document.getElementById('modal-artist-list');
+    if (data.top_artists?.items) {
+        artistContainer.innerHTML = '';
+        data.top_artists.items.slice(0, 5).forEach((artist, i) => {
+            const div = document.createElement('div');
+            div.className = 'artist-item';
+            div.innerHTML = `
+                <span class="rank">${i + 1}</span>
+                <img src="${artist.images?.[0]?.url || 'https://picsum.photos/30/30?random=' + i}" class="artist-avatar" />
+                <span>${artist.name || 'Unknown'}</span>
+            `;
+            div.style.cursor = 'pointer';
+            div.addEventListener('click', () => {
+                if (artist.external_urls?.spotify) window.open(artist.external_urls.spotify, '_blank');
+            });
+            artistContainer.appendChild(div);
+        });
+    }
+
+    // ===== TOP TRACKS =====
+    const trackContainer = document.getElementById('modal-tracks-list');
+    if (data.top_tracks?.items) {
+        trackContainer.innerHTML = '';
+        data.top_tracks.items.slice(0, 5).forEach((track, i) => {
+            const div = document.createElement('div');
+            div.className = 'track-item';
+            div.innerHTML = `
+                <span class="rank">${i + 1}</span>
+                <img src="${track.album?.images?.[0]?.url || 'https://picsum.photos/30/30?random=' + i}" class="track-avatar" />
+                <span>${track.name || 'Unknown'}</span>
+                <span class="track-artist-name">${track.artists?.[0]?.name || 'Unknown'}</span>
+            `;
+            div.style.cursor = 'pointer';
+            div.addEventListener('click', () => {
+                if (track.external_urls?.spotify) window.open(track.external_urls.spotify, '_blank');
+            });
+            trackContainer.appendChild(div);
+        });
+    }
+
+    // ===== RECENT LIKES =====
+    const likesGrid = document.getElementById('modal-likes-grid');
+    if (data.saved_tracks?.items) {
+        likesGrid.innerHTML = '';
+        data.saved_tracks.items.slice(0, 6).forEach((item, i) => {
+            const track = item.track;
+            const div = document.createElement('div');
+            div.className = 'like-item';
+            div.innerHTML = `
+                <img src="${track.album?.images?.[0]?.url || 'https://picsum.photos/50/50?random=' + i}" />
+                <span>${track.name || 'Unknown'}</span>
+            `;
+            div.style.cursor = 'pointer';
+            div.addEventListener('click', () => {
+                if (track.external_urls?.spotify) window.open(track.external_urls.spotify, '_blank');
+            });
+            likesGrid.appendChild(div);
+        });
+    }
+
+    // ===== FOLLOWING (Carrusel) =====
+    const followingList = document.getElementById('modal-following-list');
+    if (data.following?.artists?.items) {
+        followingList.innerHTML = '';
+        data.following.artists.items.slice(0, 20).forEach((artist) => {
+            const div = document.createElement('div');
+            div.className = 'carousel-item';
+            div.innerHTML = `
+                <img src="${artist.images?.[0]?.url || 'https://picsum.photos/80/80?random=' + Math.random()}" class="item-image" />
+                <p class="item-name">${artist.name || 'Unknown'}</p>
+            `;
+            div.addEventListener('click', () => {
+                if (artist.external_urls?.spotify) window.open(artist.external_urls.spotify, '_blank');
+            });
+            followingList.appendChild(div);
+        });
+    }
+
+    // ===== SAVED ALBUMS (Carrusel) =====
+    const albumsList = document.getElementById('modal-albums-list');
+    if (data.saved_albums?.items) {
+        albumsList.innerHTML = '';
+        data.saved_albums.items.slice(0, 20).forEach((item) => {
+            const album = item.album;
+            const div = document.createElement('div');
+            div.className = 'carousel-item square';
+            div.innerHTML = `
+                <img src="${album.images?.[0]?.url || 'https://picsum.photos/80/80?random=' + Math.random()}" class="item-image" />
+                <p class="item-name">${album.name || 'Unknown'}</p>
+                <p class="item-subtitle">${album.artists?.[0]?.name || 'Unknown'}</p>
+            `;
+            div.addEventListener('click', () => {
+                if (album.external_urls?.spotify) window.open(album.external_urls.spotify, '_blank');
+            });
+            albumsList.appendChild(div);
+        });
+    }
+
+    // ===== PLAYLISTS (Carrusel) =====
+    const playlistsList = document.getElementById('modal-playlists-list');
+    if (data.playlists?.length > 0) {
+        playlistsList.innerHTML = '';
+        data.playlists.slice(0, 10).forEach((playlist) => {
+            const div = document.createElement('div');
+            div.className = 'carousel-item square';
+            div.innerHTML = `
+                <img src="${playlist.images?.[0]?.url || 'https://picsum.photos/80/80?random=' + Math.random()}" class="item-image" />
+                <p class="item-name">${playlist.name || 'Untitled'}</p>
+            `;
+            div.addEventListener('click', () => {
+                if (playlist.external_urls?.spotify) window.open(playlist.external_urls.spotify, '_blank');
+            });
+            playlistsList.appendChild(div);
+        });
+    }
+}
+
+// Función para actualizar Now Playing en modo público
+async function updatePublicNowPlaying(username) {
+    try {
+        const response = await fetch(`${API_URL}/public-spotify/${username}`);
+        if (!response.ok) return;
+        const data = await response.json();
+        
+        if (data.connected && data.currently_playing?.item) {
+            const track = data.currently_playing.item;
+            const modalTrack = document.getElementById('modal-track-name');
+            const modalArtist = document.getElementById('modal-track-artist');
+            const modalCover = document.getElementById('modal-cover');
+            const modalNow = document.getElementById('modal-now-playing');
+            
+            modalTrack.textContent = track.name || 'Unknown';
+            modalArtist.textContent = track.artists?.[0]?.name || 'Unknown';
+            modalCover.src = track.album?.images?.[0]?.url || 'https://picsum.photos/60/60?random=3';
+            modalNow.style.display = 'flex';
+            
+            // Extraer color del cover
+            if (modalCover.src) {
+                extractAccentColorFromImage(modalCover.src).then(color => {
+                    if (color) {
+                        document.documentElement.style.setProperty('--track-accent', color);
+                        const rgbValues = color.match(/\d+/g);
+                        if (rgbValues && rgbValues.length === 3) {
+                            document.documentElement.style.setProperty('--track-accent-rgb', rgbValues.join(','));
+                        }
+                    }
+                });
+            }
+            
+            modalNow.style.cursor = 'pointer';
+            modalNow.onclick = () => {
+                if (track.external_urls?.spotify) window.open(track.external_urls.spotify, '_blank');
+            };
+        } else {
+            document.getElementById('modal-now-playing').style.display = 'none';
+        }
+    } catch (error) {
+        // Silenciar errores
+    }
 }
 // Cargar datos de Spotify con sesión activa (usuario logueado)
 async function loadModalData() {
