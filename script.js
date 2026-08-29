@@ -1411,11 +1411,12 @@ async function fetchSpotify(endpoint) {
     }
 }
 
-// Función para actualizar el Now Playing en modo público (cada 2 segundos)
 async function updatePublicNowPlaying(username) {
     try {
-        const response = await fetch(`${API_URL}/public-spotify/${username}`);
+        // 🔥 Usar el nuevo endpoint solo para Now Playing
+        const response = await fetch(`${API_URL}/public-nowplaying/${username}`);
         if (!response.ok) return;
+        
         const data = await response.json();
         
         if (data.connected && data.currently_playing?.item) {
@@ -1430,7 +1431,7 @@ async function updatePublicNowPlaying(username) {
             modalCover.src = track.album?.images?.[0]?.url || 'https://picsum.photos/60/60?random=3';
             modalNow.style.display = 'flex';
             
-            // 🔥 NUEVO: Extraer color del cover y actualizar la variable CSS
+            // Extraer color del cover
             if (modalCover.src) {
                 extractAccentColorFromImage(modalCover.src).then(color => {
                     if (color) {
@@ -1443,30 +1444,26 @@ async function updatePublicNowPlaying(username) {
                 });
             }
             
-            // Hacer clickeable
             modalNow.style.cursor = 'pointer';
             modalNow.onclick = () => {
                 if (track.external_urls?.spotify) window.open(track.external_urls.spotify, '_blank');
             };
         } else {
-            // Si no hay canción sonando, ocultar el Now Playing
             document.getElementById('modal-now-playing').style.display = 'none';
         }
     } catch (error) {
-        // Silenciar errores
+        // Silenciar errores para no romper la UI
+        console.log('⚠️ Error actualizando Now Playing:', error.message);
     }
 }
 
 // Cargar datos de Spotify en modo público (sin login)
-// Función global para cargar datos públicos de Spotify
 async function loadModalDataPublic(username) {
     console.log('📥 Cargando modal en modo público para:', username);
     
-    // Si no hay username, intentar obtenerlo de la URL
     if (!username) {
         const urlParams = new URLSearchParams(window.location.search);
         username = urlParams.get('user');
-        console.log('📥 Username obtenido de URL:', username);
     }
     
     if (!username) {
@@ -1485,10 +1482,18 @@ async function loadModalDataPublic(username) {
     }
     
     try {
+        // 🔥 Intentar cargar datos completos (puede fallar por 429)
         const response = await fetch(`${API_URL}/public-spotify/${encodeURIComponent(username)}`);
         
         if (!response.ok) {
-            throw new Error(`Error ${response.status}: ${response.statusText}`);
+            // Si falla, al menos intentar mostrar Now Playing
+            console.log('⚠️ Error cargando datos completos, pero Now Playing seguirá funcionando');
+            updatePublicNowPlaying(username);
+            // Mostrar mensaje en el modal
+            if (artistContainer) {
+                artistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar todos los datos (límite de Spotify).<br>La canción actual sigue actualizándose.</div>';
+            }
+            return;
         }
         
         const data = await response.json();
@@ -1497,6 +1502,7 @@ async function loadModalDataPublic(username) {
         if (data.connected) {
             renderPublicSpotifyData(data);
             
+            // 🔥 Iniciar actualización del Now Playing (ya está separado)
             if (window._publicNowPlayingInterval) {
                 clearInterval(window._publicNowPlayingInterval);
             }
@@ -1513,15 +1519,17 @@ async function loadModalDataPublic(username) {
         
     } catch (error) {
         console.error('❌ Error cargando datos públicos de Spotify:', error);
+        // 🔥 AUNQUE FALLE, intentar mostrar Now Playing
+        updatePublicNowPlaying(username);
+        
         document.getElementById('modal-artist-list').innerHTML = 
-            '<div style="color: var(--text-muted); padding: 10px;">Error al cargar datos de Spotify: ' + error.message + '</div>';
+            '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar los datos.<br>La canción actual se sigue actualizando.</div>';
     }
     
     setupCarousel('following');
     setupCarousel('albums');
     setupCarousel('playlists');
 }
-
 // Función auxiliar para renderizar datos públicos
 function renderPublicSpotifyData(data) {
     // ===== TOP ARTISTS =====
@@ -1642,49 +1650,7 @@ function renderPublicSpotifyData(data) {
     }
 }
 
-// Función para actualizar Now Playing en modo público
-async function updatePublicNowPlaying(username) {
-    try {
-        const response = await fetch(`${API_URL}/public-spotify/${username}`);
-        if (!response.ok) return;
-        const data = await response.json();
-        
-        if (data.connected && data.currently_playing?.item) {
-            const track = data.currently_playing.item;
-            const modalTrack = document.getElementById('modal-track-name');
-            const modalArtist = document.getElementById('modal-track-artist');
-            const modalCover = document.getElementById('modal-cover');
-            const modalNow = document.getElementById('modal-now-playing');
-            
-            modalTrack.textContent = track.name || 'Unknown';
-            modalArtist.textContent = track.artists?.[0]?.name || 'Unknown';
-            modalCover.src = track.album?.images?.[0]?.url || 'https://picsum.photos/60/60?random=3';
-            modalNow.style.display = 'flex';
-            
-            // Extraer color del cover
-            if (modalCover.src) {
-                extractAccentColorFromImage(modalCover.src).then(color => {
-                    if (color) {
-                        document.documentElement.style.setProperty('--track-accent', color);
-                        const rgbValues = color.match(/\d+/g);
-                        if (rgbValues && rgbValues.length === 3) {
-                            document.documentElement.style.setProperty('--track-accent-rgb', rgbValues.join(','));
-                        }
-                    }
-                });
-            }
-            
-            modalNow.style.cursor = 'pointer';
-            modalNow.onclick = () => {
-                if (track.external_urls?.spotify) window.open(track.external_urls.spotify, '_blank');
-            };
-        } else {
-            document.getElementById('modal-now-playing').style.display = 'none';
-        }
-    } catch (error) {
-        // Silenciar errores
-    }
-}
+
 // Cargar datos de Spotify con sesión activa (usuario logueado)
 async function loadModalData() {
     const token = localStorage.getItem('token');
