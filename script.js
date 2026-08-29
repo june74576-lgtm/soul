@@ -267,7 +267,9 @@ function setupProfileEvents() {
                 console.log('🔵 Vista pública: abriendo modal sin autenticación');
                 const modal = document.getElementById('modal-music');
                 if (modal) {
+                    // 🔥 IMPORTANTE: Remover cualquier clase residual
                     modal.classList.remove('closing');
+                    modal.style.display = 'flex';
                     modal.classList.add('active');
                     document.body.style.overflow = 'hidden';
                     
@@ -313,6 +315,7 @@ function setupProfileEvents() {
                     const modal = document.getElementById('modal-music');
                     if (modal) {
                         modal.classList.remove('closing');
+                        modal.style.display = 'flex';
                         modal.classList.add('active');
                         document.body.style.overflow = 'hidden';
                         setTimeout(() => loadModalData(), 100);
@@ -338,7 +341,7 @@ function setupProfileEvents() {
         console.log('✅ Evento de música configurado correctamente');
     }
 
-    // 🔥 CERRAR MODALES - ESTO DEBE EJECUTARSE SIEMPRE (incluso en vista pública)
+    // 🔥 CERRAR MODALES - UN SOLO BLOQUE (eliminar los duplicados)
     document.querySelectorAll('.modal-close').forEach(btn => {
         btn.removeEventListener('click', btn._closeHandler);
         btn._closeHandler = (e) => {
@@ -347,15 +350,8 @@ function setupProfileEvents() {
             const target = btn.dataset.close;
             if (target) {
                 const modal = document.getElementById(target);
-                console.log('🔴 Modal encontrado:', modal ? '✅' : '❌', modal?.id);
                 if (modal) {
                     closeModalWithAnimation(modal);
-                } else {
-                    const closestModal = btn.closest('.modal-overlay');
-                    if (closestModal) {
-                        console.log('🔴 Cerrando modal por closest:', closestModal.id);
-                        closeModalWithAnimation(closestModal);
-                    }
                 }
             }
         };
