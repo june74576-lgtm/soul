@@ -250,9 +250,96 @@ async function initProfile() {
 function setupProfileEvents() {
     console.log('🔵 setupProfileEvents() iniciado');
     
-    // 🔥 SI ES VISTA PÚBLICA: Bloquear botones
+    // 🔥 IMPORTANTE: Siempre configurar la tarjeta de música, incluso en vista pública
+    const musicCard = document.getElementById('music-card');
+    if (musicCard) {
+        musicCard.removeEventListener('click', musicCard._clickHandler);
+        
+        musicCard._clickHandler = async (e) => {
+            e.stopPropagation();
+            console.log('🔵 Click en tarjeta de música');
+            
+            const isPublic = isPublicView();
+            console.log('🔵 isPublicView():', isPublic);
+            
+            // Si es vista pública, abrir modal directamente
+            if (isPublic) {
+                console.log('🔵 Vista pública: abriendo modal sin autenticación');
+                const modal = document.getElementById('modal-music');
+                if (modal) {
+                    modal.classList.remove('closing');
+                    modal.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                    
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const username = urlParams.get('user');
+                    if (username) {
+                        loadModalDataPublic(username);
+                    } else {
+                        console.error('❌ No se encontró username en la URL');
+                        const artistContainer = document.getElementById('modal-artist-list');
+                        if (artistContainer) {
+                            artistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Error: usuario no especificado.</div>';
+                        }
+                    }
+                }
+                return;
+            }
+            
+            // === FLUJO NORMAL (usuario logueado) ===
+            const token = localStorage.getItem('token');
+            if (!token) {
+                console.warn('⚠️ No hay token, redirigiendo a login');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            try {
+                const meResponse = await fetch(`${API_URL}/auth/me`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (!meResponse.ok) {
+                    console.warn('⚠️ Sesión expirada, redirigiendo a login');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                
+                const user = await meResponse.json();
+                
+                if (user.spotify_connected) {
+                    const modal = document.getElementById('modal-music');
+                    if (modal) {
+                        modal.classList.remove('closing');
+                        modal.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+                        setTimeout(() => loadModalData(), 100);
+                    }
+                    return;
+                }
+                
+                const response = await fetch(`${API_URL}/spotify/connect`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.url) {
+                    window.location.href = data.url;
+                }
+                
+            } catch (error) {
+                console.error('Error al conectar Spotify:', error);
+                alert('Error al conectar Spotify');
+            }
+        };
+        
+        musicCard.addEventListener('click', musicCard._clickHandler);
+        console.log('✅ Evento de música configurado correctamente');
+    }
+
+    // 🔥 SI ES VISTA PÚBLICA: Salir después de configurar la música
     if (isPublicView()) {
-        // Ocultar botones
         const elementsToHide = [
             'edit-bio-btn',
             'add-social-btn', 
@@ -260,26 +347,21 @@ function setupProfileEvents() {
             'upload-avatar-btn',
             'logout-btn',
             'disconnect-spotify-btn',
-            'settings-toggle-btn'  // ← Agrega esta línea
+            'settings-toggle-btn'
         ];
         
         elementsToHide.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
                 el.classList.add('hidden');
-                el.onclick = () => {}; // Deshabilitar eventos
+                el.onclick = () => {};
             }
         });
         
-        // 🔥 Salir temprano si es vista pública (evita errores)
-        console.log('🔵 Vista pública, configurando solo lo esencial');
+        console.log('🔵 Vista pública, configurado evento de música y ocultados botones');
         setupShareProfileButton();
         return;
     }
-
-    // 🔥 SI NO ES VISTA PÚBLICA: Configurar todo
-    console.log('🔵 Vista normal, configurando todos los eventos');
-    
     // 1. LOGOUT
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
