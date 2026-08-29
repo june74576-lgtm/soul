@@ -815,14 +815,17 @@ function renderProfile(user, options = {}) {
             const isSpotify = card.id === 'music-card';
             const isConnected = user.spotify_connected;
             
-            if (isSpotify && isConnected) {
+            // 🔥 NUEVO: En vista pública, mostrar la tarjeta de Spotify siempre
+            if (isSpotify && isPublicView()) {
+                card.style.display = 'flex';
+                hasConnectedService = true;
+            } else if (isSpotify && isConnected) {
                 card.style.display = 'flex';
                 hasConnectedService = true;
             } else {
                 card.style.display = 'none';
             }
-        });
-        
+        }); 
         // Si no hay servicios conectados, mostrar mensaje
         const existingMsg = cardsStack.querySelector('.no-services-msg');
         if (!hasConnectedService) {
