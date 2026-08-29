@@ -53,15 +53,32 @@ body {
     background-attachment: fixed;
     background-repeat: no-repeat;
     position: relative;
-    overflow: hidden; /* ← AÑADE ESTA LÍNEA */
+    overflow-y: auto; /* ← Cambiar a auto */
+    overflow-x: hidden;
 }
 
 html {
-    overflow: hidden;
+    overflow-y: auto; /* ← Cambiar a auto */
+    overflow-x: hidden;
 }
 
-.container, .auth-container {
-    max-height: calc(100vh - 48px);
+/* Ocultar la barra de desplazamiento en body */
+body::-webkit-scrollbar {
+    display: none;
+}
+html::-webkit-scrollbar {
+    display: none;
+}
+body {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+html {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.container, .auth-container { 
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -379,7 +396,6 @@ body::before {
     border-radius: var(--radius-xl);
     padding: 28px 24px;
     min-height: 200px;
-    max-height: 380px;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
@@ -647,6 +663,11 @@ body::before {
     white-space: nowrap;
 }
 
+body {
+    padding: 24px;
+    /* Asegurar que el padding sea suficiente */
+    padding-bottom: 80px; /* Espacio extra abajo */
+}
 /* ============================================================
    AVATAR
    ============================================================ */
@@ -2431,7 +2452,6 @@ html::-webkit-scrollbar-thumb:hover {
     .block-description {
         padding: 16px 18px;
         min-height: 160px;
-        max-height: 280px;
         overflow-y: auto;
         overflow-x: hidden;
         border-radius: var(--radius-lg);
@@ -2466,7 +2486,6 @@ html::-webkit-scrollbar-thumb:hover {
     .block-social {
         padding: 14px 18px;
         min-height: 90px;
-        max-height: 150px;
         overflow-y: auto;
         overflow-x: hidden;
         border-radius: var(--radius-lg);
@@ -2727,13 +2746,11 @@ html::-webkit-scrollbar-thumb:hover {
     .block-description {
         padding: 12px 14px;
         min-height: 140px;
-        max-height: 240px;
     }
 
     .block-social {
         padding: 12px 14px;
         min-height: 80px;
-        max-height: 130px;
     }
 
     .settings-toggle-btn {
