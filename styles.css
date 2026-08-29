@@ -396,6 +396,7 @@ body::before {
     border-radius: var(--radius-xl);
     padding: 28px 24px;
     min-height: 200px;
+    max-height: 450px;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-width: none;
