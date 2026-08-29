@@ -338,7 +338,43 @@ function setupProfileEvents() {
         console.log('✅ Evento de música configurado correctamente');
     }
 
-    // 🔥 SI ES VISTA PÚBLICA: Salir después de configurar la música
+    // 🔥 CERRAR MODALES - ESTO DEBE EJECUTARSE SIEMPRE (incluso en vista pública)
+    document.querySelectorAll('.modal-close').forEach(btn => {
+        btn.removeEventListener('click', btn._closeHandler);
+        btn._closeHandler = (e) => {
+            e.stopPropagation();
+            console.log('🔴 Botón cerrar clickeado, target:', btn.dataset.close);
+            const target = btn.dataset.close;
+            if (target) {
+                const modal = document.getElementById(target);
+                console.log('🔴 Modal encontrado:', modal ? '✅' : '❌', modal?.id);
+                if (modal) {
+                    closeModalWithAnimation(modal);
+                } else {
+                    const closestModal = btn.closest('.modal-overlay');
+                    if (closestModal) {
+                        console.log('🔴 Cerrando modal por closest:', closestModal.id);
+                        closeModalWithAnimation(closestModal);
+                    }
+                }
+            }
+        };
+        btn.addEventListener('click', btn._closeHandler);
+    });
+
+    // Cerrar modales al hacer click en el overlay (fondo)
+    document.querySelectorAll('.modal-overlay').forEach(overlay => {
+        overlay.removeEventListener('click', overlay._closeHandler);
+        overlay._closeHandler = (e) => {
+            if (e.target === overlay) {
+                console.log('🔴 Click en overlay, cerrando:', overlay.id);
+                closeModalWithAnimation(overlay);
+            }
+        };
+        overlay.addEventListener('click', overlay._closeHandler);
+    });
+
+    // 🔥 SI ES VISTA PÚBLICA: Salir después de configurar música y cerrar modales
     if (isPublicView()) {
         const elementsToHide = [
             'edit-bio-btn',
@@ -358,11 +394,12 @@ function setupProfileEvents() {
             }
         });
         
-        console.log('🔵 Vista pública, configurado evento de música y ocultados botones');
+        console.log('🔵 Vista pública, configurado evento de música, cierre de modales y ocultados botones');
         setupShareProfileButton();
         return;
     }
 
+    // === CÓDIGO PARA VISTA NORMAL (logueado) ===
     // 1. LOGOUT
     const logoutBtn = document.getElementById('logout-btn');
     if (logoutBtn) {
