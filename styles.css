@@ -79,7 +79,7 @@ html {
 }
 
 .container, .auth-container { 
-    overflow-y: auto;
+    overflow-y: visible;
     scrollbar-width: none;
     -ms-overflow-style: none;
 }
@@ -202,7 +202,7 @@ body::before {
     max-width: 420px;
     width: 100%;
     border-radius: var(--radius-xl);
-    overflow: hidden; /* ✅ Evita que las esquinas sobresalgan */
+    overflow: visible; /* ← visible para no cortar sombras */
 }
 
 .auth-box {
@@ -210,7 +210,7 @@ body::before {
     border-radius: var(--radius-xl);
     background: rgba(26, 26, 36, 0.85);
     border: 1px solid rgba(255, 255, 255, 0.08);
-    overflow: hidden; /* ✅ Esto evita que sobresalgan esquinas */
+    overflow: visible; /* ← visible para no cortar sombras */
 }
 
 .auth-box.hidden {
