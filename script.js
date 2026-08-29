@@ -1462,6 +1462,22 @@ async function updatePublicNowPlaying(username) {
 async function loadModalDataPublic(username) {
     console.log('📥 Cargando modal en modo público para:', username);
     
+    // Si no hay username, intentar obtenerlo de la URL
+    if (!username) {
+        const urlParams = new URLSearchParams(window.location.search);
+        username = urlParams.get('user');
+        console.log('📥 Username obtenido de URL:', username);
+    }
+    
+    if (!username) {
+        console.error('❌ No se encontró username');
+        const artistContainer = document.getElementById('modal-artist-list');
+        if (artistContainer) {
+            artistContainer.innerHTML = '<div style="color: var(--text-muted); padding: 10px;">Error: usuario no especificado.</div>';
+        }
+        return;
+    }
+    
     // Mostrar indicador de carga
     const artistContainer = document.getElementById('modal-artist-list');
     if (artistContainer) {
@@ -1469,17 +1485,18 @@ async function loadModalDataPublic(username) {
     }
     
     try {
-        const response = await fetch(`${API_URL}/public-spotify/${username}`);
-        if (!response.ok) throw new Error('No se pudieron cargar los datos de Spotify');
+        const response = await fetch(`${API_URL}/public-spotify/${encodeURIComponent(username)}`);
+        
+        if (!response.ok) {
+            throw new Error(`Error ${response.status}: ${response.statusText}`);
+        }
         
         const data = await response.json();
         console.log('✅ Datos de Spotify público recibidos:', data);
         
         if (data.connected) {
-            // Renderizar todos los datos...
             renderPublicSpotifyData(data);
             
-            // Iniciar actualización del Now Playing cada 2 segundos
             if (window._publicNowPlayingInterval) {
                 clearInterval(window._publicNowPlayingInterval);
             }
@@ -1489,16 +1506,17 @@ async function loadModalDataPublic(username) {
             
         } else {
             document.getElementById('modal-artist-list').innerHTML = 
-                '<div style="color: var(--text-muted); padding: 10px;">Este usuario no tiene Spotify conectado.</div>';
+                '<div style="color: var(--text-muted); padding: 10px;">' + 
+                (data.error || 'Este usuario no tiene Spotify conectado.') + 
+                '</div>';
         }
         
     } catch (error) {
         console.error('❌ Error cargando datos públicos de Spotify:', error);
         document.getElementById('modal-artist-list').innerHTML = 
-            '<div style="color: var(--text-muted); padding: 10px;">No se pudieron cargar los datos de Spotify.</div>';
+            '<div style="color: var(--text-muted); padding: 10px;">Error al cargar datos de Spotify: ' + error.message + '</div>';
     }
     
-    // Inicializar carruseles
     setupCarousel('following');
     setupCarousel('albums');
     setupCarousel('playlists');
